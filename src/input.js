@@ -1,4 +1,5 @@
 import { TILE_SIZE } from './constants.js';
+import { isTileMovable } from './grid.js';
 
 export function setupInput(canvas, gameState) {
   canvas.addEventListener('click', (e) => {
@@ -10,14 +11,32 @@ export function setupInput(canvas, gameState) {
     const gridX = Math.floor(mouseX / TILE_SIZE);
     const gridY = Math.floor(mouseY / TILE_SIZE);
 
-    const clickedUnit = gameState.units.find(
-      (unit) => unit.x === gridX && unit.y === gridY
+    const selectedUnit = gameState.units.find(
+      (u) => u.id === gameState.selectedUnitId
     );
 
+    const clickedUnit = gameState.units.find(
+      (u) => u.x === gridX && u.y === gridY
+    );
+
+    // 1️⃣ If clicking a player unit → select it
     if (clickedUnit && clickedUnit.team === 'player') {
       gameState.selectedUnitId = clickedUnit.id;
-    } else {
-      gameState.selectedUnitId = null;
+      return;
     }
+
+    // 2️⃣ If a unit is selected and tile is movable → move
+    if (
+      selectedUnit &&
+      isTileMovable(selectedUnit, gridX, gridY)
+    ) {
+      selectedUnit.x = gridX;
+      selectedUnit.y = gridY;
+      gameState.selectedUnitId = null;
+      return;
+    }
+
+    // 3️⃣ Otherwise → deselect
+    gameState.selectedUnitId = null;
   });
 }

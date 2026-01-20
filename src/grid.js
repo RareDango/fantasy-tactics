@@ -16,3 +16,10 @@ export function getMovableTiles(unit) {
 
   return tiles;
 }
+
+export function isTileMovable(unit, x, y) {
+  const distance =
+    Math.abs(unit.x - x) + Math.abs(unit.y - y);
+
+  return distance > 0 && distance <= unit.moveRange;
+}
