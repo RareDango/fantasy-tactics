@@ -21,3 +21,17 @@ export function drawGrid(ctx) {
     ctx.stroke();
   }
 }
+
+export function drawUnit(ctx, unit, isSelected) {
+  const x = unit.x * TILE_SIZE;
+  const y = unit.y * TILE_SIZE;
+
+  ctx.fillStyle = unit.team === 'player' ? '#3b82f6' : '#ef4444';
+  ctx.fillRect(x + 8, y + 8, TILE_SIZE - 16, TILE_SIZE - 16);
+
+  if (isSelected) {
+    ctx.strokeStyle = '#facc15';
+    ctx.lineWidth = 3;
+    ctx.strokeRect(x + 6, y + 6, TILE_SIZE - 12, TILE_SIZE - 12);
+  }
+}
