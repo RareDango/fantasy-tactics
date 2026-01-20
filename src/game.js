@@ -5,6 +5,8 @@ import {
 import { drawGrid, drawUnit } from './render.js';
 import { createPlayerUnit } from './units.js';
 import { setupInput } from './input.js';
+import { drawMoveTiles } from './render.js';
+import { getMovableTiles } from './grid.js';
 
 let canvas;
 let ctx;
@@ -43,6 +45,15 @@ function render() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
   drawGrid(ctx);
+
+  const selectedUnit = gameState.units.find(
+    (u) => u.id === gameState.selectedUnitId
+  );
+
+  if (selectedUnit) {
+    const moveTiles = getMovableTiles(selectedUnit);
+    drawMoveTiles(ctx, moveTiles);
+  }
 
   for (const unit of gameState.units) {
     const isSelected = unit.id === gameState.selectedUnitId;

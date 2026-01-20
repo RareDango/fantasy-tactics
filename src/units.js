@@ -20,6 +20,7 @@ export function createPlayerUnit() {
     x: 3,
     y: 4,
     hp: 10,
+    moveRange: 3,
     hasActed: false,
   };
 }

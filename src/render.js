@@ -35,3 +35,16 @@ export function drawUnit(ctx, unit, isSelected) {
     ctx.strokeRect(x + 6, y + 6, TILE_SIZE - 12, TILE_SIZE - 12);
   }
 }
+
+export function drawMoveTiles(ctx, tiles) {
+  ctx.fillStyle = 'rgba(59, 130, 246, 0.25)';
+
+  for (const tile of tiles) {
+    ctx.fillRect(
+      tile.x * TILE_SIZE,
+      tile.y * TILE_SIZE,
+      TILE_SIZE,
+      TILE_SIZE
+    );
+  }
+}
