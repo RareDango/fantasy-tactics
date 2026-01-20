@@ -1,5 +1,7 @@
 import { TILE_SIZE } from './constants.js';
 import { isTileMovable } from './grid.js';
+import { canAct } from './game.js'
+import { attack, inRange } from './combat.js';
 
 export function setupInput(canvas, gameState) {
   canvas.addEventListener('click', (e) => {
@@ -27,16 +29,32 @@ export function setupInput(canvas, gameState) {
 
     // 2️⃣ If a unit is selected and tile is movable → move
     if (
-      selectedUnit &&
-      isTileMovable(selectedUnit, gridX, gridY)
+        selectedUnit &&
+        canAct(selectedUnit) &&
+        isTileMovable(selectedUnit, gridX, gridY)
     ) {
-      selectedUnit.x = gridX;
-      selectedUnit.y = gridY;
-      gameState.selectedUnitId = null;
-      return;
+        selectedUnit.x = gridX;
+        selectedUnit.y = gridY;
+        selectedUnit.hasActed = true; // mark as acted
+        gameState.selectedUnitId = null;
+        return;
     }
+    // If a unit is selected and clicked tile has an enemy → attack
+    if (selectedUnit && canAct(selectedUnit) && clickedUnit && clickedUnit.team !== selectedUnit.team) {
+      // check range
+      if (inRange(selectedUnit, clickedUnit)) {
+        attack(selectedUnit, clickedUnit);
+        selectedUnit.hasActed = true;
+        gameState.selectedUnitId = null;
+  
+        // Remove dead unit
+        if (clickedUnit.hp <= 0) {
+          gameState.units = gameState.units.filter(u => u.id !== clickedUnit.id);
+        }
+      }
 
     // 3️⃣ Otherwise → deselect
     gameState.selectedUnitId = null;
-  });
+    }});
+  return;
 }

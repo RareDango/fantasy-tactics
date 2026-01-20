@@ -34,6 +34,15 @@ export function drawUnit(ctx, unit, isSelected) {
     ctx.lineWidth = 3;
     ctx.strokeRect(x + 6, y + 6, TILE_SIZE - 12, TILE_SIZE - 12);
   }
+
+  // Draw HP bar
+  ctx.fillStyle = 'red';
+  ctx.fillRect(x + 8, y + TILE_SIZE - 12, TILE_SIZE - 16, 4);
+
+  ctx.fillStyle = 'green';
+  const hpWidth = ((unit.hp / (unit.team === 'player' ? 10 : 8)) * (TILE_SIZE - 16));
+  ctx.fillRect(x + 8, y + TILE_SIZE - 12, hpWidth, 4);
+
 }
 
 export function drawMoveTiles(ctx, tiles) {
