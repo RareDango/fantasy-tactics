@@ -1,60 +1,83 @@
-import {
-  CANVAS_WIDTH,
-  CANVAS_HEIGHT,
-} from './constants.js';
-import { drawGrid, drawUnit } from './render.js';
-import { createPlayerUnit, createEnemyUnit } from './units.js';
-import { setupInput } from './input.js';
-import { drawMoveTiles } from './render.js';
-import { getMovableTiles } from './grid.js';
-import { attack, inRange } from './combat.js'
+import { CANVAS_WIDTH, CANVAS_HEIGHT, GRID_WIDTH, GRID_HEIGHT } from "./constants.js";
+import { drawGrid, drawUnit } from "./render.js";
+import { createPlayerUnit, createEnemyUnit } from "./units.js";
+import { setupInput } from "./input.js";
+import { drawMoveTiles } from "./render.js";
+import { getMovableTiles, isTileOccupied } from "./grid.js";
+import { attack, inRange } from "./combat.js";
 
 let canvas;
 let ctx;
 
-const gameState = {
+export const gameState = {
   units: [],
   selectedUnitId: null,
-  currentTurn: 'player', // 'player' or 'enemy'
+  currentTurn: "player", // 'player' or 'enemy'
 };
 
-
 export function startGame() {
-  canvas = document.getElementById('game');
+  canvas = document.getElementById("game");
   canvas.width = CANVAS_WIDTH;
   canvas.height = CANVAS_HEIGHT;
 
-  ctx = canvas.getContext('2d');
+  ctx = canvas.getContext("2d");
 
-  gameState.units.push(createPlayerUnit());
+  createUnits(5, 7);
+  /*
+  gameState.units.push(createPlayerUnit(0, 5, 5));
+  gameState.units.push(createPlayerUnit(1, 3, 4));
 
   // add 2 enemy units
   gameState.units.push(createEnemyUnit(2, 1, 1));
   gameState.units.push(createEnemyUnit(3, 6, 2));
-
+  gameState.units.push(createEnemyUnit(4, 2, 6));
+  gameState.units.push(createEnemyUnit(5, 4, 3));
+  */
   setupInput(canvas, gameState);
 
   // End Turn button
-  const endTurnBtn = document.getElementById('endTurnBtn');
-  endTurnBtn.addEventListener('click', endTurn);
+  const endTurnBtn = document.getElementById("endTurnBtn");
+  endTurnBtn.addEventListener("click", endTurn);
 
   gameLoop();
 }
 
+function createUnits(numPlayerUnits, numEnemyUnits) {
+  let id = 0;
+  for(let i = 0; i < numPlayerUnits; i++) {
+    let x = Math.floor(Math.random() * GRID_WIDTH);
+    let y = Math.floor(Math.random() * GRID_HEIGHT);
+    while(isTileOccupied(x, y)) {
+      x = Math.floor(Math.random() * GRID_WIDTH);
+      y = Math.floor(Math.random() * GRID_HEIGHT);
+    }
+    gameState.units.push(createPlayerUnit(id, x, y));
+    id++;
+  }
+  for(let i = 0; i < numEnemyUnits; i++) {
+    let x = Math.floor(Math.random() * GRID_WIDTH);
+    let y = Math.floor(Math.random() * GRID_HEIGHT);
+    while(isTileOccupied(x, y)) {
+      x = Math.floor(Math.random() * GRID_WIDTH);
+      y = Math.floor(Math.random() * GRID_HEIGHT);
+    }
+    gameState.units.push(createEnemyUnit(id, x, y));
+    id++;
+  }
+}
+
 function endTurn() {
-  if (gameState.currentTurn === 'player') {
-    gameState.currentTurn = 'enemy';
+  if (gameState.currentTurn === "player") {
+    gameState.currentTurn = "enemy";
     // reset enemy units for this turn
     gameState.units
-      .filter(u => u.team === 'enemy')
-      .forEach(u => (u.hasActed = false));
+      .filter((u) => u.team === "enemy")
+      .forEach((u) => (u.hasActed = false));
 
     // Run enemy turn immediately
     enemyTurn();
   }
 }
-
-
 
 function gameLoop() {
   update();
@@ -73,7 +96,7 @@ function render() {
   drawGrid(ctx);
 
   const selectedUnit = gameState.units.find(
-    (u) => u.id === gameState.selectedUnitId
+    (u) => u.id === gameState.selectedUnitId,
   );
 
   if (selectedUnit) {
@@ -87,8 +110,8 @@ function render() {
   }
 
   // Display current turn
-  ctx.fillStyle = 'white';
-  ctx.font = '18px Arial';
+  ctx.fillStyle = "white";
+  ctx.font = "18px Arial";
   ctx.fillText(`Turn: ${gameState.currentTurn}`, 10, 20);
 }
 
@@ -97,56 +120,70 @@ export function canAct(unit) {
 }
 
 function enemyTurn() {
-  const enemies = gameState.units.filter(u => u.team === 'enemy');
+  const enemies = gameState.units.filter((u) => u.team === "enemy");
 
   for (const enemy of enemies) {
-    if (enemy.hasActed) continue;
+    //if (enemy.hasActed) continue;
+    let actionsTaken = 0;
 
-    // find closest player
-    const players = gameState.units.filter(u => u.team === 'player');
-    if (players.length === 0) return; // no players left
+    while (enemy.actions > actionsTaken) {
+      actionsTaken += 1;
 
-    let closestPlayer = players[0];
-    let minDist = Math.abs(enemy.x - closestPlayer.x) + Math.abs(enemy.y - closestPlayer.y);
+      // find closest player
+      const players = gameState.units.filter((u) => u.team === "player");
+      if (players.length === 0) return; // no players left
 
-    for (const player of players) {
-      const dist = Math.abs(enemy.x - player.x) + Math.abs(enemy.y - player.y);
-      if (dist < minDist) {
-        minDist = dist;
-        closestPlayer = player;
-      }
-    }
+      let closestPlayer = players[0];
+      let minDist =
+        Math.abs(enemy.x - closestPlayer.x) +
+        Math.abs(enemy.y - closestPlayer.y);
 
-    // move one step toward player
-    const dx = closestPlayer.x - enemy.x;
-    const dy = closestPlayer.y - enemy.y;
-
-    if (Math.abs(dx) > Math.abs(dy)) {
-      enemy.x += dx > 0 ? 1 : -1;
-    } else if (dy !== 0) {
-      enemy.y += dy > 0 ? 1 : -1;
-    }
-
-    // Attack if in range after moving
-    for (const player of players) {
-      if (inRange(enemy, player)) {
-        attack(enemy, player);
-        enemy.hasActed = true;
-
-        if (player.hp <= 0) {
-          gameState.units = gameState.units.filter(u => u.id !== player.id);
+      for (const player of players) {
+        const dist = Math.abs(enemy.x - player.x) + Math.abs(enemy.y - player.y);
+        if (dist < minDist) {
+          minDist = dist;
+          closestPlayer = player;
         }
-        break; // attack only one unit per turn
+      }
+
+      // move one step toward player
+      const dx = closestPlayer.x - enemy.x;
+      const dy = closestPlayer.y - enemy.y;
+
+      const adx = Math.abs(dx);
+      const ady = Math.abs(dy);
+
+      //console.log(enemy.id+" adx:"+adx+" ady:"+ady)
+
+      if (adx + ady > 1) {
+        if (adx >= ady) {
+          enemy.x += dx > 0 ? 1 : -1;
+        } else {
+          enemy.y += dy > 0 ? 1 : -1;
+        }
+      } else {
+        // Attack if in range after moving
+        for (const player of players) {
+          if (inRange(enemy, player) && !enemy.hasActed) {
+            attack(enemy, player);
+            enemy.hasActed = true;
+
+            if (player.hp <= 0) {
+              gameState.units = gameState.units.filter(
+                (u) => u.id !== player.id,
+              );
+            }
+            break; // attack only one unit per turn
+          }
+        }
       }
     }
-
-
     enemy.hasActed = true;
   }
 
   // End enemy turn → back to player
-  gameState.currentTurn = 'player';
+  gameState.currentTurn = "player";
   gameState.units
-    .filter(u => u.team === 'player')
-    .forEach(u => (u.hasActed = false));
+    .filter((u) => u.team === "player")
+    .forEach((u) => (u.hasActed = false));
 }

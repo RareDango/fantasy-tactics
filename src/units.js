@@ -16,17 +16,17 @@
  */
 
 /** @returns {Unit} */
-export function createPlayerUnit() {
+export function createPlayerUnit(id, x, y) {
   return {
-    id: 1,
+    id,
     team: 'player',
-    x: 3,
-    y: 4,
+    x,
+    y,
     hp: 10,
     moveRange: 3,
     attackRange: 1, // melee only for now
     attackPower: 4,
-    hasActed: false,
+    hasActed: false
   };
 }
 
@@ -41,6 +41,7 @@ export function createEnemyUnit(id, x, y) {
     attackRange: 1,
     attackPower: 3,
     hasActed: false,
+    actions: 3
   };
 }
 

@@ -1,16 +1,13 @@
-import { GRID_WIDTH, GRID_HEIGHT } from './constants.js';
+import { GRID_WIDTH, GRID_HEIGHT } from "./constants.js";
+import { gameState } from "./game.js";
 
 export function getMovableTiles(unit) {
   const tiles = [];
 
   for (let x = 0; x < GRID_WIDTH; x++) {
     for (let y = 0; y < GRID_HEIGHT; y++) {
-      const distance =
-        Math.abs(unit.x - x) + Math.abs(unit.y - y);
-
-      if (distance > 0 && distance <= unit.moveRange) {
-        tiles.push({ x, y });
-      }
+      const distance = Math.abs(unit.x - x) + Math.abs(unit.y - y);
+      if (distance > 0 && distance <= unit.moveRange && !isTileOccupied(x, y)) { tiles.push({ x, y }); }
     }
   }
 
@@ -18,8 +15,12 @@ export function getMovableTiles(unit) {
 }
 
 export function isTileMovable(unit, x, y) {
-  const distance =
-    Math.abs(unit.x - x) + Math.abs(unit.y - y);
+  if (isTileOccupied(x, y)) { return false; }
+  const distance = Math.abs(unit.x - x) + Math.abs(unit.y - y);
+  return distance > 0 && distance <= unit.moveRange && !isTileOccupied(x, y);
+}
 
-  return distance > 0 && distance <= unit.moveRange;
+export function isTileOccupied(x, y) {
+  for (const u of gameState.units) { if (u.x == x && u.y == y) return true; }
+  return false;
 }

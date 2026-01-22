@@ -1,11 +1,7 @@
-import {
-  TILE_SIZE,
-  GRID_WIDTH,
-  GRID_HEIGHT,
-} from './constants.js';
+import { TILE_SIZE, GRID_WIDTH, GRID_HEIGHT } from "./constants.js";
 
 export function drawGrid(ctx) {
-  ctx.strokeStyle = '#555';
+  ctx.strokeStyle = "#555";
 
   for (let x = 0; x <= GRID_WIDTH; x++) {
     ctx.beginPath();
@@ -26,34 +22,33 @@ export function drawUnit(ctx, unit, isSelected) {
   const x = unit.x * TILE_SIZE;
   const y = unit.y * TILE_SIZE;
 
-  ctx.fillStyle = unit.team === 'player' ? '#3b82f6' : '#ef4444';
+  ctx.fillStyle = unit.team === "player" ? "#3b82f6" : "#ef4444";
   ctx.fillRect(x + 8, y + 8, TILE_SIZE - 16, TILE_SIZE - 16);
 
   if (isSelected) {
-    ctx.strokeStyle = '#facc15';
+    ctx.strokeStyle = "#facc15";
+    ctx.lineWidth = 3;
+    ctx.strokeRect(x + 6, y + 6, TILE_SIZE - 12, TILE_SIZE - 12);
+  } else if (unit.team == "player" &&!unit.hasActed) {
+    ctx.strokeStyle = "#a08312ff";
     ctx.lineWidth = 3;
     ctx.strokeRect(x + 6, y + 6, TILE_SIZE - 12, TILE_SIZE - 12);
   }
 
   // Draw HP bar
-  ctx.fillStyle = 'red';
+  ctx.fillStyle = "red";
   ctx.fillRect(x + 8, y + TILE_SIZE - 12, TILE_SIZE - 16, 4);
 
-  ctx.fillStyle = 'green';
-  const hpWidth = ((unit.hp / (unit.team === 'player' ? 10 : 8)) * (TILE_SIZE - 16));
+  ctx.fillStyle = "green";
+  const hpWidth =
+    (unit.hp / (unit.team === "player" ? 10 : 8)) * (TILE_SIZE - 16);
   ctx.fillRect(x + 8, y + TILE_SIZE - 12, hpWidth, 4);
-
 }
 
 export function drawMoveTiles(ctx, tiles) {
-  ctx.fillStyle = 'rgba(59, 130, 246, 0.25)';
+  ctx.fillStyle = "rgba(59, 130, 246, 0.25)";
 
   for (const tile of tiles) {
-    ctx.fillRect(
-      tile.x * TILE_SIZE,
-      tile.y * TILE_SIZE,
-      TILE_SIZE,
-      TILE_SIZE
-    );
+    ctx.fillRect(tile.x * TILE_SIZE, tile.y * TILE_SIZE, TILE_SIZE, TILE_SIZE);
   }
 }
