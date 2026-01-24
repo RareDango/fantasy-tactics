@@ -55,6 +55,7 @@ export function setupInput(canvas, gameState) {
 
     // 3️⃣ Otherwise → deselect
     gameState.selectedUnitId = null;
-    }});
+    }
+  });
   return;
 }

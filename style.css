@@ -10,3 +10,14 @@ body {
 canvas {
   background: #2b2b2b;
 }
+
+.pop-up {
+    margin: 0;
+    background: rgba(100, 180, 100, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    visibility: visible;
+    height: 10vh;
+    width: 10vh;
+}

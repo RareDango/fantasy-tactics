@@ -29,8 +29,8 @@ export function drawUnit(ctx, unit, isSelected) {
     ctx.strokeStyle = "#facc15";
     ctx.lineWidth = 3;
     ctx.strokeRect(x + 6, y + 6, TILE_SIZE - 12, TILE_SIZE - 12);
-  } else if (unit.team == "player" &&!unit.hasActed) {
-    ctx.strokeStyle = "#a08312ff";
+  } else if (unit.team == "player" && !unit.hasActed) {
+    ctx.strokeStyle = "#a08312ff"; // colour to mark player units who have not moved yet
     ctx.lineWidth = 3;
     ctx.strokeRect(x + 6, y + 6, TILE_SIZE - 12, TILE_SIZE - 12);
   }
@@ -52,3 +52,4 @@ export function drawMoveTiles(ctx, tiles) {
     ctx.fillRect(tile.x * TILE_SIZE, tile.y * TILE_SIZE, TILE_SIZE, TILE_SIZE);
   }
 }
+

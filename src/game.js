@@ -23,16 +23,7 @@ export function startGame() {
   ctx = canvas.getContext("2d");
 
   createUnits(5, 7);
-  /*
-  gameState.units.push(createPlayerUnit(0, 5, 5));
-  gameState.units.push(createPlayerUnit(1, 3, 4));
 
-  // add 2 enemy units
-  gameState.units.push(createEnemyUnit(2, 1, 1));
-  gameState.units.push(createEnemyUnit(3, 6, 2));
-  gameState.units.push(createEnemyUnit(4, 2, 6));
-  gameState.units.push(createEnemyUnit(5, 4, 3));
-  */
   setupInput(canvas, gameState);
 
   // End Turn button
@@ -88,6 +79,11 @@ function gameLoop() {
 
 function update() {
   // game logic will go here later
+  let end = true;
+  for(const u of gameState.units.filter((u) => u.team === "player")) {
+    if(!u.hasActed) { end = false; }
+  }
+  if(end) { endTurn(); }
 }
 
 function render() {
@@ -119,7 +115,7 @@ export function canAct(unit) {
   return !unit.hasActed && unit.team === gameState.currentTurn;
 }
 
-function enemyTurn() {
+async function enemyTurn() {
   const enemies = gameState.units.filter((u) => u.team === "enemy");
 
   for (const enemy of enemies) {
@@ -127,6 +123,7 @@ function enemyTurn() {
     let actionsTaken = 0;
 
     while (enemy.actions > actionsTaken) {
+      await new Promise(r => setTimeout(r, 100)); //creates a delay so we see the enemies moving around instead of instantly teleporting and attacking all at once
       actionsTaken += 1;
 
       // find closest player
