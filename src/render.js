@@ -53,3 +53,11 @@ export function drawMoveTiles(ctx, tiles) {
   }
 }
 
+export function drawHeader() {
+  return;
+}
+
+export function drawFooter() {
+  return;
+}
+

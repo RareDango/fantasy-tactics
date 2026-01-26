@@ -1,4 +1,11 @@
-import { CANVAS_WIDTH, CANVAS_HEIGHT, GRID_WIDTH, GRID_HEIGHT } from "./constants.js";
+import {
+  CANVAS_WIDTH,
+  CANVAS_HEIGHT,
+  GRID_WIDTH,
+  GRID_HEIGHT,
+  HEADER_HEIGHT,
+  FOOTER_HEIGHT,
+} from "./constants.js";
 import { drawGrid, drawUnit } from "./render.js";
 import { createPlayerUnit, createEnemyUnit } from "./units.js";
 import { setupInput } from "./input.js";
@@ -6,8 +13,8 @@ import { drawMoveTiles } from "./render.js";
 import { getMovableTiles, isTileOccupied } from "./grid.js";
 import { attack, inRange } from "./combat.js";
 
-let canvas;
-let ctx;
+let header, canvas, footer;
+let hctx, ctx, fctx;
 
 export const gameState = {
   units: [],
@@ -16,11 +23,22 @@ export const gameState = {
 };
 
 export function startGame() {
+  header = document.getElementById("header");
   canvas = document.getElementById("game");
+  footer = document.getElementById("footer");
+
+  header.width = CANVAS_WIDTH;
+  header.height = HEADER_HEIGHT;
+
   canvas.width = CANVAS_WIDTH;
   canvas.height = CANVAS_HEIGHT;
 
+  footer.width = CANVAS_WIDTH;
+  footer.height = FOOTER_HEIGHT;
+
+  hctx = header.getContext("2d");
   ctx = canvas.getContext("2d");
+  fctx = footer.getContext("2d");
 
   createUnits(5, 7);
 
@@ -35,20 +53,20 @@ export function startGame() {
 
 function createUnits(numPlayerUnits, numEnemyUnits) {
   let id = 0;
-  for(let i = 0; i < numPlayerUnits; i++) {
+  for (let i = 0; i < numPlayerUnits; i++) {
     let x = Math.floor(Math.random() * GRID_WIDTH);
     let y = Math.floor(Math.random() * GRID_HEIGHT);
-    while(isTileOccupied(x, y)) {
+    while (isTileOccupied(x, y)) {
       x = Math.floor(Math.random() * GRID_WIDTH);
       y = Math.floor(Math.random() * GRID_HEIGHT);
     }
     gameState.units.push(createPlayerUnit(id, x, y));
     id++;
   }
-  for(let i = 0; i < numEnemyUnits; i++) {
+  for (let i = 0; i < numEnemyUnits; i++) {
     let x = Math.floor(Math.random() * GRID_WIDTH);
     let y = Math.floor(Math.random() * GRID_HEIGHT);
-    while(isTileOccupied(x, y)) {
+    while (isTileOccupied(x, y)) {
       x = Math.floor(Math.random() * GRID_WIDTH);
       y = Math.floor(Math.random() * GRID_HEIGHT);
     }
@@ -73,6 +91,7 @@ function endTurn() {
 function gameLoop() {
   update();
   render();
+  uiRender();
 
   requestAnimationFrame(gameLoop);
 }
@@ -80,10 +99,14 @@ function gameLoop() {
 function update() {
   // game logic will go here later
   let end = true;
-  for(const u of gameState.units.filter((u) => u.team === "player")) {
-    if(!u.hasActed) { end = false; }
+  for (const u of gameState.units.filter((u) => u.team === "player")) {
+    if (!u.hasActed) {
+      end = false;
+    }
   }
-  if(end) { endTurn(); }
+  if (end) {
+    endTurn();
+  }
 }
 
 function render() {
@@ -104,11 +127,33 @@ function render() {
     const isSelected = unit.id === gameState.selectedUnitId;
     drawUnit(ctx, unit, isSelected);
   }
+}
+
+function uiRender() {
+  const selectedUnit = gameState.units.find(
+    (u) => u.id === gameState.selectedUnitId,
+  );
+
+  // HEADER UI
+  hctx.clearRect(0, 0, header.width, header.height);
 
   // Display current turn
-  ctx.fillStyle = "white";
-  ctx.font = "18px Arial";
-  ctx.fillText(`Turn: ${gameState.currentTurn}`, 10, 20);
+  hctx.fillStyle = "white";
+  hctx.font = "18px Arial";
+  hctx.fillText(`Turn: ${gameState.currentTurn}`, 10, 20);
+
+  if (gameState.currentTurn == "player") {
+    hctx.strokeStyle = "#3b82f6";
+    hctx.lineWidth = 3;
+    hctx.strokeRect(0, 0, header.width, header.height);
+  } else {
+    hctx.strokeStyle = "#ef4444";
+    hctx.lineWidth = 3;
+    hctx.strokeRect(0, 0, header.width, header.height);
+  }
+
+  // FOOTER UI
+  fctx.clearRect(0, 0, footer.width, footer.height);
 }
 
 export function canAct(unit) {
@@ -123,7 +168,7 @@ async function enemyTurn() {
     let actionsTaken = 0;
 
     while (enemy.actions > actionsTaken) {
-      await new Promise(r => setTimeout(r, 100)); //creates a delay so we see the enemies moving around instead of instantly teleporting and attacking all at once
+      await new Promise((r) => setTimeout(r, 200)); //creates a delay so we see the enemies moving around instead of instantly teleporting and attacking all at once
       actionsTaken += 1;
 
       // find closest player
@@ -136,7 +181,8 @@ async function enemyTurn() {
         Math.abs(enemy.y - closestPlayer.y);
 
       for (const player of players) {
-        const dist = Math.abs(enemy.x - player.x) + Math.abs(enemy.y - player.y);
+        const dist =
+          Math.abs(enemy.x - player.x) + Math.abs(enemy.y - player.y);
         if (dist < minDist) {
           minDist = dist;
           closestPlayer = player;
