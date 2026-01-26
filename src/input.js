@@ -1,6 +1,6 @@
 import { TILE_SIZE } from './constants.js';
 import { isTileMovable } from './grid.js';
-import { canAct } from './game.js'
+import { canAct, endTurn } from './game.js'
 import { attack, inRange } from './combat.js';
 
 export function setupInput(canvas, gameState) {
@@ -56,6 +56,15 @@ export function setupInput(canvas, gameState) {
     // 3️⃣ Otherwise → deselect
     gameState.selectedUnitId = null;
     }
+  });
+  return;
+}
+
+export function setupFooterInput(canvas, gameState) {
+  canvas.addEventListener('click', (e) => {
+    const rect = canvas.getBoundingClientRect();
+
+    endTurn();
   });
   return;
 }

@@ -8,7 +8,7 @@ import {
 } from "./constants.js";
 import { drawGrid, drawUnit } from "./render.js";
 import { createPlayerUnit, createEnemyUnit } from "./units.js";
-import { setupInput } from "./input.js";
+import { setupFooterInput, setupInput } from "./input.js";
 import { drawMoveTiles } from "./render.js";
 import { getMovableTiles, isTileOccupied } from "./grid.js";
 import { attack, inRange } from "./combat.js";
@@ -43,10 +43,11 @@ export function startGame() {
   createUnits(5, 7);
 
   setupInput(canvas, gameState);
+  setupFooterInput(footer, gameState);
 
   // End Turn button
-  const endTurnBtn = document.getElementById("endTurnBtn");
-  endTurnBtn.addEventListener("click", endTurn);
+  //const endTurnBtn = document.getElementById("endTurnBtn");
+  //endTurnBtn.addEventListener("click", endTurn);
 
   gameLoop();
 }
@@ -75,7 +76,7 @@ function createUnits(numPlayerUnits, numEnemyUnits) {
   }
 }
 
-function endTurn() {
+export function endTurn() {
   if (gameState.currentTurn === "player") {
     gameState.currentTurn = "enemy";
     // reset enemy units for this turn
@@ -154,6 +155,10 @@ function uiRender() {
 
   // FOOTER UI
   fctx.clearRect(0, 0, footer.width, footer.height);
+
+  fctx.fillStyle = "white";
+  fctx.font = "36px Arial";
+  fctx.fillText(`END TURN`, 160, 72);
 }
 
 export function canAct(unit) {
