@@ -140,7 +140,7 @@ function uiRender() {
   // Display current turn
   hctx.fillStyle = "white";
   hctx.font = "18px Arial";
-  hctx.fillText(`Turn: ${gameState.currentTurn}`, 10, 20);
+  hctx.fillText(`Turn: ${gameState.currentTurn}     v:0.0.13`, 10, 20);
 
   if (gameState.currentTurn == "player") {
     hctx.strokeStyle = "#3b82f6";
