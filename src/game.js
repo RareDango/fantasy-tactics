@@ -40,6 +40,7 @@ export function startGame() {
   ctx = canvas.getContext("2d");
   fctx = footer.getContext("2d");
 
+  gameState.units.length = 0;
   createUnits(5, 7);
 
   setupInput(canvas, gameState);

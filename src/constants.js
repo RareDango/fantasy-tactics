@@ -7,3 +7,6 @@ export const FOOTER_HEIGHT = 128;
 
 export const CANVAS_WIDTH = TILE_SIZE * GRID_WIDTH;
 export const CANVAS_HEIGHT = TILE_SIZE * GRID_HEIGHT;
+
+
+//512x768

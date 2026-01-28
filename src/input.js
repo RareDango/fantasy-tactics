@@ -1,17 +1,19 @@
 import { TILE_SIZE } from './constants.js';
 import { isTileMovable } from './grid.js';
-import { canAct, endTurn } from './game.js'
+import { canAct, endTurn, startGame } from './game.js'
 import { attack, inRange } from './combat.js';
+import { getRatio } from './main.js';
 
 export function setupInput(canvas, gameState) {
   canvas.addEventListener('click', (e) => {
     const rect = canvas.getBoundingClientRect();
+    const ratio = getRatio();
 
     const mouseX = e.clientX - rect.left;
     const mouseY = e.clientY - rect.top;
 
-    const gridX = Math.floor(mouseX / TILE_SIZE);
-    const gridY = Math.floor(mouseY / TILE_SIZE);
+    const gridX = Math.floor(mouseX / ratio / TILE_SIZE);
+    const gridY = Math.floor(mouseY / ratio / TILE_SIZE);
 
     const selectedUnit = gameState.units.find(
       (u) => u.id === gameState.selectedUnitId
@@ -63,8 +65,8 @@ export function setupInput(canvas, gameState) {
 export function setupFooterInput(canvas, gameState) {
   canvas.addEventListener('click', (e) => {
     const rect = canvas.getBoundingClientRect();
-
-    endTurn();
+    startGame();
+    //endTurn();
   });
   return;
 }
