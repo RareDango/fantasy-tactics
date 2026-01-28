@@ -159,7 +159,7 @@ function uiRender() {
 
   fctx.fillStyle = "white";
   fctx.font = "36px Arial";
-  fctx.fillText(`END TURN`, 160, 72);
+  fctx.fillText(`RESET`, 200, 72);
 }
 
 export function canAct(unit) {
