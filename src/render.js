@@ -143,8 +143,9 @@ export function drawHeader(gameState) {
     // Bounding box lines
     hctx.strokeStyle = "#a2cbff";
     hctx.lineWidth = 1;
-    hctx.beginPath(); hctx.moveTo(0, 64); hctx.lineTo(512, 64); hctx.stroke();
-    hctx.moveTo(64, 64); hctx.lineTo(64, 128); hctx.stroke();
+    
+    // Vertical line
+    hctx.beginPath(); hctx.moveTo(64, 64); hctx.lineTo(64, 128); hctx.stroke();
 
     hctx.fillStyle = "white";
     hctx.font = "24px Arial";
@@ -152,6 +153,10 @@ export function drawHeader(gameState) {
     hctx.fillText(`${selectedUnit.name}`, 69, 64+16);
     hctx.fillText(`HP: ${selectedUnit.hp}/10`, 69, 64+32+16);
   }
+  // Horizontal line always visible
+  hctx.strokeStyle = "#a2cbff";
+  hctx.lineWidth = 1;
+  hctx.beginPath(); hctx.moveTo(0, 64); hctx.lineTo(512, 64); hctx.stroke();
 
   // Display current turn
   hctx.fillStyle = "white";
@@ -178,16 +183,39 @@ export function drawFooter(gameVersion, updatedDate) {
   // FOOTER UI
   fctx.clearRect(0, 0, footer.width, footer.height);
 
+  // END TURN button
+  // 64, 32, 160, 64
   fctx.fillStyle = "#9c4242";
-  fctx.fillRect(128, 32, 256, 64);
+  fctx.fillRect(64, 32, 160, 64);
   fctx.strokeStyle = "#adadad";
   fctx.lineWidth = 3;
-  fctx.strokeRect(128, 32, 256, 64);
+  fctx.strokeRect(64, 32, 160, 64);
 
   fctx.fillStyle = "white";
-  fctx.font = "36px Arial";
-  fctx.fillText(`RESET`, 200, 76);
+  fctx.font = "28px Arial";
+  fctx.textBaseline = "middle";
+  fctx.textAlign = "center"
+  fctx.fillText(`END TURN`, 64+80, 64);
 
-  fctx.font = "18px Arial";
-  fctx.fillText(`Version: ${gameVersion} - Updated: ${updatedDate}`, 10, 118);
+
+  // RESET button
+  // 288, 32, 160, 64
+  fctx.fillStyle = "#9c4242";
+  fctx.fillRect(288, 32, 160, 64);
+  fctx.strokeStyle = "#adadad";
+  fctx.lineWidth = 3;
+  fctx.strokeRect(288, 32, 160, 64);
+
+  fctx.fillStyle = "white";
+  fctx.font = "28px Arial";
+  fctx.textBaseline = "middle";
+  fctx.textAlign = "center";
+  fctx.fillText(`RESET`, 288+80, 64);
+
+  fctx.font = "16px Arial";
+  fctx.textBaseline = "alphabetic";
+  fctx.textAlign = "right";
+  fctx.fillStyle = "#bbbbbb";
+  fctx.fillText(`Version: ${gameVersion} - Updated: ${updatedDate}`, 502, 118);
+  fctx.textAlign = "start";
 }

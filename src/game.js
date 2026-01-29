@@ -79,7 +79,6 @@ function createUnits(numPlayerUnits, numEnemyUnits) {
     // If names are shared, get a new one until all names are unique
     while(gameState.units.find((u) => u.name === name)) {
       name = NAMES[Math.floor(Math.random() * NAMES.length)];
-      console.log(name);
     }
     unit.name = name;
     gameState.units.push(unit);
@@ -98,6 +97,7 @@ function createUnits(numPlayerUnits, numEnemyUnits) {
 }
 
 export function endTurn() {
+  gameState.selectedUnitId = null;
   if (gameState.currentTurn === "player") {
     gameState.currentTurn = "enemy";
     // reset enemy units for this turn
@@ -217,7 +217,7 @@ async function enemyTurn() {
         }
 
         if (!isTileOccupied(newX, newY)) {
-          console.log("unit:" + enemy.id + "   x:" + newX + "   y:" + newY);
+          //console.log("unit:" + enemy.id + "   x:" + newX + "   y:" + newY);
           enemy.x = newX;
           enemy.y = newY;
         }

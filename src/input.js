@@ -1,9 +1,8 @@
 import { TILE_SIZE } from "./constants.js";
 import { isTileMovable, isTileOccupied } from "./grid.js";
-import { canAct, interrupt, startGame } from "./game.js";
+import { canAct, interrupt, startGame, endTurn } from "./game.js";
 import { attack, inRange } from "./combat.js";
 import { getRatio } from "./main.js";
-import { getCanvas } from "./render.js";
 
 let active = false;
 export function isInputActive() {
@@ -93,23 +92,37 @@ export function setupInput(canvas, gameState) {
 }
 
 export function setupFooterInput(canvas, gameState) {
-  
   canvas.addEventListener("click", (e) => {
-    const rect = canvas.getBoundingClientRect();
-    const ratio = getRatio();
+    // END TURN button
+    // 64, 32, 160, 64
+    if (gameState.currentTurn === "player" && inRect(canvas, e, 64, 32, 160, 64)) {
+      endTurn();
+    }
 
-    const mouseX = (e.clientX - rect.left)/ratio;
-    const mouseY = (e.clientY - rect.top)/ratio;
-
-    const vMargin = 32;
-    const hMargin = 128;
-
-    console.log(mouseX+", "+mouseY);
-    
-    if(mouseX > hMargin && mouseX < 512 - hMargin && mouseY > vMargin && mouseY < 128 - vMargin) {
+    // RESET button
+    // 288, 32, 160, 64
+    if (inRect(canvas, e, 288, 32, 160, 64)) {
       interrupt();
       startGame();
     }
   });
   return;
+}
+
+function inRect(canvas, e, x, y, width, height) {
+  const rect = canvas.getBoundingClientRect();
+  const ratio = getRatio();
+
+  const mouseX = (e.clientX - rect.left) / ratio;
+  const mouseY = (e.clientY - rect.top) / ratio;
+
+  if(
+    mouseX > x &&
+    mouseX < x + width &&
+    mouseY > y &&
+    mouseY < y + height
+  ) {
+    return true;
+  }
+  return false;
 }
