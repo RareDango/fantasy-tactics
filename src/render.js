@@ -127,42 +127,51 @@ export function drawHeader(gameState) {
   if (gameState.selectedUnitId != null) {
     hctx.fillStyle = "rgba(59, 130, 246, 0.15)";
     hctx.fillRect(0, 64, 64, 64);
-    
+
     const selectedUnit = gameState.units.find(
       (u) => u.id === gameState.selectedUnitId,
     );
 
-    hctx.drawImage(
-      knightFaceImage,
-      0,
-      64,
-      TILE_SIZE,
-      TILE_SIZE,
-    );
+    hctx.drawImage(knightFaceImage, 0, 64, TILE_SIZE, TILE_SIZE);
 
     // Bounding box lines
     hctx.strokeStyle = "#a2cbff";
     hctx.lineWidth = 1;
-    
+
     // Vertical line
-    hctx.beginPath(); hctx.moveTo(64, 64); hctx.lineTo(64, 128); hctx.stroke();
+    hctx.beginPath();
+    hctx.moveTo(64, 64);
+    hctx.lineTo(64, 128);
+    hctx.stroke();
 
     hctx.fillStyle = "white";
     hctx.font = "24px Arial";
     hctx.textBaseline = "middle";
-    hctx.fillText(`${selectedUnit.name}`, 69, 64+16);
-    hctx.fillText(`HP: ${selectedUnit.hp}/10`, 69, 64+32+16);
+
+    hctx.fillText(`${selectedUnit.name}`, 69, 64 + 16);
+    hctx.fillText(`HP: ${selectedUnit.hp}/10`, 69, 64 + 32 + 16);
   }
   // Horizontal line always visible
   hctx.strokeStyle = "#a2cbff";
   hctx.lineWidth = 1;
-  hctx.beginPath(); hctx.moveTo(0, 64); hctx.lineTo(512, 64); hctx.stroke();
+  hctx.beginPath();
+  hctx.moveTo(0, 64);
+  hctx.lineTo(512, 64);
+  hctx.stroke();
 
-  // Display current turn
   hctx.fillStyle = "white";
   hctx.font = "32px Arial";
   hctx.textBaseline = "middle";
-  hctx.fillText(`Turn: ${gameState.currentTurn}`, 10, 32);
+  if (gameState.units.filter((u) => u.team === "player").length === 0) {
+    // Enemy wins
+    hctx.fillText("You lose! Bad job, loser!", 10, 32);
+  } else if (gameState.units.filter((u) => u.team === "enemy").length === 0) {
+    // Player wins
+    hctx.fillText("You win! Good job, champ!", 10, 32);
+  } else {
+    // Display current turn
+    hctx.fillText(`Turn: ${gameState.currentTurn}`, 10, 32);
+  }
 
   if (gameState.currentTurn == "player") {
     hctx.fillStyle = "rgba(59, 130, 246, 0.15)";
@@ -194,9 +203,8 @@ export function drawFooter(gameVersion, updatedDate) {
   fctx.fillStyle = "white";
   fctx.font = "28px Arial";
   fctx.textBaseline = "middle";
-  fctx.textAlign = "center"
-  fctx.fillText(`END TURN`, 64+80, 64);
-
+  fctx.textAlign = "center";
+  fctx.fillText(`END TURN`, 64 + 80, 64);
 
   // RESET button
   // 288, 32, 160, 64
@@ -210,7 +218,7 @@ export function drawFooter(gameVersion, updatedDate) {
   fctx.font = "28px Arial";
   fctx.textBaseline = "middle";
   fctx.textAlign = "center";
-  fctx.fillText(`RESET`, 288+80, 64);
+  fctx.fillText(`RESET`, 288 + 80, 64);
 
   fctx.font = "16px Arial";
   fctx.textBaseline = "alphabetic";
