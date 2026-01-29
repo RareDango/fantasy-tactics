@@ -13,6 +13,7 @@
  * @property {number} attackRange
  * @property {number} attackPower
  * @property {boolean} hasActed
+ * @property {boolean} current
  */
 
 /** @returns {Unit} */
@@ -26,7 +27,8 @@ export function createPlayerUnit(id, x, y) {
     moveRange: 3,
     attackRange: 1, // melee only for now
     attackPower: 4,
-    hasActed: false
+    hasActed: false,
+    current: false
   };
 }
 
@@ -41,7 +43,8 @@ export function createEnemyUnit(id, x, y) {
     attackRange: 1,
     attackPower: 3,
     hasActed: false,
-    actions: 3
+    actions: 3,
+    current: false
   };
 }
 

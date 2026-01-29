@@ -5,18 +5,26 @@ import {
   GRID_HEIGHT,
   HEADER_HEIGHT,
   FOOTER_HEIGHT,
+  gameVersion,
+  updatedDate,
 } from "./constants.js";
-import { drawGrid, drawUnit } from "./render.js";
+import {
+  drawAttackTiles,
+  drawGrid,
+  drawUnit,
+  drawHeader,
+  drawFooter,
+  setupRenderer,
+  clear,
+} from "./render.js";
 import { createPlayerUnit, createEnemyUnit } from "./units.js";
-import { setupFooterInput, setupInput } from "./input.js";
+import { setupFooterInput, setupInput, isInputActive } from "./input.js";
 import { drawMoveTiles } from "./render.js";
-import { getMovableTiles, isTileOccupied } from "./grid.js";
+import { getMovableTiles, isTileOccupied, getAttackableTiles } from "./grid.js";
 import { attack, inRange } from "./combat.js";
 
-let header, canvas, footer;
-let hctx, ctx, fctx;
-
 let interruptEnemyTurn = false;
+let header, canvas, footer;
 
 export const gameState = {
   units: [],
@@ -31,26 +39,20 @@ export function startGame() {
 
   header.width = CANVAS_WIDTH;
   header.height = HEADER_HEIGHT;
-
   canvas.width = CANVAS_WIDTH;
   canvas.height = CANVAS_HEIGHT;
-
   footer.width = CANVAS_WIDTH;
   footer.height = FOOTER_HEIGHT;
 
-  hctx = header.getContext("2d");
-  ctx = canvas.getContext("2d");
-  fctx = footer.getContext("2d");
+  setupRenderer(header, canvas, footer);
 
   gameState.units.length = 0;
   createUnits(5, 7);
 
-  setupInput(canvas, gameState);
-  setupFooterInput(footer, gameState);
-
-  // End Turn button
-  //const endTurnBtn = document.getElementById("endTurnBtn");
-  //endTurnBtn.addEventListener("click", endTurn);
+  if (!isInputActive()) {
+    setupInput(canvas, gameState);
+    setupFooterInput(footer, gameState);
+  }
 
   gameLoop();
 }
@@ -86,22 +88,27 @@ export function endTurn() {
     gameState.units
       .filter((u) => u.team === "enemy")
       .forEach((u) => (u.hasActed = false));
-
     // Run enemy turn immediately
     enemyTurn();
   }
 }
 
-function gameLoop() {
-  update();
-  render();
-  uiRender();
+let lastTime = 0;
+function gameLoop(timestamp) {
+  const delta = timestamp - lastTime;
+  lastTime = timestamp;
+
+  update(delta);
+  render(delta);
+  uiRender(delta);
 
   requestAnimationFrame(gameLoop);
 }
 
-function update() {
+function update(delta) {
   // game logic will go here later
+  //console.log(delta);
+
   let end = true;
   for (const u of gameState.units.filter((u) => u.team === "player")) {
     if (!u.hasActed) {
@@ -113,10 +120,10 @@ function update() {
   }
 }
 
-function render() {
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
+function render(delta) {
+  clear();
 
-  drawGrid(ctx);
+  drawGrid();
 
   if (gameState.selectedUnitId != null) {
     const selectedUnit = gameState.units.find(
@@ -125,46 +132,22 @@ function render() {
 
     //if (selectedUnit) {
     const moveTiles = getMovableTiles(selectedUnit);
-    drawMoveTiles(ctx, moveTiles);
+    drawMoveTiles(moveTiles, selectedUnit.hasActed);
+
+    const attackTiles = getAttackableTiles(selectedUnit);
+    drawAttackTiles(attackTiles, selectedUnit.hasActed);
     //}
   }
 
   for (const unit of gameState.units) {
     const isSelected = unit.id === gameState.selectedUnitId;
-    drawUnit(ctx, unit, isSelected);
+    drawUnit(unit, isSelected);
   }
 }
 
-function uiRender() {
-  const selectedUnit = gameState.units.find(
-    (u) => u.id === gameState.selectedUnitId,
-  );
-
-  // HEADER UI
-  hctx.clearRect(0, 0, header.width, header.height);
-
-  // Display current turn
-  hctx.fillStyle = "white";
-  hctx.font = "18px Arial";
-  hctx.fillText(`Turn: ${gameState.currentTurn}`, 10, 20);
-  hctx.fillText(`Version: 0.1.3`, 10, 120);
-
-  if (gameState.currentTurn == "player") {
-    hctx.strokeStyle = "#3b82f6";
-    hctx.lineWidth = 3;
-    hctx.strokeRect(0, 0, header.width, header.height);
-  } else {
-    hctx.strokeStyle = "#ef4444";
-    hctx.lineWidth = 3;
-    hctx.strokeRect(0, 0, header.width, header.height);
-  }
-
-  // FOOTER UI
-  fctx.clearRect(0, 0, footer.width, footer.height);
-
-  fctx.fillStyle = "white";
-  fctx.font = "36px Arial";
-  fctx.fillText(`RESET`, 200, 72);
+function uiRender(delta) {
+  drawHeader(gameState);
+  drawFooter(gameVersion, updatedDate);
 }
 
 export function canAct(unit) {
@@ -180,12 +163,18 @@ async function enemyTurn() {
     let actionsTaken = 0;
 
     while (enemy.actions > actionsTaken && !interruptEnemyTurn) {
-      await new Promise((r) => setTimeout(r, 200)); //creates a delay so we see the enemies moving around instead of instantly teleporting and attacking all at once
+      enemy.current = true;
+      console.log(enemy.current);
+      await new Promise((r) => setTimeout(r, 250)); //creates a delay so we see the enemies moving around instead of instantly teleporting and attacking all at once
       actionsTaken += 1;
 
       // find closest player
       const players = gameState.units.filter((u) => u.team === "player");
-      if (players.length === 0) return; // no players left
+      if (players.length === 0) {
+        enemy.current = false;
+        gameState.currentTurn = "player";
+        return; // no players left
+      }
 
       let closestPlayer = players[0];
       let minDist =
@@ -218,13 +207,13 @@ async function enemyTurn() {
         } else {
           newY += dy > 0 ? 1 : -1;
         }
-        
-        if(!isTileOccupied(newX, newY)) {
-          console.log("unit:"+enemy.id+"   x:"+newX+"   y:"+newY);
+
+        if (!isTileOccupied(newX, newY)) {
+          console.log("unit:" + enemy.id + "   x:" + newX + "   y:" + newY);
           enemy.x = newX;
           enemy.y = newY;
         } else {
-          console.log("Path blocked... "+newX+","+newY);
+          console.log("Path blocked... " + newX + "," + newY);
         }
       } else {
         // Attack if in range after moving
@@ -242,11 +231,15 @@ async function enemyTurn() {
           }
         }
       }
+      enemy.current = false;
     }
+    enemy.current = true;
+    await new Promise((r) => setTimeout(r, 400));
+    enemy.current = false;
     enemy.hasActed = true;
   }
 
-  // End enemy turn → back to player
+  // End enemy turn -> back to player
   gameState.currentTurn = "player";
   gameState.units
     .filter((u) => u.team === "player")
