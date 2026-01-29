@@ -2,8 +2,8 @@ import { TILE_SIZE, GRID_WIDTH, GRID_HEIGHT } from "./constants.js";
 
 const knightImage = new Image();
 knightImage.src = "./assets/knight_blue.png";
-const knightImage2 = new Image();
-knightImage.src = "./assets/knight_blue2.png";
+const knightFaceImage = new Image();
+knightFaceImage.src = "./assets/kight_blue_face.png";
 const goblinImage = new Image();
 goblinImage.src = "./assets/goblin.png";
 const attackImage = new Image();
@@ -122,10 +122,42 @@ export function drawHeader(gameState) {
   // HEADER UI
   hctx.clearRect(0, 0, header.width, header.height);
 
+  // DISPLAY SELECTED UNIT INFO
+  //let selectedUnit = null;
+  if (gameState.selectedUnitId != null) {
+    hctx.fillStyle = "rgba(59, 130, 246, 0.15)";
+    hctx.fillRect(0, 64, 64, 64);
+    
+    const selectedUnit = gameState.units.find(
+      (u) => u.id === gameState.selectedUnitId,
+    );
+
+    hctx.drawImage(
+      knightFaceImage,
+      0,
+      64,
+      TILE_SIZE,
+      TILE_SIZE,
+    );
+
+    // Bounding box lines
+    hctx.strokeStyle = "#a2cbff";
+    hctx.lineWidth = 1;
+    hctx.beginPath(); hctx.moveTo(0, 64); hctx.lineTo(512, 64); hctx.stroke();
+    hctx.moveTo(64, 64); hctx.lineTo(64, 128); hctx.stroke();
+
+    hctx.fillStyle = "white";
+    hctx.font = "24px Arial";
+    hctx.textBaseline = "middle";
+    hctx.fillText(`${selectedUnit.name}`, 69, 64+16);
+    hctx.fillText(`HP: ${selectedUnit.hp}/10`, 69, 64+32+16);
+  }
+
   // Display current turn
   hctx.fillStyle = "white";
   hctx.font = "32px Arial";
-  hctx.fillText(`Turn: ${gameState.currentTurn}`, 10, 36);
+  hctx.textBaseline = "middle";
+  hctx.fillText(`Turn: ${gameState.currentTurn}`, 10, 32);
 
   if (gameState.currentTurn == "player") {
     hctx.fillStyle = "rgba(59, 130, 246, 0.15)";

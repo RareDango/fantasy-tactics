@@ -21,6 +21,7 @@ export function createPlayerUnit(id, x, y) {
   return {
     id,
     team: 'player',
+    name: 'Jimmy',
     x,
     y,
     hp: 10,

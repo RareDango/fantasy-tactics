@@ -7,6 +7,7 @@ import {
   FOOTER_HEIGHT,
   gameVersion,
   updatedDate,
+  NAMES,
 } from "./constants.js";
 import {
   drawAttackTiles,
@@ -33,6 +34,10 @@ export const gameState = {
 };
 
 export function startGame() {
+  gameState.units = [];
+  gameState.selectedUnitId = null;
+  gameState.currentTurn = "player";
+
   header = document.getElementById("header");
   canvas = document.getElementById("game");
   footer = document.getElementById("footer");
@@ -66,7 +71,18 @@ function createUnits(numPlayerUnits, numEnemyUnits) {
       x = Math.floor(Math.random() * GRID_WIDTH);
       y = Math.floor(Math.random() * GRID_HEIGHT);
     }
-    gameState.units.push(createPlayerUnit(id, x, y));
+    const unit = createPlayerUnit(id, x, y);
+
+    // Give random name to player units from list of names in constants.js
+    let name = NAMES[Math.floor(Math.random() * NAMES.length)];
+
+    // If names are shared, get a new one until all names are unique
+    while(gameState.units.find((u) => u.name === name)) {
+      name = NAMES[Math.floor(Math.random() * NAMES.length)];
+      console.log(name);
+    }
+    unit.name = name;
+    gameState.units.push(unit);
     id++;
   }
   for (let i = 0; i < numEnemyUnits; i++) {
@@ -106,9 +122,6 @@ function gameLoop(timestamp) {
 }
 
 function update(delta) {
-  // game logic will go here later
-  //console.log(delta);
-
   let end = true;
   for (const u of gameState.units.filter((u) => u.team === "player")) {
     if (!u.hasActed) {
@@ -159,12 +172,9 @@ async function enemyTurn() {
   const enemies = gameState.units.filter((u) => u.team === "enemy");
 
   for (const enemy of enemies) {
-    //if (enemy.hasActed) continue;
     let actionsTaken = 0;
-
     while (enemy.actions > actionsTaken && !interruptEnemyTurn) {
       enemy.current = true;
-      console.log(enemy.current);
       await new Promise((r) => setTimeout(r, 250)); //creates a delay so we see the enemies moving around instead of instantly teleporting and attacking all at once
       actionsTaken += 1;
 
@@ -197,8 +207,6 @@ async function enemyTurn() {
       const adx = Math.abs(dx);
       const ady = Math.abs(dy);
 
-      //console.log(enemy.id+" adx:"+adx+" ady:"+ady)
-
       if (adx + ady > 1) {
         let newX = enemy.x;
         let newY = enemy.y;
@@ -212,8 +220,6 @@ async function enemyTurn() {
           console.log("unit:" + enemy.id + "   x:" + newX + "   y:" + newY);
           enemy.x = newX;
           enemy.y = newY;
-        } else {
-          console.log("Path blocked... " + newX + "," + newY);
         }
       } else {
         // Attack if in range after moving
