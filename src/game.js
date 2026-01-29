@@ -146,7 +146,8 @@ function uiRender() {
   // Display current turn
   hctx.fillStyle = "white";
   hctx.font = "18px Arial";
-  hctx.fillText(`Turn: ${gameState.currentTurn}     v:0.0.13`, 10, 20);
+  hctx.fillText(`Turn: ${gameState.currentTurn}`, 10, 20);
+  hctx.fillText(`Version: 0.1.3`, 10, 120);
 
   if (gameState.currentTurn == "player") {
     hctx.strokeStyle = "#3b82f6";
@@ -219,8 +220,9 @@ async function enemyTurn() {
         }
         
         if(!isTileOccupied(newX, newY)) {
+          console.log("unit:"+enemy.id+"   x:"+newX+"   y:"+newY);
           enemy.x = newX;
-          enemy.Y = newY;
+          enemy.y = newY;
         } else {
           console.log("Path blocked... "+newX+","+newY);
         }
