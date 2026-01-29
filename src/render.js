@@ -1,5 +1,11 @@
 import { TILE_SIZE, GRID_WIDTH, GRID_HEIGHT } from "./constants.js";
 
+const knightImage = new Image();
+knightImage.src = './assets/knight_blue.png';
+
+const goblinImage = new Image();
+goblinImage.src = './assets/goblin.png';
+
 export function drawGrid(ctx) {
   ctx.strokeStyle = "#555";
 
@@ -22,8 +28,29 @@ export function drawUnit(ctx, unit, isSelected) {
   const x = unit.x * TILE_SIZE;
   const y = unit.y * TILE_SIZE;
 
-  ctx.fillStyle = unit.team === "player" ? "#3b82f6" : "#ef4444";
-  ctx.fillRect(x + 8, y + 8, TILE_SIZE - 16, TILE_SIZE - 16);
+  // Draw colored rectangle... replace this.
+
+  //ctx.fillStyle = unit.team === "player" ? "#3b82f6" : "#ef4444";
+  //ctx.fillRect(x + 8, y + 8, TILE_SIZE - 16, TILE_SIZE - 16);
+
+  // Can we draw images?
+  if( unit.team === "player") {
+    ctx.drawImage(
+      knightImage,
+      x + 4,            // small inset
+      y + 4,
+      TILE_SIZE - 8,
+      TILE_SIZE - 8
+    );
+  } else {
+    ctx.drawImage(
+      goblinImage,
+      x + 4,            // small inset
+      y + 4,
+      TILE_SIZE - 8,
+      TILE_SIZE - 8
+    );
+  }
 
   if (isSelected) {
     ctx.strokeStyle = "#facc15";

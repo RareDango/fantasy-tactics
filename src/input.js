@@ -1,6 +1,6 @@
 import { TILE_SIZE } from './constants.js';
 import { isTileMovable } from './grid.js';
-import { canAct, endTurn, startGame } from './game.js'
+import { canAct, interrupt, startGame } from './game.js'
 import { attack, inRange } from './combat.js';
 import { getRatio } from './main.js';
 
@@ -64,9 +64,9 @@ export function setupInput(canvas, gameState) {
 
 export function setupFooterInput(canvas, gameState) {
   canvas.addEventListener('click', (e) => {
-    const rect = canvas.getBoundingClientRect();
+    //const rect = canvas.getBoundingClientRect();
+    interrupt();
     startGame();
-    //endTurn();
   });
   return;
 }

@@ -16,6 +16,8 @@ import { attack, inRange } from "./combat.js";
 let header, canvas, footer;
 let hctx, ctx, fctx;
 
+let interruptEnemyTurn = false;
+
 export const gameState = {
   units: [],
   selectedUnitId: null,
@@ -116,13 +118,15 @@ function render() {
 
   drawGrid(ctx);
 
-  const selectedUnit = gameState.units.find(
-    (u) => u.id === gameState.selectedUnitId,
-  );
+  if (gameState.selectedUnitId != null) {
+    const selectedUnit = gameState.units.find(
+      (u) => u.id === gameState.selectedUnitId,
+    );
 
-  if (selectedUnit) {
+    //if (selectedUnit) {
     const moveTiles = getMovableTiles(selectedUnit);
     drawMoveTiles(ctx, moveTiles);
+    //}
   }
 
   for (const unit of gameState.units) {
@@ -167,13 +171,14 @@ export function canAct(unit) {
 }
 
 async function enemyTurn() {
+  interruptEnemyTurn = false;
   const enemies = gameState.units.filter((u) => u.team === "enemy");
 
   for (const enemy of enemies) {
     //if (enemy.hasActed) continue;
     let actionsTaken = 0;
 
-    while (enemy.actions > actionsTaken) {
+    while (enemy.actions > actionsTaken && !interruptEnemyTurn) {
       await new Promise((r) => setTimeout(r, 200)); //creates a delay so we see the enemies moving around instead of instantly teleporting and attacking all at once
       actionsTaken += 1;
 
@@ -205,10 +210,19 @@ async function enemyTurn() {
       //console.log(enemy.id+" adx:"+adx+" ady:"+ady)
 
       if (adx + ady > 1) {
+        let newX = enemy.x;
+        let newY = enemy.y;
         if (adx >= ady) {
-          enemy.x += dx > 0 ? 1 : -1;
+          newX += dx > 0 ? 1 : -1;
         } else {
-          enemy.y += dy > 0 ? 1 : -1;
+          newY += dy > 0 ? 1 : -1;
+        }
+        
+        if(!isTileOccupied(newX, newY)) {
+          enemy.x = newX;
+          enemy.Y = newY;
+        } else {
+          console.log("Path blocked... "+newX+","+newY);
         }
       } else {
         // Attack if in range after moving
@@ -235,4 +249,8 @@ async function enemyTurn() {
   gameState.units
     .filter((u) => u.team === "player")
     .forEach((u) => (u.hasActed = false));
+}
+
+export function interrupt() {
+  interruptEnemyTurn = true;
 }
