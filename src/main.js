@@ -31,7 +31,4 @@ function resize() {
   //console.log(width + "," + height);
 }
 
-
 startGame();
-
-

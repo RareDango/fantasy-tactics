@@ -51,6 +51,16 @@ export function setupInput(canvas, gameState) {
       return;
     }
 
+    // If clicking on a tile (including movable) while
+    // selectedUnit cannot act -> unselect it
+    if (
+      selectedUnit &&
+      !canAct(selectedUnit)
+    ) {
+      gameState.selectedUnitId = null;
+      return;
+    }
+
     // If a unit is selected and tile is movable -> move
     if (
       selectedUnit &&
@@ -88,25 +98,21 @@ export function setupInput(canvas, gameState) {
       gameState.selectedUnitId = null;
     }
   });
-  return;
 }
 
 export function setupFooterInput(canvas, gameState) {
   canvas.addEventListener("click", (e) => {
     // END TURN button
-    // 64, 32, 160, 64
-    if (gameState.currentTurn === "player" && inRect(canvas, e, 64, 32, 160, 64)) {
+    if (inRect(canvas, e, 64, 32, 160, 64)) {
       endTurn();
     }
 
     // RESET button
-    // 288, 32, 160, 64
     if (inRect(canvas, e, 288, 32, 160, 64)) {
       interrupt();
       startGame();
     }
   });
-  return;
 }
 
 function inRect(canvas, e, x, y, width, height) {
@@ -116,13 +122,6 @@ function inRect(canvas, e, x, y, width, height) {
   const mouseX = (e.clientX - rect.left) / ratio;
   const mouseY = (e.clientY - rect.top) / ratio;
 
-  if(
-    mouseX > x &&
-    mouseX < x + width &&
-    mouseY > y &&
-    mouseY < y + height
-  ) {
-    return true;
-  }
+  if(mouseX > x && mouseX < x + width && mouseY > y && mouseY < y + height) { return true; }
   return false;
 }

@@ -51,7 +51,6 @@ export function startGame() {
 
   setupRenderer(header, canvas, footer);
 
-  gameState.units.length = 0;
   createUnits(5, 7);
 
   if (!isInputActive()) {
@@ -97,14 +96,10 @@ function createUnits(numPlayerUnits, numEnemyUnits) {
 }
 
 export function endTurn() {
-  gameState.selectedUnitId = null;
   if (gameState.currentTurn === "player") {
+    gameState.selectedUnitId = null;
     gameState.currentTurn = "enemy";
-    // reset enemy units for this turn
-    gameState.units
-      .filter((u) => u.team === "enemy")
-      .forEach((u) => (u.hasActed = false));
-    // Run enemy turn immediately
+    gameState.units.forEach(u => ( u.team === "player" ? u.hasActed = true : u.hasActed = false ));
     enemyTurn();
   }
 }
@@ -123,18 +118,12 @@ function gameLoop(timestamp) {
 
 function update(delta) {
   let end = true;
-  for (const u of gameState.units.filter((u) => u.team === "player")) {
-    if (!u.hasActed) {
-      end = false;
-    }
-  }
-  if (end) {
-    endTurn();
-  }
+  for (const u of gameState.units.filter(u => u.team === "player")) { if (!u.hasActed) { end = false; } }
+  if (end) { endTurn(); }
 }
 
 function render(delta) {
-  clear();
+  clear(canvas);
 
   drawGrid();
 
@@ -159,7 +148,10 @@ function render(delta) {
 }
 
 function uiRender(delta) {
+  clear(header);
   drawHeader(gameState);
+
+  clear(footer);
   drawFooter(gameVersion, updatedDate);
 }
 
@@ -170,12 +162,15 @@ export function canAct(unit) {
 async function enemyTurn() {
   interruptEnemyTurn = false;
   const enemies = gameState.units.filter((u) => u.team === "enemy");
-
+  const delay = 250;
   for (const enemy of enemies) {
     let actionsTaken = 0;
     while (enemy.actions > actionsTaken && !interruptEnemyTurn) {
       enemy.current = true;
-      await new Promise((r) => setTimeout(r, 250)); //creates a delay so we see the enemies moving around instead of instantly teleporting and attacking all at once
+      // create a delay so we see the enemies moving around
+      // instead of instantly teleporting and attacking all at once
+      await new Promise((r) => setTimeout(r, delay));
+      if(interruptEnemyTurn) { break; }
       actionsTaken += 1;
 
       // find closest player
@@ -187,13 +182,10 @@ async function enemyTurn() {
       }
 
       let closestPlayer = players[0];
-      let minDist =
-        Math.abs(enemy.x - closestPlayer.x) +
-        Math.abs(enemy.y - closestPlayer.y);
+      let minDist = Math.abs(enemy.x - closestPlayer.x) + Math.abs(enemy.y - closestPlayer.y);
 
       for (const player of players) {
-        const dist =
-          Math.abs(enemy.x - player.x) + Math.abs(enemy.y - player.y);
+        const dist = Math.abs(enemy.x - player.x) + Math.abs(enemy.y - player.y);
         if (dist < minDist) {
           minDist = dist;
           closestPlayer = player;
@@ -217,7 +209,6 @@ async function enemyTurn() {
         }
 
         if (!isTileOccupied(newX, newY)) {
-          //console.log("unit:" + enemy.id + "   x:" + newX + "   y:" + newY);
           enemy.x = newX;
           enemy.y = newY;
         }
@@ -240,7 +231,7 @@ async function enemyTurn() {
       enemy.current = false;
     }
     enemy.current = true;
-    await new Promise((r) => setTimeout(r, 400));
+    await new Promise((r) => setTimeout(r, delay));
     enemy.current = false;
     enemy.hasActed = true;
   }
