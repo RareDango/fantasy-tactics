@@ -75,21 +75,22 @@ export function drawHeader(gameState) {
 
   // DISPLAY SELECTED UNIT INFO
   if (gameState.selectedUnitId != null) {
-    drawRect(hctx, 0, 64, 64, 64, "rgba(59, 130, 246, 0.15)");
-
+    const size = TILE_SIZE * 2
+    drawRect(hctx, 0, TILE_SIZE, size, size, "rgba(59, 130, 246, 0.15)");
+    drawLine(hctx, size, TILE_SIZE, size, TILE_SIZE + size, "#a2cbff", 1);
+    
     const selectedUnit = gameState.units.find(
       (u) => u.id === gameState.selectedUnitId,
     );
 
     // Unit portrait
-    hctx.drawImage(knightFaceImage, 0, 64, TILE_SIZE, TILE_SIZE);
+    hctx.drawImage(knightFaceImage, 0, 64, size, size);
 
-    // Vertical line
-    drawLine(hctx, 64, 64, 64, 128, "#a2cbff", 1);
-
-    textStyle(hctx, "24px Arial");
-    drawText(hctx, `${selectedUnit.name}`, 69, 80);
-    drawText(hctx, `HP: ${selectedUnit.hp}/10`, 69, 112);
+    const textSize = 24;
+    const margin = 10;
+    textStyle(hctx, `${textSize}px Arial`, "white", "top");
+    drawText(hctx, `${selectedUnit.name}`, size + margin, TILE_SIZE + margin);
+    drawText(hctx, `HP: ${selectedUnit.hp}/10`, size + margin, TILE_SIZE + textSize + margin * 2);
   }
   // Horizontal line always visible
   drawLine(hctx, 0, 64, 512, 64, "#a2cbff", 1);
