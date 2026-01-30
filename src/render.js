@@ -1,7 +1,9 @@
 import {
   TILE_SIZE,
   GRID_WIDTH,
-  GRID_HEIGHT
+  GRID_HEIGHT,
+  FOOTER_HEIGHT,
+  CANVAS_WIDTH,
 } from "./constants.js";
 
 const knightImage     = loadImage("knight_blue.png");
@@ -15,7 +17,7 @@ function loadImage(file) {
   return img;
 }
 
-let hctx, ctx, fctx;
+let hctx, ctx, fctx, octx;
 
 export function clear(canvas) {
   canvas.getContext("2d").clearRect(0, 0, canvas.width, canvas.height);
@@ -113,34 +115,27 @@ export function drawHeader(gameState) {
   }
 }
 
-export function drawFooter(gameVersion, updatedDate) {
+export function drawFooter(gameVersion, updatedDate, buttons) {
   // FOOTER UI
 
-  // END TURN button
-  drawRect(fctx, 64, 32, 160, 64, "#9c4242");
-  drawRectStroke(fctx, 64, 32, 160, 64, "#adadad");
-  textStyle(fctx, "28px Arial", "white", "middle", "center");
-  drawText(fctx, "END TURN", 144, 64);
+  // BUTTONS
+  buttons.forEach( b => {
+    drawRect(fctx, b.x, b.y, b.width, b.height, b.color);
+    drawRectStroke(fctx, b.x, b.y, b.width, b.height, b.borderColor);
+    if(b.text) {
+      textStyle(fctx, "28px Arial", "white", "middle", "center");
+      drawText(fctx, b.text, b.x + b.width / 2, b.y + b.height / 2);
+    }
+  })
 
-  // RESET button
-  drawRect(fctx, 288, 32, 160, 64, "#9c4242");
-  drawRectStroke(fctx, 288, 32, 160, 64, "#adadad");
-  textStyle(fctx, "28px Arial", "white", "middle", "center");
-  drawText(fctx, "RESET", 368, 64);
-
+  const versionText = `Version: ${gameVersion} - Updated: ${updatedDate}`;
   textStyle(fctx, "16px Arial", "#bbb", "alphabetic", "right");
-  drawText(fctx, `Version: ${gameVersion} - Updated: ${updatedDate}`, 502, 118);
+  drawText(fctx, versionText, CANVAS_WIDTH - 10, FOOTER_HEIGHT - 10);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-function textStyle(
-  context,
-  font = "16px Arial",
-  color = "white",
-  baseline = "middle",
-  align = "left",
-) {
+function textStyle(context, font = "16px Arial", color = "white", baseline = "middle", align = "left") {
   context.fillStyle = color;
   context.font = font;
   context.textBaseline = baseline;
@@ -151,15 +146,7 @@ function drawText(context, text, x, y, maxWidth) {
   context.fillText(text, x, y, maxWidth);
 }
 
-function drawLine(
-  context,
-  startX,
-  startY,
-  endX,
-  endY,
-  color = "white",
-  width = 3,
-) {
+function drawLine(context, startX, startY, endX, endY, color = "white", width = 3) {
   context.strokeStyle = color;
   context.lineWidth = width;
   context.beginPath();
@@ -173,15 +160,7 @@ function drawRect(context, x, y, width, height, color = "white") {
   context.fillRect(x, y, width, height);
 }
 
-function drawRectStroke(
-  context,
-  x,
-  y,
-  width,
-  height,
-  color = "white",
-  lineWidth = 3,
-) {
+function drawRectStroke(context, x, y, width, height, color = "white", lineWidth = 3) {
   context.strokeStyle = color;
   context.lineWidth = lineWidth;
   context.strokeRect(x, y, width, height);

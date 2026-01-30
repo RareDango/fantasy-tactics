@@ -1,3 +1,4 @@
+import { CONTAINER_WIDTH, CONTAINER_HEIGHT } from "./constants.js";
 import { startGame } from "./game.js";
 
 let ratio = 1;
@@ -11,7 +12,7 @@ window.addEventListener("resize", () => {
 });
 
 function resize() {
-  let aspect = 8/12;
+  let aspect = CONTAINER_WIDTH / CONTAINER_HEIGHT;
   let width = window.innerWidth;
   let height = window.innerHeight;
   let container = document.getElementById("game-container");
@@ -27,8 +28,7 @@ function resize() {
   container.style.width = `${w}px`;
   container.style.height = `${h}px`;
 
-  ratio = w / 512; // gives us the ratio between the hard coded pixels and whats actually displayed
-  //console.log(width + "," + height);
+  ratio = w / CONTAINER_WIDTH; // gives us the ratio between the hard coded pixels and whats actually displayed
 }
 
 startGame();

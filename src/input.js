@@ -1,4 +1,4 @@
-import { TILE_SIZE } from "./constants.js";
+import { END_TURN, RESET, TILE_SIZE } from "./constants.js";
 import { isTileMovable, isTileOccupied } from "./grid.js";
 import { canAct, interrupt, startGame, endTurn } from "./game.js";
 import { attack, inRange } from "./combat.js";
@@ -100,19 +100,33 @@ export function setupInput(canvas, gameState) {
   });
 }
 
-export function setupFooterInput(canvas, gameState) {
+export function setupFooterInput(canvas, gameState, buttons) {
   canvas.addEventListener("click", (e) => {
-    // END TURN button
-    if (inRect(canvas, e, 64, 32, 160, 64)) {
-      endTurn();
-    }
+    buttons.forEach( (b) => {
+      switch (b.id) {
 
-    // RESET button
-    if (inRect(canvas, e, 288, 32, 160, 64)) {
-      interrupt();
-      startGame();
-    }
+        case END_TURN:
+          if (inButton(canvas, e, b)) {
+            endTurn();
+          }
+          break;
+
+        case RESET:
+          if (inButton(canvas, e, b)) {
+            interrupt();
+            startGame();
+          }
+          break;
+
+        default:
+          break;
+      }
+    });
   });
+}
+
+function inButton(canvas, e, button) {
+  return inRect(canvas, e, button.x, button.y, button.width, button.height);
 }
 
 function inRect(canvas, e, x, y, width, height) {

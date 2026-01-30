@@ -8,6 +8,8 @@ import {
   gameVersion,
   updatedDate,
   NAMES,
+  RESET,
+  END_TURN
 } from "./constants.js";
 import {
   drawAttackTiles,
@@ -16,16 +18,21 @@ import {
   drawHeader,
   drawFooter,
   setupRenderer,
-  clear,
+  clear
 } from "./render.js";
 import { createPlayerUnit, createEnemyUnit } from "./units.js";
 import { setupFooterInput, setupInput, isInputActive } from "./input.js";
 import { drawMoveTiles } from "./render.js";
 import { getMovableTiles, isTileOccupied, getAttackableTiles } from "./grid.js";
 import { attack, inRange } from "./combat.js";
+import { createButton } from "./buttons.js";
 
 let interruptEnemyTurn = false;
 let header, canvas, footer;
+
+const headerButtons = [];
+const canvasButtons = [];
+const footerButtons = [];
 
 export const gameState = {
   units: [],
@@ -34,28 +41,27 @@ export const gameState = {
 };
 
 export function startGame() {
-  gameState.units = [];
+  gameState.units.length = 0;
   gameState.selectedUnitId = null;
   gameState.currentTurn = "player";
 
-  header = document.getElementById("header");
-  canvas = document.getElementById("game");
-  footer = document.getElementById("footer");
+  header  = document.getElementById("header");
+  canvas  = document.getElementById("game");
+  footer  = document.getElementById("footer");
 
-  header.width = CANVAS_WIDTH;
-  header.height = HEADER_HEIGHT;
-  canvas.width = CANVAS_WIDTH;
-  canvas.height = CANVAS_HEIGHT;
-  footer.width = CANVAS_WIDTH;
-  footer.height = FOOTER_HEIGHT;
+  setSize(header, CANVAS_WIDTH, HEADER_HEIGHT);
+  setSize(canvas, CANVAS_WIDTH, CANVAS_HEIGHT);
+  setSize(footer, CANVAS_WIDTH, FOOTER_HEIGHT);
+  function setSize(canvas, width, height) { canvas.width  = width; canvas.height = height; }
 
   setupRenderer(header, canvas, footer);
+  setupButtons()
 
   createUnits(5, 7);
 
   if (!isInputActive()) {
     setupInput(canvas, gameState);
-    setupFooterInput(footer, gameState);
+    setupFooterInput(footer, gameState, footerButtons);
   }
 
   gameLoop();
@@ -93,6 +99,24 @@ function createUnits(numPlayerUnits, numEnemyUnits) {
     gameState.units.push(createEnemyUnit(id, x, y));
     id++;
   }
+}
+
+function setupButtons() {
+  let buttons;
+  // HEADER
+  buttons = headerButtons;
+  buttons.length = 0;
+  
+  // CANVAS
+  buttons = canvasButtons;
+  buttons.length = 0;
+
+  // FOOTER
+  buttons = footerButtons;
+  buttons.length = 0;
+  
+  buttons.push(createButton(END_TURN, "END TURN", null, 64, 32, 160, 64, "#9c4242", "#adadad"));
+  buttons.push(createButton(RESET, "RESET", null, 288, 32, 160, 64, "#9c4242", "#adadad"));
 }
 
 export function endTurn() {
@@ -152,7 +176,7 @@ function uiRender(delta) {
   drawHeader(gameState);
 
   clear(footer);
-  drawFooter(gameVersion, updatedDate);
+  drawFooter(gameVersion, updatedDate, footerButtons);
 }
 
 export function canAct(unit) {
