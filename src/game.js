@@ -8,6 +8,7 @@ import {
   gameVersion,
   updatedDate,
   NAMES,
+  QUOTES,
   RESET,
   END_TURN
 } from "./constants.js";
@@ -80,12 +81,20 @@ function createUnits(numPlayerUnits, numEnemyUnits) {
 
     // Give random name to player units from list of names in constants.js
     let name = NAMES[Math.floor(Math.random() * NAMES.length)];
-
     // If names are shared, get a new one until all names are unique
     while(gameState.units.find((u) => u.name === name)) {
       name = NAMES[Math.floor(Math.random() * NAMES.length)];
     }
     unit.name = name;
+
+    // Give random quote to player units from list of quotes in constants.js
+    let quote = QUOTES[Math.floor(Math.random() * QUOTES.length)];
+    // If quotes are shared, get a new one until all quotes are unique
+    while(gameState.units.find((u) => u.quote === quote)) {
+      quote = QUOTES[Math.floor(Math.random() * QUOTES.length)];
+    }
+    unit.quote = quote;
+
     gameState.units.push(unit);
     id++;
   }

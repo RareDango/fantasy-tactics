@@ -86,11 +86,14 @@ export function drawHeader(gameState) {
     // Unit portrait
     hctx.drawImage(knightFaceImage, 0, 64, size, size);
 
-    const textSize = 24;
+    const numLines = 4;
     const margin = 10;
+    const textSize = (size - numLines * margin) / numLines;
+    
     textStyle(hctx, `${textSize}px Arial`, "white", "top");
     drawText(hctx, `${selectedUnit.name}`, size + margin, TILE_SIZE + margin);
     drawText(hctx, `HP: ${selectedUnit.hp}/10`, size + margin, TILE_SIZE + textSize + margin * 2);
+    drawText(hctx, `\"${selectedUnit.quote}\"`, size + margin, TILE_SIZE + textSize * 2 + margin * 3);
   }
   // Horizontal line always visible
   drawLine(hctx, 0, 64, 512, 64, "#a2cbff", 1);

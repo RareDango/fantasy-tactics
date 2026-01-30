@@ -1,4 +1,4 @@
-export const gameVersion = "0.1.21"
+export const gameVersion = "0.1.22"
 export const updatedDate = "Fri, Jan 30, 2026"
 
 export const TILE_SIZE = 64;
@@ -17,6 +17,18 @@ export const NAMES = [
     "Josh", "Maxwell", "Krista", "Mo",
     "나연", "정연", "사나", "모모", "지효", "미나", "다현", "채영", "쯔위",
     "소연", "우기", "미연", "슈화", "민니", "수진"
+]
+export const QUOTES = [
+    "You can do it!",
+    "I believe in you!",
+    "I'm sleeeepy...",
+    "How did I get here?",
+    "Those are some ugly-ass goblins.",
+    "Help! I'm stuck in this game!",
+    "Let's do this!",
+    "I'm hungry...",
+    "안녕하세요!",
+    "Wheeeee! This is fun!"
 ]
 
 // BUTTON IDs

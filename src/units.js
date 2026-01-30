@@ -29,7 +29,8 @@ export function createPlayerUnit(id, x, y) {
     attackRange: 1, // melee only for now
     attackPower: 4,
     hasActed: false,
-    current: false
+    current: false,
+    quote: "Hi!"
   };
 }
 
