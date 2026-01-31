@@ -257,6 +257,7 @@ async function enemyTurn() {
             enemy.hasActed = true;
 
             if (player.hp <= 0) {
+              if(gameState.selectedUnitId === player.id) { gameState.selectedUnitId = null; }
               gameState.units = gameState.units.filter(
                 (u) => u.id !== player.id,
               );
