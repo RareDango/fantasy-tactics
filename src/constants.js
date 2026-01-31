@@ -1,4 +1,4 @@
-export const gameVersion = "0.1.25"
+export const gameVersion = "0.1.26"
 export const updatedDate = "Sat, Jan 31, 2026"
 
 export const TILE_SIZE = 64;
@@ -31,11 +31,14 @@ export const QUOTES = [
     "안녕하세요!",
     "Wheeeee! This is fun!",
     "Red five diamonds in my bag...",
-    "I am a top super lady!",
+    "I am the top super lady!",
     "I'm twerking on the runway!",
     "Cheer up, baby!",
     "My boob and booty is hot!",
-    "Stick 'em with the pointy end!"
+    "Stick 'em with the pointy end!",
+    "These guys suck!",
+    "Goblins? More like butt-lins! Gottem.",
+    "Hey, good-lookin! ;)"
 ]
 
 // BUTTON IDs
