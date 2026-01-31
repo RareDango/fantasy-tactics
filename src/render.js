@@ -11,8 +11,22 @@ import { AnimatedImage } from "./AnimatedImage.js";
 const knightImage     = loadImage("knight_blue.png");
 const knightFaceImage = loadImage("kight_blue_face.png");
 const goblinImage     = loadImage("goblin.png");
-const attackImage     = loadImage("attack.png");
-const aniKnight       = new AnimatedImage("knight_animated.png", 64, 4, 200);
+
+const portraits = [];
+const aniKnight       = new AnimatedImage("knight_animated.png", 64, 4);
+portraits.push(aniKnight)
+export function resetPortraits() {
+  portraits.forEach( (p) => ( p.resetAnimation() ));
+}
+
+const attacks = []
+export function newAttack(x, y) {
+  const attack = new AnimatedImage("attack_animated.png", 64, 7, false);
+  attack.setXY(x * TILE_SIZE, y * TILE_SIZE);
+  attack.frameTime = 50;
+  attack.resetAnimation();
+  attacks.push(attack)
+}
 
 function loadImage(file) {
   const img = new Image();
@@ -61,9 +75,9 @@ export function drawUnit(unit, isSelected) {
   drawRect(ctx, x + 8, y + TILE_SIZE - 12, hpWidth, 4, "green");
 }
 
-export function drawMoveTiles(tiles, acted) {
+export function drawMoveTiles(tiles, unitHasActed) {
   for (const tile of tiles) {
-    drawRect(ctx, tile.x * TILE_SIZE, tile.y * TILE_SIZE, TILE_SIZE, TILE_SIZE, acted ? "rgba(59, 130, 246, 0.1)" : "rgba(59, 130, 246, 0.25)");
+    drawRect(ctx, tile.x * TILE_SIZE, tile.y * TILE_SIZE, TILE_SIZE, TILE_SIZE, unitHasActed ? "rgba(59, 130, 246, 0.1)" : "rgba(59, 130, 246, 0.25)");
   }
 }
 
@@ -71,6 +85,22 @@ export function drawAttackTiles(tiles, acted) {
   for (const tile of tiles) {
     drawRect(ctx, tile.x * TILE_SIZE, tile.y * TILE_SIZE, TILE_SIZE, TILE_SIZE, acted ? "rgba(246, 59, 59, 0.1)" : "rgba(246, 59, 59, 0.25)");
   }
+}
+
+export function drawAttacks(delta) {
+  // If all attacks are finished, clear out the attacks array
+  
+  let clearArray = true;
+  attacks.forEach( (a) => {
+    if(!a.kill) { clearArray = false; }
+  })
+  if(clearArray) { attacks.length = 0; }
+
+  attacks.forEach( (a) => {
+    if(a.kill) { return; }
+    drawAnimation(ctx, a, a.x, a.y, a.size, delta);
+    if(a.index === a.length - 1) { a.kill = true; }
+  })
 }
 
 export function drawHeader(gameState, delta) {
@@ -128,7 +158,7 @@ export function drawHeader(gameState, delta) {
 
     // Unit portrait
     const pSize = TILE_SIZE * 2;
-    drawAnimation(hctx, aniKnight, 0, TILE_SIZE, pSize, pSize, delta);
+    //drawAnimation(hctx, aniKnight, 0, TILE_SIZE, pSize, delta);
     
     let color = "#3b82f6";
     if(gameState.currentTurn === "enemy") { color = "#ef4444"; }
@@ -207,7 +237,7 @@ function drawRectStroke(context, x, y, width, height, color = "white", lineWidth
   context.strokeRect(x, y, width, height);
 }
 
-function drawAnimation(context, image, x, y, width, height, delta) {
+function drawAnimation(context, image, x, y, size, delta) {
   image.updateAnimation(delta);
-  context.drawImage(image.image, image.offset, 0, image.size, image.size, x, y, width, height);
+  context.drawImage(image.image, image.offset, 0, image.size, image.size, x, y, size, size);
 }

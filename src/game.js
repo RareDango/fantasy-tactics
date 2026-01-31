@@ -19,7 +19,9 @@ import {
   drawHeader,
   drawFooter,
   setupRenderer,
-  clear
+  clear,
+  resetPortraits,
+  drawAttacks
 } from "./render.js";
 import { createPlayerUnit, createEnemyUnit } from "./units.js";
 import { setupFooterInput, setupInput, isInputActive } from "./input.js";
@@ -41,6 +43,7 @@ export const gameState = {
   selectedUnitId: null,
   currentTurn: "player", // 'player' or 'enemy'
 };
+let oldSelectedUnitId = null;
 
 export function startGame() {
   gameState.selectedUnitId = null;
@@ -182,9 +185,16 @@ function render(delta) {
     const isSelected = unit.id === gameState.selectedUnitId;
     drawUnit(unit, isSelected);
   }
+  
+  drawAttacks(delta);
 }
 
 function uiRender(delta) {
+  if(gameState.selectedUnitId != oldSelectedUnitId) {
+    resetPortraits();
+    oldSelectedUnitId = gameState.selectedUnitId;
+  }
+
   clear(header);
   drawHeader(gameState, delta);
 

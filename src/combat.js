@@ -1,8 +1,14 @@
+import { newAttack } from "./render.js";
+
 /**
  * @param {Object} attacker - attacking unit
  * @param {Object} defender - defending unit
  */
 export function attack(attacker, defender) {
+  const x = (attacker.x + defender.x) / 2;
+  const y = (attacker.y + defender.y) / 2;
+  newAttack(x, y);
+
   defender.hp -= attacker.attackPower;
 
   if (defender.hp <= 0) {
