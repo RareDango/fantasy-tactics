@@ -74,40 +74,73 @@ export function drawHeader(gameState) {
   // HEADER UI
 
   // DISPLAY SELECTED UNIT INFO
+  const portraitSize = TILE_SIZE * 2
   if (gameState.selectedUnitId != null) {
-    const size = TILE_SIZE * 2
-    drawRect(hctx, 0, TILE_SIZE, size, size, "rgba(59, 130, 246, 0.15)");
-    drawLine(hctx, size, TILE_SIZE, size, TILE_SIZE + size, "#a2cbff", 1);
+    drawRect(hctx, 0, TILE_SIZE, portraitSize, portraitSize, "rgba(59, 130, 246, 0.15)");
+    drawLine(hctx, portraitSize, TILE_SIZE, portraitSize, TILE_SIZE + portraitSize, "#a2cbff", 1);
     
     const selectedUnit = gameState.units.find(
       (u) => u.id === gameState.selectedUnitId,
     );
 
     // Unit portrait
-    hctx.drawImage(knightFaceImage, 0, 64, size, size);
+    hctx.drawImage(knightFaceImage, 0, 64, portraitSize, portraitSize);
 
     const numLines = 4;
-    const margin = 10;
-    const textSize = (size - numLines * margin) / numLines;
+    const margin = 8;
+    const textSize = (portraitSize - (numLines + 1) * margin) / numLines;
     
     textStyle(hctx, `${textSize}px Arial`, "white", "top");
-    drawText(hctx, `${selectedUnit.name}`, size + margin, TILE_SIZE + margin);
-    drawText(hctx, `HP: ${selectedUnit.hp}/10`, size + margin, TILE_SIZE + textSize + margin * 2);
-    drawText(hctx, `\"${selectedUnit.quote}\"`, size + margin, TILE_SIZE + textSize * 2 + margin * 3);
+    drawText(hctx, `${selectedUnit.name}`, portraitSize + margin, TILE_SIZE + margin);
+    drawText(hctx, `HP: ${selectedUnit.hp}/10`, portraitSize + margin, TILE_SIZE + textSize + margin * 2);
+    drawText(hctx, `\"${selectedUnit.quote}\"`, portraitSize + margin, TILE_SIZE + textSize * 2 + margin * 3);
   }
   // Horizontal line always visible
   drawLine(hctx, 0, 64, 512, 64, "#a2cbff", 1);
 
-  textStyle(hctx, "32px Arial");
+
+
+  // TOP BAR
+  const numLines = 2;
+  const margin = 8;
+  const textSize = (TILE_SIZE - (numLines + 1) * margin) / numLines;
+
+  textStyle(hctx, `${textSize}px Arial`, "white", "top");
   if (gameState.units.filter((u) => u.team === "player").length === 0) {
     // Enemy wins
-    drawText(hctx, "You lose! Bad job, loser!", 10, 32);
+    drawText(hctx, "You lose! Bad job, loser!", margin, margin);
   } else if (gameState.units.filter((u) => u.team === "enemy").length === 0) {
     // Player wins
-    drawText(hctx, "You win! Good job, champ!", 10, 32);
+    drawText(hctx, "You win! Good job, champ!", margin, margin);
   } else {
     // Display current turn
-    drawText(hctx, `Turn: ${gameState.currentTurn}`, 10, 32);
+    drawText(hctx, `Turn: ${gameState.currentTurn}`, margin, margin);
+  }
+
+  let offset = 0;
+  for(let i = 0; i < gameState.playerList.length; i++) {
+    const player = gameState.playerList[i];
+    const alive = gameState.units.find( (u) => u.name === player);
+
+    let text;
+
+    if (alive) {
+      textStyle(hctx, `${textSize}px Arial`, "white", "top");
+    } else {
+      textStyle(hctx, `${textSize}px Arial`, "black", "top");
+    }
+
+    text = player;
+    drawText(hctx, text, margin + offset, textSize + margin * 2);
+    offset += hctx.measureText(text).width;
+
+    // Add commas between names
+    if(i != gameState.playerList.length - 1) {
+        text = ", ";
+        textStyle(hctx, `${textSize}px Arial`, "white", "top");
+        drawText(hctx, text, margin + offset, textSize + margin * 2);
+        offset += hctx.measureText(text).width;
+      }
   }
 
   if (gameState.currentTurn == "player") {

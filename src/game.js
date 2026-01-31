@@ -37,12 +37,12 @@ const footerButtons = [];
 
 export const gameState = {
   units: [],
+  playerList: [],
   selectedUnitId: null,
   currentTurn: "player", // 'player' or 'enemy'
 };
 
 export function startGame() {
-  gameState.units.length = 0;
   gameState.selectedUnitId = null;
   gameState.currentTurn = "player";
 
@@ -69,6 +69,9 @@ export function startGame() {
 }
 
 function createUnits(numPlayerUnits, numEnemyUnits) {
+  gameState.units.length = 0;
+  gameState.playerList.length = 0;
+  
   let id = 0;
   for (let i = 0; i < numPlayerUnits; i++) {
     let x = Math.floor(Math.random() * GRID_WIDTH);
@@ -96,6 +99,7 @@ function createUnits(numPlayerUnits, numEnemyUnits) {
     unit.quote = quote;
 
     gameState.units.push(unit);
+    gameState.playerList.push(unit.name);
     id++;
   }
   for (let i = 0; i < numEnemyUnits; i++) {
