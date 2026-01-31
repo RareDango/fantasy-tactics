@@ -12,7 +12,7 @@ const knightImage     = loadImage("knight_blue.png");
 const knightFaceImage = loadImage("kight_blue_face.png");
 const goblinImage     = loadImage("goblin.png");
 const attackImage     = loadImage("attack.png");
-const aniKnight       = new AnimatedImage("knight_animated.png", 64, 2, 500);
+const aniKnight       = new AnimatedImage("knight_animated.png", 64, 4, 200);
 
 function loadImage(file) {
   const img = new Image();
