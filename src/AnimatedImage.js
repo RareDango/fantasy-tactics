@@ -13,8 +13,12 @@ export class AnimatedImage {
     }
 
     updateAnimation(d) {
+        while(d > this.delay) {
+            d -= this.delay;
+        }
         this.delta += d;
         if(this.delta > this.delay) {
+            
             this.delta -= this.delay;
             this.index++;
             if(this.index >= this.length) {
