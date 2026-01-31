@@ -1,4 +1,4 @@
-export const gameVersion = "0.1.24"
+export const gameVersion = "0.1.25"
 export const updatedDate = "Sat, Jan 31, 2026"
 
 export const TILE_SIZE = 64;
@@ -24,6 +24,7 @@ export const QUOTES = [
     "I'm sleeeepy...",
     "How did I get here?",
     "Those are some ugly-ass goblins.",
+    "Those are some ugly ass-goblins.",
     "Help! I'm stuck in this game!",
     "Let's do this!",
     "I'm hungry...",
@@ -33,13 +34,11 @@ export const QUOTES = [
     "I am a top super lady!",
     "I'm twerking on the runway!",
     "Cheer up, baby!",
-    "My boob and booty is hot!"
+    "My boob and booty is hot!",
+    "Stick 'em with the pointy end!"
 ]
 
 // BUTTON IDs
 export const RESET = 0;
 export const RESET_CONFIRM = 1;
 export const END_TURN = 2;
-
-
-//512x768

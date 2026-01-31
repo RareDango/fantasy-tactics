@@ -4,6 +4,7 @@ import {
   GRID_HEIGHT,
   FOOTER_HEIGHT,
   CANVAS_WIDTH,
+  HEADER_HEIGHT,
 } from "./constants.js";
 import { AnimatedImage } from "./AnimatedImage.js";
 
@@ -19,7 +20,7 @@ function loadImage(file) {
   return img;
 }
 
-let hctx, ctx, fctx, octx;
+let hctx, ctx, fctx;
 
 export function clear(canvas) {
   canvas.getContext("2d").clearRect(0, 0, canvas.width, canvas.height);
@@ -75,41 +76,11 @@ export function drawAttackTiles(tiles, acted) {
 export function drawHeader(gameState, delta) {
   // HEADER UI
 
-  // DISPLAY SELECTED UNIT INFO
-  const portraitSize = TILE_SIZE * 2
-  if (gameState.selectedUnitId != null) {
-    drawRect(hctx, 0, TILE_SIZE, portraitSize, portraitSize, "rgba(59, 130, 246, 0.15)");
-
-    // Unit portrait
-    const pSize = TILE_SIZE * 2;
-    drawAnimation(hctx, aniKnight, 0, TILE_SIZE, pSize, pSize, delta);
-    
-    let color = "#3b82f6";
-    if(gameState.currentTurn === "enemy") { color = "#ef4444"; }
-    drawLine(hctx, portraitSize, TILE_SIZE, portraitSize, TILE_SIZE + portraitSize, color, 2);
-    
-    const selectedUnit = gameState.units.find(
-      (u) => u.id === gameState.selectedUnitId,
-    );
-
-    
-    
-    //hctx.drawImage(knightFaceImage, 0, 64, portraitSize, portraitSize);
-
-    const numLines = 4;
-    const margin = 8;
-    const textSize = (portraitSize - (numLines + 1) * margin) / numLines;
-    
-    textStyle(hctx, `${textSize}px Arial`, "white", "top");
-    drawText(hctx, `${selectedUnit.name}`, portraitSize + margin, TILE_SIZE + margin);
-    drawText(hctx, `HP: ${selectedUnit.hp}/10`, portraitSize + margin, TILE_SIZE + textSize + margin * 2);
-    drawText(hctx, `\"${selectedUnit.quote}\"`, portraitSize + margin, TILE_SIZE + textSize * 2 + margin * 3);
-  }
-
   // TOP BAR
   const numLines = 2;
   const margin = 8;
   const textSize = (TILE_SIZE - (numLines + 1) * margin) / numLines;
+  const portraitSize = TILE_SIZE * 2;
 
   textStyle(hctx, `${textSize}px Arial`, "white", "top");
   if (gameState.units.filter((u) => u.team === "player").length === 0) {
@@ -147,17 +118,46 @@ export function drawHeader(gameState, delta) {
 
   if (gameState.currentTurn == "player") {
     drawRect(hctx, 0, TILE_SIZE, header.width, portraitSize, "rgba(59, 130, 246, 0.15)");
-    drawRectStroke(hctx, 0, 0, header.width, header.height, "#3b82f6");
-    drawLine(hctx, 0, 64, 512, 64, "#3b82f6", 2);
   } else {
     drawRect(hctx, 0, TILE_SIZE, header.width, portraitSize, "rgba(239, 68, 68, 0.15)");
-    drawRectStroke(hctx, 0, 0, header.width, header.height, "#ef4444");
-    drawLine(hctx, 0, 64, 512, 64, "#ef4444", 2);
   }
+
+  // DISPLAY SELECTED UNIT INFO
+  if (gameState.selectedUnitId != null) {
+    drawRect(hctx, 0, TILE_SIZE, portraitSize, portraitSize, "rgba(59, 130, 246, 0.15)");
+
+    // Unit portrait
+    const pSize = TILE_SIZE * 2;
+    drawAnimation(hctx, aniKnight, 0, TILE_SIZE, pSize, pSize, delta);
+    
+    let color = "#3b82f6";
+    if(gameState.currentTurn === "enemy") { color = "#ef4444"; }
+    drawLine(hctx, portraitSize, TILE_SIZE, portraitSize, TILE_SIZE + portraitSize, color, 2);
+    
+    const selectedUnit = gameState.units.find(
+      (u) => u.id === gameState.selectedUnitId,
+    );
+
+    const numLines = 4;
+    const margin = 8;
+    const textSize = (portraitSize - (numLines + 1) * margin) / numLines;
+    
+    textStyle(hctx, `${textSize}px Arial`, "white", "top");
+    drawText(hctx, `${selectedUnit.name}`, portraitSize + margin, TILE_SIZE + margin);
+    drawText(hctx, `HP: ${selectedUnit.hp}/10`, portraitSize + margin, TILE_SIZE + textSize + margin * 2);
+    drawText(hctx, `\"${selectedUnit.quote}\"`, portraitSize + margin, TILE_SIZE + textSize * 2 + margin * 3);
+  }
+
+  let color = "#3b82f6";
+  if(gameState.currentTurn === "enemy") { color = "#ef4444"; }
+  drawLine(hctx, 0, 64, CANVAS_WIDTH, 64, color, 2);
+  drawRectStroke(hctx, 0, 0, CANVAS_WIDTH, HEADER_HEIGHT, color, 4);
 }
 
 export function drawFooter(gameVersion, updatedDate, buttons) {
   // FOOTER UI
+
+  drawLine(fctx, 0, 0, CANVAS_WIDTH, 0, "#555", 1);
 
   // BUTTONS
   buttons.forEach( b => {

@@ -134,7 +134,7 @@ function setupButtons() {
 
 export function endTurn() {
   if (gameState.currentTurn === "player") {
-    gameState.selectedUnitId = null;
+    //gameState.selectedUnitId = null;
     gameState.currentTurn = "enemy";
     gameState.units.forEach(u => ( u.team === "player" ? u.hasActed = true : u.hasActed = false ));
     enemyTurn();

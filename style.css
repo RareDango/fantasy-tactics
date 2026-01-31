@@ -10,8 +10,14 @@ html, body {
   height: 100vh;
 }
 
-#game, #header, #footer {
+#header {
+  background: #111;
+}
+#game {
   background: #2b2b2b;
+}
+#footer {
+  background: #222;
 }
 
 #game-container {
