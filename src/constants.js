@@ -1,5 +1,5 @@
-export const gameVersion = "0.1.23"
-export const updatedDate = "Fri, Jan 30, 2026"
+export const gameVersion = "0.1.24"
+export const updatedDate = "Sat, Jan 31, 2026"
 
 export const TILE_SIZE = 64;
 export const GRID_WIDTH = 8;
@@ -28,7 +28,12 @@ export const QUOTES = [
     "Let's do this!",
     "I'm hungry...",
     "안녕하세요!",
-    "Wheeeee! This is fun!"
+    "Wheeeee! This is fun!",
+    "Red five diamonds in my bag...",
+    "I am a top super lady!",
+    "I'm twerking on the runway!",
+    "Cheer up, baby!",
+    "My boob and booty is hot!"
 ]
 
 // BUTTON IDs

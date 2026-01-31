@@ -71,7 +71,7 @@ export function startGame() {
 function createUnits(numPlayerUnits, numEnemyUnits) {
   gameState.units.length = 0;
   gameState.playerList.length = 0;
-  
+
   let id = 0;
   for (let i = 0; i < numPlayerUnits; i++) {
     let x = Math.floor(Math.random() * GRID_WIDTH);
@@ -186,7 +186,7 @@ function render(delta) {
 
 function uiRender(delta) {
   clear(header);
-  drawHeader(gameState);
+  drawHeader(gameState, delta);
 
   clear(footer);
   drawFooter(gameVersion, updatedDate, footerButtons);

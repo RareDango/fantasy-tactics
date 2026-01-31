@@ -5,11 +5,13 @@ import {
   FOOTER_HEIGHT,
   CANVAS_WIDTH,
 } from "./constants.js";
+import { AnimatedImage } from "./AnimatedImage.js";
 
 const knightImage     = loadImage("knight_blue.png");
 const knightFaceImage = loadImage("kight_blue_face.png");
 const goblinImage     = loadImage("goblin.png");
 const attackImage     = loadImage("attack.png");
+const aniKnight       = new AnimatedImage("knight_animated.png", 64, 2, 500);
 
 function loadImage(file) {
   const img = new Image();
@@ -70,21 +72,29 @@ export function drawAttackTiles(tiles, acted) {
   }
 }
 
-export function drawHeader(gameState) {
+export function drawHeader(gameState, delta) {
   // HEADER UI
 
   // DISPLAY SELECTED UNIT INFO
   const portraitSize = TILE_SIZE * 2
   if (gameState.selectedUnitId != null) {
     drawRect(hctx, 0, TILE_SIZE, portraitSize, portraitSize, "rgba(59, 130, 246, 0.15)");
-    drawLine(hctx, portraitSize, TILE_SIZE, portraitSize, TILE_SIZE + portraitSize, "#a2cbff", 1);
+
+    // Unit portrait
+    const pSize = TILE_SIZE * 2;
+    drawAnimation(hctx, aniKnight, 0, TILE_SIZE, pSize, pSize, delta);
+    
+    let color = "#3b82f6";
+    if(gameState.currentTurn === "enemy") { color = "#ef4444"; }
+    drawLine(hctx, portraitSize, TILE_SIZE, portraitSize, TILE_SIZE + portraitSize, color, 2);
     
     const selectedUnit = gameState.units.find(
       (u) => u.id === gameState.selectedUnitId,
     );
 
-    // Unit portrait
-    hctx.drawImage(knightFaceImage, 0, 64, portraitSize, portraitSize);
+    
+    
+    //hctx.drawImage(knightFaceImage, 0, 64, portraitSize, portraitSize);
 
     const numLines = 4;
     const margin = 8;
@@ -95,10 +105,6 @@ export function drawHeader(gameState) {
     drawText(hctx, `HP: ${selectedUnit.hp}/10`, portraitSize + margin, TILE_SIZE + textSize + margin * 2);
     drawText(hctx, `\"${selectedUnit.quote}\"`, portraitSize + margin, TILE_SIZE + textSize * 2 + margin * 3);
   }
-  // Horizontal line always visible
-  drawLine(hctx, 0, 64, 512, 64, "#a2cbff", 1);
-
-
 
   // TOP BAR
   const numLines = 2;
@@ -122,33 +128,31 @@ export function drawHeader(gameState) {
     const player = gameState.playerList[i];
     const alive = gameState.units.find( (u) => u.name === player);
 
-    let text;
-
     if (alive) {
       textStyle(hctx, `${textSize}px Arial`, "white", "top");
     } else {
-      textStyle(hctx, `${textSize}px Arial`, "black", "top");
+      textStyle(hctx, `${textSize}px Arial`, "#ff6666", "top");
     }
 
-    text = player;
-    drawText(hctx, text, margin + offset, textSize + margin * 2);
-    offset += hctx.measureText(text).width;
+    drawText(hctx, player, margin + offset, textSize + margin * 2);
+    offset += hctx.measureText(player).width;
 
     // Add commas between names
     if(i != gameState.playerList.length - 1) {
-        text = ", ";
         textStyle(hctx, `${textSize}px Arial`, "white", "top");
-        drawText(hctx, text, margin + offset, textSize + margin * 2);
-        offset += hctx.measureText(text).width;
+        drawText(hctx, ", ", margin + offset, textSize + margin * 2);
+        offset += hctx.measureText(", ").width;
       }
   }
 
   if (gameState.currentTurn == "player") {
-    drawRect(hctx, 0, 0, header.width, header.height, "rgba(59, 130, 246, 0.15)");
+    drawRect(hctx, 0, TILE_SIZE, header.width, portraitSize, "rgba(59, 130, 246, 0.15)");
     drawRectStroke(hctx, 0, 0, header.width, header.height, "#3b82f6");
+    drawLine(hctx, 0, 64, 512, 64, "#3b82f6", 2);
   } else {
-    drawRect(hctx, 0, 0, header.width, header.height, "rgba(239, 68, 68, 0.15)");
+    drawRect(hctx, 0, TILE_SIZE, header.width, portraitSize, "rgba(239, 68, 68, 0.15)");
     drawRectStroke(hctx, 0, 0, header.width, header.height, "#ef4444");
+    drawLine(hctx, 0, 64, 512, 64, "#ef4444", 2);
   }
 }
 
@@ -201,4 +205,9 @@ function drawRectStroke(context, x, y, width, height, color = "white", lineWidth
   context.strokeStyle = color;
   context.lineWidth = lineWidth;
   context.strokeRect(x, y, width, height);
+}
+
+function drawAnimation(context, image, x, y, width, height, delta) {
+  image.updateAnimation(delta);
+  context.drawImage(image.image, image.offset, 0, image.size, image.size, x, y, width, height);
 }
