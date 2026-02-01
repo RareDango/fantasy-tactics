@@ -31,6 +31,8 @@ export function newAttack(x, y, direction) {
 
   return attack.hitFrame * attack.frameTime;
 }
+
+
 export function clearAttacks() {
   attacks.length = 0;
 }
@@ -48,6 +50,7 @@ function newFirework() {
   firework.kill = false;
   fireworks.push(firework)
 }
+
 export function clearFireworks() {
   fireworks.length = 0;
 }
@@ -113,7 +116,6 @@ export function drawAttackTiles(tiles, acted) {
 
 export function drawAttacks(delta) {
   // If all attacks are finished, clear out the attacks array
-  
   let clearArray = true;
   attacks.forEach( (a) => {
     if(!a.kill) { clearArray = false; }
@@ -213,7 +215,7 @@ export function drawHeader(gameState, delta) {
     drawLine(hctx, portraitSize, TILE_SIZE, portraitSize, TILE_SIZE + portraitSize, color, 2);
     
     const selectedUnit = gameState.units.find(
-      (u) => u.id === gameState.selectedUnitId,
+      (u) => u.id === gameState.selectedUnitId
     );
 
     const numLines = 4;
@@ -285,7 +287,7 @@ function drawRectStroke(context, x, y, width, height, color = "white", lineWidth
   context.strokeRect(x, y, width, height);
 }
 
-/* Original working function!
+/*
 function drawAnimation(context, image, x, y, size, delta) {
   image.updateAnimation(delta);
   context.drawImage(image.image, image.offset, 0, image.size, image.size, x, y, size, size);

@@ -1,6 +1,6 @@
 import { END_TURN, RESET, TILE_SIZE } from "./constants.js";
 import { isTileMovable, isTileOccupied } from "./grid.js";
-import { canAct, interrupt, startGame, endTurn } from "./game.js";
+import { canAct, interrupt, restartGame, endTurn } from "./game.js";
 import { attack, inRange } from "./combat.js";
 import { getRatio } from "./main.js";
 import { clearAttacks, clearFireworks } from "./render.js";
@@ -37,11 +37,7 @@ export function setupInput(canvas, gameState) {
     }
 
     // If clicking an empty tile -> unselect unit
-    if (
-      selectedUnit &&
-      !isTileMovable(selectedUnit, gridX, gridY) &&
-      !isTileOccupied(gridX, gridY)
-    ) {
+    if (selectedUnit && !isTileMovable(selectedUnit, gridX, gridY) && !isTileOccupied(gridX, gridY)) {
       gameState.selectedUnitId = null;
       return;
     }
@@ -63,11 +59,7 @@ export function setupInput(canvas, gameState) {
     }
 
     // If a unit is selected and tile is movable -> move
-    if (
-      selectedUnit &&
-      canAct(selectedUnit) &&
-      isTileMovable(selectedUnit, gridX, gridY)
-    ) {
+    if (selectedUnit && canAct(selectedUnit) && isTileMovable(selectedUnit, gridX, gridY)) {
       selectedUnit.x = gridX;
       selectedUnit.y = gridY;
       selectedUnit.hasActed = true; // mark as acted
@@ -75,25 +67,11 @@ export function setupInput(canvas, gameState) {
       return;
     }
     // If a unit is selected and clicked tile has an enemy -> attack
-    if (
-      selectedUnit &&
-      canAct(selectedUnit) &&
-      clickedUnit &&
-      clickedUnit.team !== selectedUnit.team
-    ) {
+    if (selectedUnit && canAct(selectedUnit) && clickedUnit && clickedUnit.team !== selectedUnit.team) {
       // check range
       if (inRange(selectedUnit, clickedUnit)) {
         attack(selectedUnit, clickedUnit);
         selectedUnit.hasActed = true;
-        //gameState.selectedUnitId = null;
-        /*
-        // Remove dead unit
-        if (clickedUnit.hp <= 0) {
-          gameState.units = gameState.units.filter(
-            (u) => u.id !== clickedUnit.id,
-          );
-        }
-          */
       }
 
       // Otherwise -> deselect
@@ -118,7 +96,7 @@ export function setupFooterInput(canvas, gameState, buttons) {
             clearAttacks();
             clearFireworks();
             interrupt();
-            startGame();
+            restartGame();
           }
           break;
 

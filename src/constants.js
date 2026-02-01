@@ -1,5 +1,5 @@
-export const gameVersion = "0.1.31b"
-export const updatedDate = "Sat, Jan 31, 2026"
+export const gameVersion = "0.1.32";
+export const updatedDate = "Sun, Feb 1, 2026";
 
 export const TILE_SIZE   = 64;
 export const GRID_WIDTH  = 8;

@@ -43,6 +43,9 @@ export const gameState = {
   playerList: [],
   selectedUnitId: null,
   currentTurn: "player", // 'player' or 'enemy'
+
+  numPlayerUnits: 5,
+  numEnemyUnits: 7
 };
 let oldSelectedUnitId = null;
 
@@ -62,14 +65,16 @@ export function startGame() {
   setupRenderer(header, canvas, footer);
   setupButtons()
 
-  createUnits(5, 7);
+  createUnits(gameState.numPlayerUnits, gameState.numEnemyUnits);
 
-  if (!isInputActive()) {
-    setupInput(canvas, gameState);
-    setupFooterInput(footer, gameState, footerButtons);
-  }
+  setupInput(canvas, gameState);
+  setupFooterInput(footer, gameState, footerButtons);
 
   gameLoop();
+}
+
+export function restartGame() {
+  createUnits(gameState.numPlayerUnits, gameState.numEnemyUnits);
 }
 
 function createUnits(numPlayerUnits, numEnemyUnits) {
