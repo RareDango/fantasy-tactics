@@ -14,6 +14,7 @@ import {
 } from "./constants.js";
 import {
   drawAttackTiles,
+  drawMoveTiles,
   drawGrid,
   drawUnit,
   drawHeader,
@@ -21,11 +22,11 @@ import {
   setupRenderer,
   clear,
   resetPortraits,
-  drawAttacks
+  drawAttacks,
+  drawFireworks
 } from "./render.js";
 import { createPlayerUnit, createEnemyUnit } from "./units.js";
 import { setupFooterInput, setupInput, isInputActive } from "./input.js";
-import { drawMoveTiles } from "./render.js";
 import { getMovableTiles, isTileOccupied, getAttackableTiles } from "./grid.js";
 import { attack, inRange } from "./combat.js";
 import { createButton } from "./buttons.js";
@@ -188,6 +189,11 @@ function render(delta) {
   }
   
   drawAttacks(delta);
+
+  if (gameState.units.filter((u) => u.team === "enemy").length < 1) {
+    // Player wins
+    drawFireworks(delta);
+  }
 }
 
 function uiRender(delta) {
@@ -208,10 +214,12 @@ export function canAct(unit) {
 }
 
 async function enemyTurn(delta) {
+  const delay = 250;
+  await new Promise((r) => setTimeout(r, delay * 2));
+
   interruptEnemyTurn = false;
   const enemies = gameState.units.filter((u) => u.team === "enemy");
-  const delay = 250;
-  await new Promise((r) => setTimeout(r, delay));
+  
   for (const enemy of enemies) {
     let actionsTaken = 0;
     while (enemy.actions > actionsTaken && !interruptEnemyTurn) {

@@ -9,16 +9,17 @@ import {
 import { AnimatedImage } from "./AnimatedImage.js";
 
 const knightImage     = loadImage("knight_blue.png");
-const knightFaceImage = loadImage("kight_blue_face.png");
 const goblinImage     = loadImage("goblin.png");
-
 const portraits = [];
-const aniKnight       = new AnimatedImage("knight_animated.png", 64, 4);
+
+// Portraits
+const aniKnight = new AnimatedImage("knight_animated.png", 64, 4);
 portraits.push(aniKnight)
 export function resetPortraits() {
   portraits.forEach( (p) => ( p.resetAnimation() ));
 }
 
+// Attacks
 const attacks = []
 export function newAttack(x, y, direction) {
   const attack = new AnimatedImage("attack_animated.png", 64, 11, false);
@@ -26,10 +27,29 @@ export function newAttack(x, y, direction) {
   attack.setXY(x * TILE_SIZE, y * TILE_SIZE);
   attack.frameTime = 50;
   attack.hitFrame = 7;
-  attack.resetAnimation();
   attacks.push(attack)
 
   return attack.hitFrame * attack.frameTime;
+}
+export function clearAttacks() {
+  attacks.length = 0;
+}
+
+// Fireworks
+const fireworks = []
+function newFirework() {
+  const firework = new AnimatedImage("fireworks_animated.png", 64, 11, false);
+  const x = (Math.random() * TILE_SIZE * (GRID_WIDTH - 2));
+  const y = (Math.random() * TILE_SIZE * (GRID_HEIGHT - 2));
+  firework.setXY(x, y);
+  firework.frameTime = 100;
+  firework.direction = Math.random();
+  firework.index = 0;
+  firework.kill = false;
+  fireworks.push(firework)
+}
+export function clearFireworks() {
+  fireworks.length = 0;
 }
 
 function loadImage(file) {
@@ -105,6 +125,30 @@ export function drawAttacks(delta) {
     drawAnimation(ctx, a, a.x, a.y, a.size, delta);
     if(a.index === a.length - 1) { a.kill = true; }
   })
+}
+
+let countdown = 0;
+export function drawFireworks(delta) {
+  if(!delta) { return; }
+  countdown -= delta;
+  if(countdown < 0) {
+    newFirework();
+    countdown = (Math.random() * 1000) + 200;
+  }
+  if(fireworks.length > 0) {
+    let clearArray = true;
+    fireworks.forEach( (f) => {
+      if(!f.kill) { clearArray = false; }
+    })
+    if(clearArray) { fireworks.length = 0; }
+
+    fireworks.forEach( (f) => {
+      if(f.kill) { return; }
+      const fSize = TILE_SIZE * 2;
+      drawAnimation(ctx, f, f.x, f.y, fSize, delta);
+      if(f.index === f.length - 1) { f.kill = true; }
+    })
+  }
 }
 
 export function drawHeader(gameState, delta) {
@@ -260,6 +304,5 @@ function drawAnimation(context, image, x, y, size, delta) {
 
   image.updateAnimation(delta);
   context.drawImage(image.image, image.offset, 0, image.size, image.size, x - centerX, y - centerY, size, size);
-
   context.restore();
 }

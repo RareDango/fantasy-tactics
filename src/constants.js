@@ -1,4 +1,4 @@
-export const gameVersion = "0.1.30"
+export const gameVersion = "0.1.31"
 export const updatedDate = "Sat, Jan 31, 2026"
 
 export const TILE_SIZE   = 64;
@@ -18,11 +18,16 @@ export const RIGHT = 1;
 export const DOWN  = 2;
 export const LEFT  = 3;
 
+// BUTTON IDs
+export const RESET = 0;
+export const END_TURN = 1;
+
 export const NAMES = [
     "Josh", "Maxwell", "Krista", "Mo",
     "나연", "정연", "사나", "모모", "지효", "미나", "다현", "채영", "쯔위",
     "소연", "우기", "미연", "슈화", "민니", "수진"
 ]
+
 export const QUOTES = [
     "You can do it!",
     "I believe in you!",
@@ -45,8 +50,3 @@ export const QUOTES = [
     "Goblins? More like butt-lins! Gottem.",
     "Hey, good-lookin! ;)"
 ]
-
-// BUTTON IDs
-export const RESET = 0;
-export const RESET_CONFIRM = 1;
-export const END_TURN = 2;

@@ -3,6 +3,7 @@ import { isTileMovable, isTileOccupied } from "./grid.js";
 import { canAct, interrupt, startGame, endTurn } from "./game.js";
 import { attack, inRange } from "./combat.js";
 import { getRatio } from "./main.js";
+import { clearAttacks, clearFireworks } from "./render.js";
 
 let active = false;
 export function isInputActive() {
@@ -114,6 +115,8 @@ export function setupFooterInput(canvas, gameState, buttons) {
 
         case RESET:
           if (inButton(canvas, e, b)) {
+            clearAttacks();
+            clearFireworks();
             interrupt();
             startGame();
           }
