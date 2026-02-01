@@ -1,4 +1,4 @@
-export const gameVersion = "0.1.31"
+export const gameVersion = "0.1.31a"
 export const updatedDate = "Sat, Jan 31, 2026"
 
 export const TILE_SIZE   = 64;
@@ -25,7 +25,9 @@ export const END_TURN = 1;
 export const NAMES = [
     "Josh", "Maxwell", "Krista", "Mo",
     "나연", "정연", "사나", "모모", "지효", "미나", "다현", "채영", "쯔위",
-    "소연", "우기", "미연", "슈화", "민니", "수진"
+    "소연", "우기", "미연", "슈화", "민니", "수진",
+    "Charlie", "Pip (CAN REROLL 1s)", "Leafy", "Jolene",
+    "Montana", "Jovi", "Puddle", "Veythra", "Ze'eil", "Torq"
 ]
 
 export const QUOTES = [
