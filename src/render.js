@@ -7,6 +7,7 @@ import {
   HEADER_HEIGHT,
 } from "./constants.js";
 import { AnimatedImage } from "./AnimatedImage.js";
+import { gameState } from "./game.js";
 
 const knightImage     = loadImage("knight_blue.png");
 const goblinImage     = loadImage("goblin.png");
@@ -93,7 +94,16 @@ export function drawUnit(unit, isSelected) {
   if (unit.team === "enemy" && unit.current) {
     drawRect(ctx, x, y, TILE_SIZE, TILE_SIZE, "rgba(239, 68, 68, 0.25)");
   }
-  ctx.drawImage(unit.team === "player" ? knightImage : goblinImage, x + 4, y + 4, TILE_SIZE - 8, TILE_SIZE - 8);
+  //ctx.drawImage(unit.team === "player" ? knightImage : goblinImage, x + 4, y + 4, TILE_SIZE - 8, TILE_SIZE - 8);
+  drawImage(
+    ctx,
+    unit.team === "player" ? knightImage : goblinImage,
+    x + 4,
+    y + 4,
+    TILE_SIZE - 8,
+    TILE_SIZE - 8,
+    unit.team === "player" ? unit.hue : 0
+  )
 
   // Draw HP bar
   drawRect(ctx, x + 8, y + TILE_SIZE - 12, TILE_SIZE - 16, 4, "red");
@@ -124,7 +134,7 @@ export function drawAttacks(delta) {
 
   attacks.forEach( (a) => {
     if(a.kill) { return; }
-    drawAnimation(ctx, a, a.x, a.y, a.size, delta);
+    drawImage(ctx, a, a.x, a.y, a.size, delta);
     if(a.index === a.length - 1) { a.kill = true; }
   })
 }
@@ -147,7 +157,7 @@ export function drawFireworks(delta) {
     fireworks.forEach( (f) => {
       if(f.kill) { return; }
       const fSize = TILE_SIZE * 2;
-      drawAnimation(ctx, f, f.x, f.y, fSize, delta);
+      drawImage(ctx, f, f.x, f.y, fSize, delta);
       if(f.index === f.length - 1) { f.kill = true; }
     })
   }
@@ -206,17 +216,16 @@ export function drawHeader(gameState, delta) {
   if (gameState.selectedUnitId != null) {
     drawRect(hctx, 0, TILE_SIZE, portraitSize, portraitSize, "rgba(59, 130, 246, 0.15)");
 
+    const selectedUnit = gameState.units.find(
+      (u) => u.id === gameState.selectedUnitId
+    );
     // Unit portrait
     const pSize = TILE_SIZE * 2;
-    drawAnimation(hctx, aniKnight, 0, TILE_SIZE, pSize, delta);
+    drawImage(hctx, aniKnight, 0, TILE_SIZE, pSize, delta, selectedUnit.hue);
     
     let color = "#3b82f6";
     if(gameState.currentTurn === "enemy") { color = "#ef4444"; }
     drawLine(hctx, portraitSize, TILE_SIZE, portraitSize, TILE_SIZE + portraitSize, color, 2);
-    
-    const selectedUnit = gameState.units.find(
-      (u) => u.id === gameState.selectedUnitId
-    );
 
     const numLines = 4;
     const margin = 8;
@@ -294,17 +303,23 @@ function drawAnimation(context, image, x, y, size, delta) {
 }
 */
 
-function drawAnimation(context, image, x, y, size, delta) {
-  context.save();
+function drawImage(context, image, x, y, size, delta = 0, hue = 0) {
+  context.filter = `hue-rotate(${hue}deg)`;
+  if(image instanceof AnimatedImage) {
+    context.save();
 
-  const centerX = x + size / 2;
-  const centerY = y + size / 2;
-  context.translate(centerX, centerY);
+    const centerX = x + size / 2;
+    const centerY = y + size / 2;
+    context.translate(centerX, centerY);
 
-  const radians = image.direction * (Math.PI / 2);
-  context.rotate(radians);
+    const radians = image.direction * (Math.PI / 2);
+    context.rotate(radians);
+    image.updateAnimation(delta);
+    context.drawImage(image.image, image.offset, 0, image.size, image.size, x - centerX, y - centerY, size, size);
 
-  image.updateAnimation(delta);
-  context.drawImage(image.image, image.offset, 0, image.size, image.size, x - centerX, y - centerY, size, size);
-  context.restore();
+    context.restore();
+  } else {
+    context.drawImage(image, x, y, size, size);
+  }
+  context.filter = "hue-rotate(0deg)";
 }

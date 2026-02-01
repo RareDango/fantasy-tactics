@@ -30,7 +30,8 @@ export function createPlayerUnit(id, x, y) {
     attackPower: 4,
     hasActed: false,
     current: false,
-    quote: "Hi!"
+    quote: "Hi!",
+    hue: 0
   };
 }
 

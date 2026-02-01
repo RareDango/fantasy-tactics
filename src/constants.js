@@ -1,4 +1,4 @@
-export const gameVersion = "0.1.32";
+export const gameVersion = "0.1.33";
 export const updatedDate = "Sun, Feb 1, 2026";
 
 export const TILE_SIZE   = 64;
@@ -50,5 +50,6 @@ export const QUOTES = [
     "Stick 'em with the pointy end!",
     "These guys suck!",
     "Goblins? More like butt-lins! Gottem.",
-    "Hey, good-lookin! ;)"
+    "Hey, good-lookin! ;)",
+    "Does this colour look good on me?"
 ]

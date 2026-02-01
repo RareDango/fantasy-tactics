@@ -75,6 +75,7 @@ export function startGame() {
 
 export function restartGame() {
   createUnits(gameState.numPlayerUnits, gameState.numEnemyUnits);
+  gameState.selectedUnitId = null;
 }
 
 function createUnits(numPlayerUnits, numEnemyUnits) {
@@ -106,6 +107,11 @@ function createUnits(numPlayerUnits, numEnemyUnits) {
       quote = QUOTES[Math.floor(Math.random() * QUOTES.length)];
     }
     unit.quote = quote;
+
+    const hueDiff = 360 / numPlayerUnits;
+    const hue = (hueDiff * i) + (Math.random() * hueDiff);
+    unit.hue = hue;
+
 
     gameState.units.push(unit);
     gameState.playerList.push(unit.name);
@@ -179,13 +185,11 @@ function render(delta) {
       (u) => u.id === gameState.selectedUnitId,
     );
 
-    //if (selectedUnit) {
     const moveTiles = getMovableTiles(selectedUnit);
     drawMoveTiles(moveTiles, selectedUnit.hasActed);
 
     const attackTiles = getAttackableTiles(selectedUnit);
     drawAttackTiles(attackTiles, selectedUnit.hasActed);
-    //}
   }
 
   for (const unit of gameState.units) {
@@ -219,20 +223,20 @@ export function canAct(unit) {
 }
 
 async function enemyTurn(delta) {
+  interruptEnemyTurn = false;
   const delay = 250;
   await new Promise((r) => setTimeout(r, delay * 2));
 
-  interruptEnemyTurn = false;
   const enemies = gameState.units.filter((u) => u.team === "enemy");
   
   for (const enemy of enemies) {
+    if(interruptEnemyTurn) { break; }
     let actionsTaken = 0;
     while (enemy.actions > actionsTaken && !interruptEnemyTurn) {
       enemy.current = true;
       // create a delay so we see the enemies moving around
       // instead of instantly teleporting and attacking all at once
       await new Promise((r) => setTimeout(r, delay));
-
       if(interruptEnemyTurn) { break; }
       actionsTaken += 1;
 
@@ -288,6 +292,7 @@ async function enemyTurn(delta) {
       }
       enemy.current = false;
     }
+    if(interruptEnemyTurn) { break; }
     enemy.current = true;
     await new Promise((r) => setTimeout(r, delay));
     enemy.current = false;
@@ -296,9 +301,7 @@ async function enemyTurn(delta) {
 
   // End enemy turn -> back to player
   gameState.currentTurn = "player";
-  gameState.units
-    .filter((u) => u.team === "player")
-    .forEach((u) => (u.hasActed = false));
+  gameState.units.filter((u) => u.team === "player").forEach((u) => (u.hasActed = false));
 }
 
 export function interrupt() {
