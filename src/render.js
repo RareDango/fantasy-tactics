@@ -42,6 +42,7 @@ export function clearAttacks() {
 const fireworks = []
 function newFirework() {
   const firework = new AnimatedImage("fireworks_animated.png", 64, 11, false);
+  firework.hue = Math.random() * 360;
   const x = (Math.random() * TILE_SIZE * (GRID_WIDTH - 2));
   const y = (Math.random() * TILE_SIZE * (GRID_HEIGHT - 2));
   firework.setXY(x, y);
@@ -157,7 +158,7 @@ export function drawFireworks(delta) {
     fireworks.forEach( (f) => {
       if(f.kill) { return; }
       const fSize = TILE_SIZE * 2;
-      drawImage(ctx, f, f.x, f.y, fSize, delta);
+      drawImage(ctx, f, f.x, f.y, fSize, delta, f.hue);
       if(f.index === f.length - 1) { f.kill = true; }
     })
   }
