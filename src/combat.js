@@ -1,18 +1,31 @@
+import { gameState } from "./game.js";
 import { newAttack } from "./render.js";
+import { UP, RIGHT, DOWN, LEFT } from './constants.js';
 
 /**
  * @param {Object} attacker - attacking unit
  * @param {Object} defender - defending unit
  */
-export function attack(attacker, defender) {
+export async function attack(attacker, defender) {
   const x = (attacker.x + defender.x) / 2;
   const y = (attacker.y + defender.y) / 2;
-  newAttack(x, y);
+
+  let direction;
+  if(attacker.y > defender.y) { direction = UP; }
+  else if(attacker.x < defender.x) { direction = RIGHT; }
+  else if(attacker.y < defender.y) { direction = DOWN; }
+  else { direction = LEFT; }
+
+  const delay = newAttack(x, y, direction);
+
+  await new Promise((r) => setTimeout(r, delay));
 
   defender.hp -= attacker.attackPower;
 
   if (defender.hp <= 0) {
     defender.hp = 0; // clamp to zero
+    if(gameState.selectedUnitId === defender.id) { gameState.selectedUnitId = null; }
+    gameState.units = gameState.units.filter( (u) => u.id !== defender.id );
   }
 }
 

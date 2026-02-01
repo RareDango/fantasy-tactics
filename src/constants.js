@@ -1,8 +1,8 @@
-export const gameVersion = "0.1.29"
+export const gameVersion = "0.1.30"
 export const updatedDate = "Sat, Jan 31, 2026"
 
-export const TILE_SIZE = 64;
-export const GRID_WIDTH = 8;
+export const TILE_SIZE   = 64;
+export const GRID_WIDTH  = 8;
 export const GRID_HEIGHT = 8;
 
 export const HEADER_HEIGHT = TILE_SIZE * 3;
@@ -12,6 +12,11 @@ export const FOOTER_HEIGHT = TILE_SIZE * 3;
 
 export const CONTAINER_WIDTH = CANVAS_WIDTH;
 export const CONTAINER_HEIGHT = HEADER_HEIGHT + CANVAS_HEIGHT + FOOTER_HEIGHT;
+
+export const UP    = 0;
+export const RIGHT = 1;
+export const DOWN  = 2;
+export const LEFT  = 3;
 
 export const NAMES = [
     "Josh", "Maxwell", "Krista", "Mo",

@@ -4,6 +4,7 @@ export class AnimatedImage {
         img.src = `./assets/spritesheets/${imgFile}`;
 
         this.image  = img;
+        this.direction  = 0;
         this.size   = size;
         this.length = length;
         this.frameTime  = 200;
@@ -13,7 +14,9 @@ export class AnimatedImage {
         this.loop   = loop;
         this.x      = null;
         this.y      = null;
-        this.kill   - false;
+        this.kill   = false;
+        this.hitFrame = 0;
+        
     }
 
     updateAnimation(d) {

@@ -84,14 +84,15 @@ export function setupInput(canvas, gameState) {
       if (inRange(selectedUnit, clickedUnit)) {
         attack(selectedUnit, clickedUnit);
         selectedUnit.hasActed = true;
-        gameState.selectedUnitId = null;
-
+        //gameState.selectedUnitId = null;
+        /*
         // Remove dead unit
         if (clickedUnit.hp <= 0) {
           gameState.units = gameState.units.filter(
             (u) => u.id !== clickedUnit.id,
           );
         }
+          */
       }
 
       // Otherwise -> deselect

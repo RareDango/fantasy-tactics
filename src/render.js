@@ -20,12 +20,16 @@ export function resetPortraits() {
 }
 
 const attacks = []
-export function newAttack(x, y) {
-  const attack = new AnimatedImage("attack_animated.png", 64, 7, false);
+export function newAttack(x, y, direction) {
+  const attack = new AnimatedImage("attack_animated.png", 64, 11, false);
+  attack.direction = direction;
   attack.setXY(x * TILE_SIZE, y * TILE_SIZE);
   attack.frameTime = 50;
+  attack.hitFrame = 7;
   attack.resetAnimation();
   attacks.push(attack)
+
+  return attack.hitFrame * attack.frameTime;
 }
 
 function loadImage(file) {
@@ -158,7 +162,7 @@ export function drawHeader(gameState, delta) {
 
     // Unit portrait
     const pSize = TILE_SIZE * 2;
-    //drawAnimation(hctx, aniKnight, 0, TILE_SIZE, pSize, delta);
+    drawAnimation(hctx, aniKnight, 0, TILE_SIZE, pSize, delta);
     
     let color = "#3b82f6";
     if(gameState.currentTurn === "enemy") { color = "#ef4444"; }
@@ -237,7 +241,25 @@ function drawRectStroke(context, x, y, width, height, color = "white", lineWidth
   context.strokeRect(x, y, width, height);
 }
 
+/* Original working function!
 function drawAnimation(context, image, x, y, size, delta) {
   image.updateAnimation(delta);
   context.drawImage(image.image, image.offset, 0, image.size, image.size, x, y, size, size);
+}
+*/
+
+function drawAnimation(context, image, x, y, size, delta) {
+  context.save();
+
+  const centerX = x + size / 2;
+  const centerY = y + size / 2;
+  context.translate(centerX, centerY);
+
+  const radians = image.direction * (Math.PI / 2);
+  context.rotate(radians);
+
+  image.updateAnimation(delta);
+  context.drawImage(image.image, image.offset, 0, image.size, image.size, x - centerX, y - centerY, size, size);
+
+  context.restore();
 }

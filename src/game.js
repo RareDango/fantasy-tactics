@@ -137,9 +137,10 @@ function setupButtons() {
 
 export function endTurn() {
   if (gameState.currentTurn === "player") {
-    //gameState.selectedUnitId = null;
     gameState.currentTurn = "enemy";
-    gameState.units.forEach(u => ( u.team === "player" ? u.hasActed = true : u.hasActed = false ));
+    gameState.units.forEach(u => (
+      u.team === "player" ? u.hasActed = true : u.hasActed = false
+    ));
     enemyTurn();
   }
 }
@@ -206,10 +207,11 @@ export function canAct(unit) {
   return !unit.hasActed && unit.team === gameState.currentTurn;
 }
 
-async function enemyTurn() {
+async function enemyTurn(delta) {
   interruptEnemyTurn = false;
   const enemies = gameState.units.filter((u) => u.team === "enemy");
   const delay = 250;
+  await new Promise((r) => setTimeout(r, delay));
   for (const enemy of enemies) {
     let actionsTaken = 0;
     while (enemy.actions > actionsTaken && !interruptEnemyTurn) {
@@ -217,6 +219,7 @@ async function enemyTurn() {
       // create a delay so we see the enemies moving around
       // instead of instantly teleporting and attacking all at once
       await new Promise((r) => setTimeout(r, delay));
+
       if(interruptEnemyTurn) { break; }
       actionsTaken += 1;
 
@@ -263,15 +266,9 @@ async function enemyTurn() {
         // Attack if in range after moving
         for (const player of players) {
           if (inRange(enemy, player) && !enemy.hasActed) {
+
             attack(enemy, player);
             enemy.hasActed = true;
-
-            if (player.hp <= 0) {
-              if(gameState.selectedUnitId === player.id) { gameState.selectedUnitId = null; }
-              gameState.units = gameState.units.filter(
-                (u) => u.id !== player.id,
-              );
-            }
             break; // attack only one unit per turn
           }
         }

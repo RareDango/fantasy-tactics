@@ -49,4 +49,3 @@ export function createEnemyUnit(id, x, y) {
     current: false
   };
 }
-
