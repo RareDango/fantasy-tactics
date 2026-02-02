@@ -8,6 +8,7 @@
  * @property {Team} team
  * @property {number} x
  * @property {number} y
+ * @property {number} maxHp
  * @property {number} hp
  * @property {number} moveRange
  * @property {number} attackRange
@@ -24,10 +25,11 @@ export function createPlayerUnit(id, x, y) {
     name: 'Jimmy',
     x,
     y,
-    hp: 10,
+    maxHp: 4,
+    hp: 4,
     moveRange: 3,
     attackRange: 1, // melee only for now
-    attackPower: 4,
+    attackPower: 1,
     hasActed: false,
     current: false,
     quote: "Hi!",
@@ -41,10 +43,11 @@ export function createEnemyUnit(id, x, y) {
     team: 'enemy',
     x,
     y,
-    hp: 8,
+    maxHp: 2,
+    hp: 2,
     moveRange: 2,
     attackRange: 1,
-    attackPower: 3,
+    attackPower: 1,
     hasActed: false,
     actions: 3,
     current: false

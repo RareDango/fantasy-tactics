@@ -107,10 +107,23 @@ export function drawUnit(unit, isSelected) {
   )
 
   // Draw HP bar
-  drawRect(ctx, x + 8, y + TILE_SIZE - 12, TILE_SIZE - 16, 4, "red");
+  const hpX = x + 7;
+  const hpY = y + TILE_SIZE - 13;
+  const maxWidth = (TILE_SIZE - 14);
+  const hpWidth = (unit.hp / unit.maxHp) * (TILE_SIZE - 14);
+  const hpHeight = 6;
 
-  const hpWidth = (unit.hp / (unit.team === "player" ? 10 : 8)) * (TILE_SIZE - 16);
-  drawRect(ctx, x + 8, y + TILE_SIZE - 12, hpWidth, 4, "green");
+  drawRect(ctx, hpX, hpY, maxWidth, hpHeight, "red");
+  drawRect(ctx, hpX, hpY, hpWidth, hpHeight, "green");
+
+  drawRectStroke(ctx, hpX, hpY, maxWidth, hpHeight, "white", 1);
+
+  const offset = maxWidth / unit.maxHp;
+  for(let i = 1; i < unit.maxHp; i++) {
+    const offX = hpX + (offset * i);
+    drawLine(ctx, offX, hpY, offX, hpY + hpHeight, "white", 1);
+  }
+
 }
 
 export function drawMoveTiles(tiles, unitHasActed) {
@@ -234,7 +247,7 @@ export function drawHeader(gameState, delta) {
     
     textStyle(hctx, `${textSize}px Arial`, "white", "top");
     drawText(hctx, `${selectedUnit.name}`, portraitSize + margin, TILE_SIZE + margin);
-    drawText(hctx, `HP: ${selectedUnit.hp}/10`, portraitSize + margin, TILE_SIZE + textSize + margin * 2);
+    drawText(hctx, `HP: ${selectedUnit.hp}/${selectedUnit.maxHp}`, portraitSize + margin, TILE_SIZE + textSize + margin * 2);
     drawText(hctx, `\"${selectedUnit.quote}\"`, portraitSize + margin, TILE_SIZE + textSize * 2 + margin * 3);
   }
 
