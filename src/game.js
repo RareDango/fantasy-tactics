@@ -9,8 +9,16 @@ import {
   updatedDate,
   NAMES,
   QUOTES,
-  RESET,
-  END_TURN
+  BUTTON_RESET,
+  BUTTON_END_TURN,
+  BUTTON_SETTINGS,
+  BUTTON_PLAYERS_UP,
+  BUTTON_PLAYERS_DOWN,
+  BUTTON_ENEMIES_UP,
+  BUTTON_ENEMIES_DOWN,
+  BUTTON_ACCEPT,
+  BUTTON_CANCEL,
+  TILE_SIZE
 } from "./constants.js";
 import {
   drawAttackTiles,
@@ -21,12 +29,20 @@ import {
   drawFooter,
   setupRenderer,
   clear,
+  clearAttacks,
+  clearFireworks,
   resetPortraits,
   drawAttacks,
-  drawFireworks
+  drawFireworks,
+  b_settings,
+  drawSettings,
+  b_up,
+  b_down,
+  b_accept,
+  b_cancel
 } from "./render.js";
 import { createPlayerUnit, createEnemyUnit } from "./units.js";
-import { setupFooterInput, setupInput, isInputActive } from "./input.js";
+import { setupFooterInput, setupInput, setupHeaderInput } from "./input.js";
 import { getMovableTiles, isTileOccupied, getAttackableTiles } from "./grid.js";
 import { attack, inRange } from "./combat.js";
 import { createButton } from "./buttons.js";
@@ -44,8 +60,13 @@ export const gameState = {
   selectedUnitId: null,
   currentTurn: "player", // 'player' or 'enemy'
 
+  settingsOpen: false,
+
   numPlayerUnits: 5,
-  numEnemyUnits: 7
+  numEnemyUnits: 7,
+
+  newPlayerUnits: 5,
+  newEnemyUnits: 7
 };
 let oldSelectedUnitId = null;
 
@@ -67,13 +88,19 @@ export function startGame() {
 
   createUnits(gameState.numPlayerUnits, gameState.numEnemyUnits);
 
-  setupInput(canvas, gameState);
+  setupInput(canvas, gameState, canvasButtons);
+  setupHeaderInput(header, gameState, headerButtons);
   setupFooterInput(footer, gameState, footerButtons);
 
   gameLoop();
 }
 
 export function restartGame() {
+  gameState.settingsOpen = false;
+  gameState.currentTurn = 'player';
+  clearAttacks();
+  clearFireworks();
+  interrupt();
   createUnits(gameState.numPlayerUnits, gameState.numEnemyUnits);
   gameState.selectedUnitId = null;
 }
@@ -134,17 +161,34 @@ function setupButtons() {
   // HEADER
   buttons = headerButtons;
   buttons.length = 0;
+
+  const buff = 4;
+  const b1 = createButton(BUTTON_SETTINGS, null, b_settings, CANVAS_WIDTH - 64 + buff, buff, 64 - (buff * 2), 64 - (buff * 2));
+  buttons.push(b1);
+
   
   // CANVAS
   buttons = canvasButtons;
   buttons.length = 0;
 
+  let alignX = TILE_SIZE * 1.5;
+  buttons.push(createButton(BUTTON_PLAYERS_DOWN, null, b_down, alignX, TILE_SIZE * 2, TILE_SIZE, TILE_SIZE));
+  buttons.push(createButton(BUTTON_ENEMIES_DOWN, null, b_down, alignX, TILE_SIZE * 3.75, TILE_SIZE, TILE_SIZE));
+
+  alignX = TILE_SIZE * 5.5;
+  buttons.push(createButton(BUTTON_PLAYERS_UP, null, b_up, alignX, TILE_SIZE * 2, TILE_SIZE, TILE_SIZE));
+  buttons.push(createButton(BUTTON_ENEMIES_UP, null, b_up, alignX, TILE_SIZE * 3.75, TILE_SIZE, TILE_SIZE));
+
+  buttons.push(createButton(BUTTON_ACCEPT, null, b_accept, TILE_SIZE * 2.5, TILE_SIZE * 5.5, TILE_SIZE, TILE_SIZE));
+  buttons.push(createButton(BUTTON_CANCEL, null, b_cancel, TILE_SIZE * 4.5, TILE_SIZE * 5.5, TILE_SIZE, TILE_SIZE));
+
+
   // FOOTER
   buttons = footerButtons;
   buttons.length = 0;
   
-  buttons.push(createButton(END_TURN, "END TURN", null, 64, 32, 160, 64, "#9c4242", "#adadad"));
-  buttons.push(createButton(RESET, "RESET", null, 288, 32, 160, 64, "#9c4242", "#adadad"));
+  buttons.push(createButton(BUTTON_END_TURN, "END TURN", null, 64, 32, 160, 64, "#9c4242", "#adadad"));
+  buttons.push(createButton(BUTTON_RESET, "RESET", null, 288, 32, 160, 64, "#9c4242", "#adadad"));
 }
 
 export function endTurn() {
@@ -203,6 +247,12 @@ function render(delta) {
     // Player wins
     drawFireworks(delta);
   }
+
+
+  // SETTINGS OPEN
+  if(gameState.settingsOpen) {
+    drawSettings(gameState, canvasButtons, delta);
+  }
 }
 
 function uiRender(delta) {
@@ -212,7 +262,7 @@ function uiRender(delta) {
   }
 
   clear(header);
-  drawHeader(gameState, delta);
+  drawHeader(gameState, headerButtons, delta);
 
   clear(footer);
   drawFooter(gameVersion, updatedDate, footerButtons);
@@ -223,12 +273,16 @@ export function canAct(unit) {
 }
 
 async function enemyTurn(delta) {
+  const enemies = gameState.units.filter((u) => u.team === "enemy");
+  if(gameState.units.filter( (u) => u.team === 'player').length < 1) {
+    for (const enemy of enemies) { enemy.current = false; }
+    return;
+  }
+
   interruptEnemyTurn = false;
   const delay = 250;
   await new Promise((r) => setTimeout(r, delay * 2));
 
-  const enemies = gameState.units.filter((u) => u.team === "enemy");
-  
   for (const enemy of enemies) {
     if(interruptEnemyTurn) { break; }
     let actionsTaken = 0;
@@ -296,7 +350,6 @@ async function enemyTurn(delta) {
     enemy.current = true;
     await new Promise((r) => setTimeout(r, delay));
     enemy.current = false;
-    enemy.hasActed = true;
   }
 
   // End enemy turn -> back to player

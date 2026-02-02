@@ -1,5 +1,7 @@
-export const gameVersion = "0.1.34";
+export const gameVersion = "0.2.1";
 export const updatedDate = "Sun, Feb 1, 2026";
+
+export const MAX_UNITS = 12;
 
 export const TILE_SIZE   = 64;
 export const GRID_WIDTH  = 8;
@@ -19,8 +21,18 @@ export const DOWN  = 2;
 export const LEFT  = 3;
 
 // BUTTON IDs
-export const RESET = 0;
-export const END_TURN = 1;
+export const BUTTON_RESET    = 0;
+export const BUTTON_END_TURN = 1;
+
+export const BUTTON_SETTINGS = 2;
+
+export const BUTTON_ACCEPT   = 3;
+export const BUTTON_CANCEL   = 4;
+
+export const BUTTON_ENEMIES_UP   = 5;
+export const BUTTON_ENEMIES_DOWN = 6;
+export const BUTTON_PLAYERS_UP   = 7;
+export const BUTTON_PLAYERS_DOWN = 8;
 
 export const NAMES = [
     "Josh", "Maxwell", "Krista", "Mo",

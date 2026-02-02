@@ -5,9 +5,17 @@ import {
   FOOTER_HEIGHT,
   CANVAS_WIDTH,
   HEADER_HEIGHT,
+  CANVAS_HEIGHT,
 } from "./constants.js";
 import { AnimatedImage } from "./AnimatedImage.js";
-import { gameState } from "./game.js";
+
+export const b_settings   = loadImage("button_gear.png");
+export const b_cancel = loadImage("button_x.png");
+export const b_accept = loadImage("button_check.png");
+export const b_up     = loadImage("button_up.png");
+export const b_down   = loadImage("button_down.png");
+
+const settings_bg = loadImage("settings_bg.png");
 
 const knightImage     = loadImage("knight_blue.png");
 const goblinImage     = loadImage("goblin.png");
@@ -177,7 +185,48 @@ export function drawFireworks(delta) {
   }
 }
 
-export function drawHeader(gameState, delta) {
+
+
+
+
+
+
+export function drawSettings(gameState, buttons, delta) {
+  // darken game
+  drawRect(ctx, 0, 0, CANVAS_WIDTH, CANVAS_HEIGHT, "rgba(0, 0, 0, 0.5)");
+  
+  // settings background
+  drawImage(ctx, settings_bg, TILE_SIZE, TILE_SIZE, TILE_SIZE * 6, TILE_SIZE * 6);
+
+  drawRect(ctx, TILE_SIZE * 1.25, TILE_SIZE * 1.75, TILE_SIZE * 5.5 , TILE_SIZE * 1.5, "rgba(255, 255, 255, 0.5)");
+  drawRect(ctx, TILE_SIZE * 1.25, TILE_SIZE * 3.5, TILE_SIZE * 5.5 , TILE_SIZE * 1.5, "rgba(255, 255, 255, 0.5)");
+
+  // buttons
+  buttons.forEach( (b) => {
+    //console.log(b.id);
+    drawImage(ctx, b.image, b.x, b.y, b.width);
+  });
+
+  // unit numbers
+  const center = CANVAS_WIDTH / 2;
+  const playersY = TILE_SIZE * 2.5;
+  const enemiesY = TILE_SIZE * 4.25;
+
+  textStyle(ctx, "24px Arial", "black", "middle", "center")
+  const pString = `PLAYERS: ${gameState.newPlayerUnits}`;
+  drawText(ctx, pString, center, playersY);
+
+  const eString = `ENEMIES: ${gameState.newEnemyUnits}`;
+  drawText(ctx, eString, center, enemiesY);
+}
+
+
+
+
+
+
+
+export function drawHeader(gameState, buttons, delta) {
   // HEADER UI
 
   // TOP BAR
@@ -214,10 +263,14 @@ export function drawHeader(gameState, delta) {
 
     // Add commas between names
     if(i != gameState.playerList.length - 1) {
-        textStyle(hctx, `${textSize}px Arial`, "white", "top");
-        drawText(hctx, ", ", margin + offset, textSize + margin * 2);
-        offset += hctx.measureText(", ").width;
-      }
+      textStyle(hctx, `${textSize}px Arial`, "white", "top");
+      drawText(hctx, ", ", margin + offset, textSize + margin * 2);
+      offset += hctx.measureText(", ").width;
+    }
+
+    buttons.forEach( (b) => {
+      drawImage(hctx, b.image, b.x, b.y, b.width);
+    });
   }
 
   if (gameState.currentTurn == "player") {
@@ -263,7 +316,7 @@ export function drawFooter(gameVersion, updatedDate, buttons) {
   drawLine(fctx, 0, 0, CANVAS_WIDTH, 0, "#555", 1);
 
   // BUTTONS
-  buttons.forEach( b => {
+  buttons.forEach( (b) => {
     drawRect(fctx, b.x, b.y, b.width, b.height, b.color);
     drawRectStroke(fctx, b.x, b.y, b.width, b.height, b.borderColor);
     if(b.text) {
