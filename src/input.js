@@ -12,7 +12,7 @@ import {
   BUTTON_ACCEPT
 } from "./constants.js";
 import { isTileMovable, isTileOccupied } from "./grid.js";
-import { canAct, restartGame, endTurn } from "./game.js";
+import { canAct, restartGame, endTurn, update } from "./game.js";
 import { attack, inRange } from "./combat.js";
 import { getRatio } from "./main.js";
 
@@ -70,6 +70,7 @@ export function setupInput(canvas, gameState, buttons) {
         selectedUnit.y = gridY;
         selectedUnit.hasActed = true; // mark as acted
         gameState.selectedUnitId = null;
+        update();
         return;
       }
       // If a unit is selected and clicked tile has an enemy -> attack
@@ -82,9 +83,12 @@ export function setupInput(canvas, gameState, buttons) {
 
         // Otherwise -> deselect
         gameState.selectedUnitId = null;
+        update();
+        return;
       }
     } else {
-      buttons.forEach( (b) => {
+      for(let i = 0; i < buttons.length; i++) {
+        const b = buttons[i];
         if (inButton(canvas, e, b)) {
           switch (b.id) {
 
@@ -124,14 +128,15 @@ export function setupInput(canvas, gameState, buttons) {
               break;
           }
         }
-      });
+      }
     }
   });
 }
 
 export function setupHeaderInput(canvas, gameState, buttons) {
   canvas.addEventListener("click", (e) => {
-    buttons.forEach( (b) => {
+    for(let i = 0; i < buttons.length; i++) {
+      const b = buttons[i];
       if (inButton(canvas, e, b)) {
         switch (b.id) {
 
@@ -146,7 +151,7 @@ export function setupHeaderInput(canvas, gameState, buttons) {
             break;
         }
       }
-    });
+    }
   });
 }
 

@@ -6,6 +6,7 @@ import {
   CANVAS_WIDTH,
   HEADER_HEIGHT,
   CANVAS_HEIGHT,
+  UP
 } from "./constants.js";
 import { AnimatedImage } from "./AnimatedImage.js";
 
@@ -25,7 +26,10 @@ const portraits = [];
 const aniKnight = new AnimatedImage("knight_animated.png", 64, 4);
 portraits.push(aniKnight)
 export function resetPortraits() {
-  portraits.forEach( (p) => ( p.resetAnimation() ));
+  for(let i = 0; i < portraits.length; i++) {
+    const p = portraits[i];
+    p.resetAnimation();
+  }
 }
 
 // Attacks
@@ -149,21 +153,25 @@ export function drawAttackTiles(tiles, acted) {
 export function drawAttacks(delta) {
   // If all attacks are finished, clear out the attacks array
   let clearArray = true;
-  attacks.forEach( (a) => {
-    if(!a.kill) { clearArray = false; }
-  })
-  if(clearArray) { attacks.length = 0; }
-
-  attacks.forEach( (a) => {
-    if(a.kill) { return; }
+  for(let i = 0; i < attacks.length; i++) {
+    if(!attacks[i].kill) {
+      clearArray = false;
+    }
+  }
+  if(clearArray) {
+    attacks.length = 0;
+  }
+  
+  for(let i = 0; i < attacks.length; i++) {
+    const a = attacks[i];
+    if(a.kill) { continue; }
     drawImage(ctx, a, a.x, a.y, a.size, delta);
     if(a.index === a.length - 1) { a.kill = true; }
-  })
+  }
 }
 
 let countdown = 0;
 export function drawFireworks(delta) {
-  if(!delta) { return; }
   countdown -= delta;
   if(countdown < 0) {
     newFirework();
@@ -171,17 +179,22 @@ export function drawFireworks(delta) {
   }
   if(fireworks.length > 0) {
     let clearArray = true;
-    fireworks.forEach( (f) => {
-      if(!f.kill) { clearArray = false; }
-    })
-    if(clearArray) { fireworks.length = 0; }
+    for(let i = 0; i < fireworks.length; i++) {
+      if(!fireworks[i].kill) {
+        clearArray = false;
+      }
+    }
+    if(clearArray) {
+      fireworks.length = 0;
+    }
 
-    fireworks.forEach( (f) => {
+    for(let i = 0; i < fireworks.length; i++) {
+      const f = fireworks[i];
       if(f.kill) { return; }
       const fSize = TILE_SIZE * 2;
       drawImage(ctx, f, f.x, f.y, fSize, delta, f.hue);
       if(f.index === f.length - 1) { f.kill = true; }
-    })
+    }
   }
 }
 
@@ -202,10 +215,10 @@ export function drawSettings(gameState, buttons, delta) {
   drawRect(ctx, TILE_SIZE * 1.25, TILE_SIZE * 3.5, TILE_SIZE * 5.5 , TILE_SIZE * 1.5, "rgba(255, 255, 255, 0.5)");
 
   // buttons
-  buttons.forEach( (b) => {
-    //console.log(b.id);
+  for(let i = 0; i < buttons.length; i++) {
+    const b = buttons[i];
     drawImage(ctx, b.image, b.x, b.y, b.width);
-  });
+  }
 
   // unit numbers
   const center = CANVAS_WIDTH / 2;
@@ -236,21 +249,34 @@ export function drawHeader(gameState, buttons, delta) {
   const portraitSize = TILE_SIZE * 2;
 
   textStyle(hctx, `${textSize}px Arial`, "white", "top");
-  if (gameState.units.filter((u) => u.team === "player").length === 0) {
-    // Enemy wins
+
+  let players = 0;
+  let enemies = 0;
+
+  const units = gameState.units;
+  for(let i = 0; i < units.length; i++) {
+    if(units[i].team === "player") { players++; }
+    else { enemies++; }
+  }
+
+  if (players === 0) { // Enemy wins
     drawText(hctx, "You lose! Bad job, loser!", margin, margin);
-  } else if (gameState.units.filter((u) => u.team === "enemy").length === 0) {
-    // Player wins
+  } else if (enemies === 0) { // Player wins
     drawText(hctx, "You win! Good job, champ!", margin, margin);
-  } else {
-    // Display current turn
+  } else { // Display current turn
     drawText(hctx, `Turn: ${gameState.currentTurn}`, margin, margin);
   }
 
   let offset = 0;
   for(let i = 0; i < gameState.playerList.length; i++) {
     const player = gameState.playerList[i];
-    const alive = gameState.units.find( (u) => u.name === player);
+    //const alive = gameState.units.find( (u) => u.name === player);
+    let alive = false;
+    for(let j = 0; j < gameState.units.length; j++) {
+      if(gameState.units[j].name === player) {
+        alive = true;
+      }
+    }
 
     if (alive) {
       textStyle(hctx, `${textSize}px Arial`, "white", "top");
@@ -268,9 +294,10 @@ export function drawHeader(gameState, buttons, delta) {
       offset += hctx.measureText(", ").width;
     }
 
-    buttons.forEach( (b) => {
+    for(let i = 0; i < buttons.length; i++) {
+      const b = buttons[i];
       drawImage(hctx, b.image, b.x, b.y, b.width);
-    });
+    }
   }
 
   if (gameState.currentTurn == "player") {
@@ -316,14 +343,15 @@ export function drawFooter(gameVersion, updatedDate, buttons) {
   drawLine(fctx, 0, 0, CANVAS_WIDTH, 0, "#555", 1);
 
   // BUTTONS
-  buttons.forEach( (b) => {
+  for(let i = 0; i < buttons.length; i++) {
+    const b = buttons[i];
     drawRect(fctx, b.x, b.y, b.width, b.height, b.color);
     drawRectStroke(fctx, b.x, b.y, b.width, b.height, b.borderColor);
     if(b.text) {
       textStyle(fctx, "28px Arial", "white", "middle", "center");
       drawText(fctx, b.text, b.x + b.width / 2, b.y + b.height / 2);
     }
-  })
+  }
 
   const versionText = `Version: ${gameVersion} - Updated: ${updatedDate}`;
   textStyle(fctx, "16px Arial", "#bbb", "alphabetic", "right");
@@ -363,28 +391,26 @@ function drawRectStroke(context, x, y, width, height, color = "white", lineWidth
   context.strokeRect(x, y, width, height);
 }
 
-/*
-function drawAnimation(context, image, x, y, size, delta) {
-  image.updateAnimation(delta);
-  context.drawImage(image.image, image.offset, 0, image.size, image.size, x, y, size, size);
-}
-*/
-
 function drawImage(context, image, x, y, size, delta = 0, hue = 0) {
   context.filter = `hue-rotate(${hue}deg)`;
   if(image instanceof AnimatedImage) {
-    context.save();
+    if(image.direction != UP) {
+      context.save();
 
-    const centerX = x + size / 2;
-    const centerY = y + size / 2;
-    context.translate(centerX, centerY);
+      const centerX = x + size / 2;
+      const centerY = y + size / 2;
+      context.translate(centerX, centerY);
 
-    const radians = image.direction * (Math.PI / 2);
-    context.rotate(radians);
-    image.updateAnimation(delta);
-    context.drawImage(image.image, image.offset, 0, image.size, image.size, x - centerX, y - centerY, size, size);
+      const radians = image.direction * (Math.PI / 2);
+      context.rotate(radians);
+      image.updateAnimation(delta);
+      context.drawImage(image.image, image.offset, 0, image.size, image.size, x - centerX, y - centerY, size, size);
 
-    context.restore();
+      context.restore();
+    } else {
+      image.updateAnimation(delta);
+      context.drawImage(image.image, image.offset, 0, image.size, image.size, x, y, size, size);
+    }
   } else {
     context.drawImage(image, x, y, size, size);
   }

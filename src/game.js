@@ -66,7 +66,10 @@ export const gameState = {
   numEnemyUnits: 7,
 
   newPlayerUnits: 5,
-  newEnemyUnits: 7
+  newEnemyUnits: 7,
+
+  currentPlayers: 5,
+  currentEnemies: 7
 };
 let oldSelectedUnitId = null;
 
@@ -93,6 +96,18 @@ export function startGame() {
   setupFooterInput(footer, gameState, footerButtons);
 
   gameLoop();
+}
+
+let lastTime = 0;
+function gameLoop(timestamp) {
+  const delta = timestamp - lastTime;
+  lastTime = timestamp;
+  if(delta) {
+    //update();
+    render(delta);
+    uiRender(delta);
+  }
+  requestAnimationFrame(gameLoop);
 }
 
 export function restartGame() {
@@ -192,6 +207,7 @@ function setupButtons() {
 }
 
 export function endTurn() {
+  
   if (gameState.currentTurn === "player") {
     gameState.currentTurn = "enemy";
     gameState.units.forEach(u => (
@@ -201,21 +217,23 @@ export function endTurn() {
   }
 }
 
-let lastTime = 0;
-function gameLoop(timestamp) {
-  const delta = timestamp - lastTime;
-  lastTime = timestamp;
+export function update() {
+  let players = 0;
+  let enemies = 0;
+  for(let i = 0; i < gameState.units.length; i++) {
+    if(gameState.units[i].team === "player") { players++; }
+    else { enemies++; }
+  }
+  gameState.currentPlayers = players;
+  gameState.currentEnemies = enemies;
 
-  update(delta);
-  render(delta);
-  uiRender(delta);
-
-  requestAnimationFrame(gameLoop);
-}
-
-function update(delta) {
   let end = true;
-  for (const u of gameState.units.filter(u => u.team === "player")) { if (!u.hasActed) { end = false; } }
+  const units = gameState.units;
+  for(let i = 0; i < units.length; i++) {
+    const u = units[i];
+    if(u.team === "enemy") { continue; }
+    if(!u.hasActed) { end = false; }
+  }
   if (end) { endTurn(); }
 }
 
@@ -283,7 +301,10 @@ async function enemyTurn(delta) {
   const delay = 250;
   await new Promise((r) => setTimeout(r, delay * 2));
 
-  for (const enemy of enemies) {
+  for(let i = 0; i < gameState.units.length; i++) {
+    const enemy = gameState.units[i];
+    if(enemy.team === "player") { continue; }
+
     if(interruptEnemyTurn) { break; }
     let actionsTaken = 0;
     while (enemy.actions > actionsTaken && !interruptEnemyTurn) {
@@ -294,18 +315,21 @@ async function enemyTurn(delta) {
       if(interruptEnemyTurn) { break; }
       actionsTaken += 1;
 
-      // find closest player
-      const players = gameState.units.filter((u) => u.team === "player");
-      if (players.length === 0) {
+      if (gameState.currentPlayers === 0) {
         enemy.current = false;
         gameState.currentTurn = "player";
-        return; // no players left
+        return;
       }
 
-      let closestPlayer = players[0];
-      let minDist = Math.abs(enemy.x - closestPlayer.x) + Math.abs(enemy.y - closestPlayer.y);
+      // find closest player
+      const players = gameState.units.filter((u) => u.team === "player");
+      let closestPlayer;
+      let minDist = GRID_HEIGHT * GRID_WIDTH;
 
-      for (const player of players) {
+      for(let j = 0; j < gameState.units.length; j++) {
+        const player = gameState.units[j];
+        if(player.team === "enemy") { continue; }
+
         const dist = Math.abs(enemy.x - player.x) + Math.abs(enemy.y - player.y);
         if (dist < minDist) {
           minDist = dist;
