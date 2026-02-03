@@ -54,13 +54,13 @@ export function clearAttacks() {
 const fireworks = []
 function newFirework() {
   const firework = new AnimatedImage("fireworks_animated.png", 64, 11, false);
+  firework.drawSize = TILE_SIZE * 1.5 + (Math.random() * TILE_SIZE * 2.5);
   firework.hue = Math.random() * 360;
   const x = (Math.random() * TILE_SIZE * (GRID_WIDTH - 2));
   const y = (Math.random() * TILE_SIZE * (GRID_HEIGHT - 2));
   firework.setXY(x, y);
   firework.frameTime = 100;
   firework.direction = Math.random();
-  firework.index = 0;
   firework.kill = false;
   fireworks.push(firework)
 }
@@ -185,24 +185,21 @@ export function drawFireworks(delta) {
       }
     }
     if(clearArray) {
-      fireworks.length = 0;
+      clearFireworks();
     }
 
     for(let i = 0; i < fireworks.length; i++) {
       const f = fireworks[i];
-      if(f.kill) { return; }
-      const fSize = TILE_SIZE * 2;
-      drawImage(ctx, f, f.x, f.y, fSize, delta, f.hue);
-      if(f.index === f.length - 1) { f.kill = true; }
+      if(f.kill) { continue; }
+      //const fSize = TILE_SIZE * 2;
+      const fSize = f.drawSize;
+      drawImage(ctx, f, f.x, f.y, f.drawSize, delta, f.hue);
+      if(f.index === f.length - 1) {
+        f.kill = true;
+      }
     }
   }
 }
-
-
-
-
-
-
 
 export function drawSettings(gameState, buttons, delta) {
   // darken game
@@ -232,12 +229,6 @@ export function drawSettings(gameState, buttons, delta) {
   const eString = `ENEMIES: ${gameState.newEnemyUnits}`;
   drawText(ctx, eString, center, enemiesY);
 }
-
-
-
-
-
-
 
 export function drawHeader(gameState, buttons, delta) {
   // HEADER UI

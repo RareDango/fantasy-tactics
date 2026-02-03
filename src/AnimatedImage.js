@@ -17,6 +17,7 @@ export class AnimatedImage {
         this.y          = null;
         this.kill       = false;
         this.hitFrame   = 0;
+        this.drawSize   = 0;
     }
 
     updateAnimation(d) {

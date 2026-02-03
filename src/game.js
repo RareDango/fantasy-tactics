@@ -98,12 +98,17 @@ export function startGame() {
   gameLoop();
 }
 
+
+const FRAME_TIME = 1000 / 20; // 20fps
 let lastTime = 0;
 function gameLoop(timestamp) {
+  if (timestamp - lastTime < FRAME_TIME) {
+    requestAnimationFrame(gameLoop);
+    return;
+  }
   const delta = timestamp - lastTime;
   lastTime = timestamp;
   if(delta) {
-    //update();
     render(delta);
     uiRender(delta);
   }
