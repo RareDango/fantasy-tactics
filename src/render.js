@@ -9,6 +9,7 @@ import {
   UP
 } from "./constants.js";
 import { AnimatedImage } from "./AnimatedImage.js";
+import { gameState, renderCanvasTrue } from "./game.js";
 
 export const b_settings   = loadImage("button_gear.png");
 export const b_cancel = loadImage("button_x.png");
@@ -21,6 +22,8 @@ const settings_bg = loadImage("settings_bg.png");
 const knightImage     = loadImage("knight_blue.png");
 const goblinImage     = loadImage("goblin.png");
 const portraits = [];
+
+let renderHeader = true;
 
 // Portraits
 const aniKnight = new AnimatedImage("knight_animated.png", 64, 4);
@@ -230,123 +233,170 @@ export function drawSettings(gameState, buttons, delta) {
   drawText(ctx, eString, center, enemiesY);
 }
 
+export function updateAnimations(delta) {
+  // HEADER
+  let updated = false;
+  for(let i = 0; i < portraits.length; i++) {
+    const p = portraits[i];
+    if(gameState.selectedUnitId) {
+      if(p.updateAnimation(delta)) { updated = true; }
+    }
+  }
+  if(updated) { renderHeaderTrue(); }
+
+  // CANVAS
+
+  updated = false;
+  for(let i = 0; i < attacks.length; i++) {
+    const a = attacks[i];
+    if(a.updateAnimation(delta)) {
+      updated = true;
+    }
+  }
+  for(let i = 0; i < fireworks.length; i++) {
+    const f = fireworks[i];
+    if(f.updateAnimation(delta)) {
+      updated = true;
+    }
+  }
+  if(updated) { renderCanvasTrue(); }
+
+  // FOOTER
+
+  // ?
+}
+
+export function renderHeaderTrue() { renderHeader = true; }
+
 export function drawHeader(gameState, buttons, delta) {
   // HEADER UI
+  if(renderHeader) {
+    console.log("Header rendered.");
+    clear(header);
+    // TOP BAR
+    const numLines = 2;
+    const margin = 8;
+    const textSize = (TILE_SIZE - (numLines + 1) * margin) / numLines;
+    const portraitSize = TILE_SIZE * 2;
 
-  // TOP BAR
-  const numLines = 2;
-  const margin = 8;
-  const textSize = (TILE_SIZE - (numLines + 1) * margin) / numLines;
-  const portraitSize = TILE_SIZE * 2;
+    textStyle(hctx, `${textSize}px Arial`, "white", "top");
 
-  textStyle(hctx, `${textSize}px Arial`, "white", "top");
+    let players = 0;
+    let enemies = 0;
 
-  let players = 0;
-  let enemies = 0;
+    const units = gameState.units;
+    for(let i = 0; i < units.length; i++) {
+      if(units[i].team === "player") { players++; }
+      else { enemies++; }
+    }
 
-  const units = gameState.units;
-  for(let i = 0; i < units.length; i++) {
-    if(units[i].team === "player") { players++; }
-    else { enemies++; }
-  }
+    if (players === 0) { // Enemy wins
+      drawText(hctx, "You lose! Bad job, loser!", margin, margin);
+    } else if (enemies === 0) { // Player wins
+      drawText(hctx, "You win! Good job, champ!", margin, margin);
+    } else { // Display current turn
+      drawText(hctx, `Turn: ${gameState.currentTurn}`, margin, margin);
+    }
 
-  if (players === 0) { // Enemy wins
-    drawText(hctx, "You lose! Bad job, loser!", margin, margin);
-  } else if (enemies === 0) { // Player wins
-    drawText(hctx, "You win! Good job, champ!", margin, margin);
-  } else { // Display current turn
-    drawText(hctx, `Turn: ${gameState.currentTurn}`, margin, margin);
-  }
+    let offset = 0;
+    for(let i = 0; i < gameState.playerList.length; i++) {
+      const player = gameState.playerList[i];
+      //const alive = gameState.units.find( (u) => u.name === player);
+      let alive = false;
+      for(let j = 0; j < gameState.units.length; j++) {
+        if(gameState.units[j].name === player) {
+          alive = true;
+        }
+      }
 
-  let offset = 0;
-  for(let i = 0; i < gameState.playerList.length; i++) {
-    const player = gameState.playerList[i];
-    //const alive = gameState.units.find( (u) => u.name === player);
-    let alive = false;
-    for(let j = 0; j < gameState.units.length; j++) {
-      if(gameState.units[j].name === player) {
-        alive = true;
+      if (alive) {
+        textStyle(hctx, `${textSize}px Arial`, "white", "top");
+      } else {
+        textStyle(hctx, `${textSize}px Arial`, "#ff6666", "top");
+      }
+
+      drawText(hctx, player, margin + offset, textSize + margin * 2);
+      offset += hctx.measureText(player).width;
+
+      // Add commas between names
+      if(i != gameState.playerList.length - 1) {
+        textStyle(hctx, `${textSize}px Arial`, "white", "top");
+        drawText(hctx, ", ", margin + offset, textSize + margin * 2);
+        offset += hctx.measureText(", ").width;
+      }
+
+      for(let i = 0; i < buttons.length; i++) {
+        const b = buttons[i];
+        drawImage(hctx, b.image, b.x, b.y, b.width);
       }
     }
 
-    if (alive) {
-      textStyle(hctx, `${textSize}px Arial`, "white", "top");
+    if (gameState.currentTurn == "player") {
+      drawRect(hctx, 0, TILE_SIZE, header.width, portraitSize, "rgba(59, 130, 246, 0.15)");
     } else {
-      textStyle(hctx, `${textSize}px Arial`, "#ff6666", "top");
+      drawRect(hctx, 0, TILE_SIZE, header.width, portraitSize, "rgba(239, 68, 68, 0.15)");
     }
 
-    drawText(hctx, player, margin + offset, textSize + margin * 2);
-    offset += hctx.measureText(player).width;
+    // DISPLAY SELECTED UNIT INFO
+    if (gameState.selectedUnitId != null) {
+      drawRect(hctx, 0, TILE_SIZE, portraitSize, portraitSize, "rgba(59, 130, 246, 0.15)");
 
-    // Add commas between names
-    if(i != gameState.playerList.length - 1) {
+      const selectedUnit = gameState.units.find(
+        (u) => u.id === gameState.selectedUnitId
+      );
+      // Unit portrait
+      const pSize = TILE_SIZE * 2;
+      drawImage(hctx, aniKnight, 0, TILE_SIZE, pSize, delta, selectedUnit.hue);
+      
+      let color = "#3b82f6";
+      if(gameState.currentTurn === "enemy") { color = "#ef4444"; }
+      drawLine(hctx, portraitSize, TILE_SIZE, portraitSize, TILE_SIZE + portraitSize, color, 2);
+
+      const numLines = 4;
+      const margin = 8;
+      const textSize = (portraitSize - (numLines + 1) * margin) / numLines;
+      
       textStyle(hctx, `${textSize}px Arial`, "white", "top");
-      drawText(hctx, ", ", margin + offset, textSize + margin * 2);
-      offset += hctx.measureText(", ").width;
+      drawText(hctx, `${selectedUnit.name}`, portraitSize + margin, TILE_SIZE + margin);
+      drawText(hctx, `HP: ${selectedUnit.hp}/${selectedUnit.maxHp}`, portraitSize + margin, TILE_SIZE + textSize + margin * 2);
+      drawText(hctx, `\"${selectedUnit.quote}\"`, portraitSize + margin, TILE_SIZE + textSize * 2 + margin * 3);
     }
 
-    for(let i = 0; i < buttons.length; i++) {
-      const b = buttons[i];
-      drawImage(hctx, b.image, b.x, b.y, b.width);
-    }
-  }
-
-  if (gameState.currentTurn == "player") {
-    drawRect(hctx, 0, TILE_SIZE, header.width, portraitSize, "rgba(59, 130, 246, 0.15)");
-  } else {
-    drawRect(hctx, 0, TILE_SIZE, header.width, portraitSize, "rgba(239, 68, 68, 0.15)");
-  }
-
-  // DISPLAY SELECTED UNIT INFO
-  if (gameState.selectedUnitId != null) {
-    drawRect(hctx, 0, TILE_SIZE, portraitSize, portraitSize, "rgba(59, 130, 246, 0.15)");
-
-    const selectedUnit = gameState.units.find(
-      (u) => u.id === gameState.selectedUnitId
-    );
-    // Unit portrait
-    const pSize = TILE_SIZE * 2;
-    drawImage(hctx, aniKnight, 0, TILE_SIZE, pSize, delta, selectedUnit.hue);
-    
     let color = "#3b82f6";
     if(gameState.currentTurn === "enemy") { color = "#ef4444"; }
-    drawLine(hctx, portraitSize, TILE_SIZE, portraitSize, TILE_SIZE + portraitSize, color, 2);
+    drawLine(hctx, 0, 64, CANVAS_WIDTH, 64, color, 2);
+    drawRectStroke(hctx, 0, 0, CANVAS_WIDTH, HEADER_HEIGHT, color, 4);
 
-    const numLines = 4;
-    const margin = 8;
-    const textSize = (portraitSize - (numLines + 1) * margin) / numLines;
-    
-    textStyle(hctx, `${textSize}px Arial`, "white", "top");
-    drawText(hctx, `${selectedUnit.name}`, portraitSize + margin, TILE_SIZE + margin);
-    drawText(hctx, `HP: ${selectedUnit.hp}/${selectedUnit.maxHp}`, portraitSize + margin, TILE_SIZE + textSize + margin * 2);
-    drawText(hctx, `\"${selectedUnit.quote}\"`, portraitSize + margin, TILE_SIZE + textSize * 2 + margin * 3);
+    renderHeader = false;
   }
-
-  let color = "#3b82f6";
-  if(gameState.currentTurn === "enemy") { color = "#ef4444"; }
-  drawLine(hctx, 0, 64, CANVAS_WIDTH, 64, color, 2);
-  drawRectStroke(hctx, 0, 0, CANVAS_WIDTH, HEADER_HEIGHT, color, 4);
 }
 
+let renderFooter = true;
 export function drawFooter(gameVersion, updatedDate, buttons) {
   // FOOTER UI
 
-  drawLine(fctx, 0, 0, CANVAS_WIDTH, 0, "#555", 1);
+  if(renderFooter) {
+    console.log("Footer rendered.");
+    clear(footer);
+    drawLine(fctx, 0, 0, CANVAS_WIDTH, 0, "#555", 1);
 
-  // BUTTONS
-  for(let i = 0; i < buttons.length; i++) {
-    const b = buttons[i];
-    drawRect(fctx, b.x, b.y, b.width, b.height, b.color);
-    drawRectStroke(fctx, b.x, b.y, b.width, b.height, b.borderColor);
-    if(b.text) {
-      textStyle(fctx, "28px Arial", "white", "middle", "center");
-      drawText(fctx, b.text, b.x + b.width / 2, b.y + b.height / 2);
+    // BUTTONS
+    for(let i = 0; i < buttons.length; i++) {
+      const b = buttons[i];
+      drawRect(fctx, b.x, b.y, b.width, b.height, b.color);
+      drawRectStroke(fctx, b.x, b.y, b.width, b.height, b.borderColor);
+      if(b.text) {
+        textStyle(fctx, "28px Arial", "white", "middle", "center");
+        drawText(fctx, b.text, b.x + b.width / 2, b.y + b.height / 2);
+      }
     }
-  }
 
-  const versionText = `Version: ${gameVersion} - Updated: ${updatedDate}`;
-  textStyle(fctx, "16px Arial", "#bbb", "alphabetic", "right");
-  drawText(fctx, versionText, CANVAS_WIDTH - 10, FOOTER_HEIGHT - 10);
+    const versionText = `Version: ${gameVersion} - Updated: ${updatedDate}`;
+    textStyle(fctx, "16px Arial", "#bbb", "alphabetic", "right");
+    drawText(fctx, versionText, CANVAS_WIDTH - 10, FOOTER_HEIGHT - 10);
+
+    renderFooter = false;
+  }
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -382,7 +432,7 @@ function drawRectStroke(context, x, y, width, height, color = "white", lineWidth
   context.strokeRect(x, y, width, height);
 }
 
-function drawImage(context, image, x, y, size, delta = 0, hue = 0) {
+function drawImage(context, image, x, y, size, delta = 0, hue = 0, update = true) {
   context.filter = `hue-rotate(${hue}deg)`;
   if(image instanceof AnimatedImage) {
     if(image.direction != UP) {
@@ -394,7 +444,7 @@ function drawImage(context, image, x, y, size, delta = 0, hue = 0) {
 
       const radians = image.direction * (Math.PI / 2);
       context.rotate(radians);
-      image.updateAnimation(delta);
+      if(update) { image.updateAnimation(delta); }
       context.drawImage(image.image, image.offset, 0, image.size, image.size, x - centerX, y - centerY, size, size);
 
       context.restore();

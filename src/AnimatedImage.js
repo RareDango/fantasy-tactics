@@ -21,8 +21,10 @@ export class AnimatedImage {
     }
 
     updateAnimation(d) {
+        let updated = false;
         this.delta += d;
         while(this.delta > this.frameTime) {
+            updated = true;
             this.delta -= this.frameTime;
             this.index++;
             if(this.index >= this.length) {
@@ -30,6 +32,7 @@ export class AnimatedImage {
             }
             this.offset = this.index * this.size;
         }
+        return updated;
     }
 
     resetAnimation() {

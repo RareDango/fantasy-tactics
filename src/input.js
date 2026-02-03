@@ -12,9 +12,10 @@ import {
   BUTTON_ACCEPT
 } from "./constants.js";
 import { isTileMovable, isTileOccupied } from "./grid.js";
-import { canAct, restartGame, endTurn, update } from "./game.js";
+import { canAct, restartGame, endTurn, checkEndTurn, renderCanvasTrue } from "./game.js";
 import { attack, inRange } from "./combat.js";
 import { getRatio } from "./main.js";
+import { renderHeaderTrue } from "./render.js";
 
 export function setupInput(canvas, gameState, buttons) {
   canvas.addEventListener("click", (e) => {
@@ -39,18 +40,24 @@ export function setupInput(canvas, gameState, buttons) {
       // If clicking the selected unit -> unselect it
       if (clickedUnit === selectedUnit) {
         gameState.selectedUnitId = null;
+        renderHeaderTrue();
+        renderCanvasTrue();
         return;
       }
 
       // If clicking an empty tile -> unselect unit
       if (selectedUnit && !isTileMovable(selectedUnit, gridX, gridY) && !isTileOccupied(gridX, gridY)) {
         gameState.selectedUnitId = null;
+        renderHeaderTrue();
+        renderCanvasTrue();
         return;
       }
 
       // If clicking a player unit -> select it
       if (clickedUnit && clickedUnit.team === "player") {
         gameState.selectedUnitId = clickedUnit.id;
+        renderHeaderTrue();
+        renderCanvasTrue();
         return;
       }
 
@@ -61,6 +68,8 @@ export function setupInput(canvas, gameState, buttons) {
         !canAct(selectedUnit)
       ) {
         gameState.selectedUnitId = null;
+        renderHeaderTrue();
+        renderCanvasTrue();
         return;
       }
 
@@ -68,9 +77,11 @@ export function setupInput(canvas, gameState, buttons) {
       if (selectedUnit && canAct(selectedUnit) && isTileMovable(selectedUnit, gridX, gridY)) {
         selectedUnit.x = gridX;
         selectedUnit.y = gridY;
+        renderCanvasTrue();
         selectedUnit.hasActed = true; // mark as acted
         gameState.selectedUnitId = null;
-        update();
+        renderHeaderTrue();
+        checkEndTurn();
         return;
       }
       // If a unit is selected and clicked tile has an enemy -> attack
@@ -83,7 +94,9 @@ export function setupInput(canvas, gameState, buttons) {
 
         // Otherwise -> deselect
         gameState.selectedUnitId = null;
-        update();
+        renderHeaderTrue();
+        renderCanvasTrue();
+        checkEndTurn();
         return;
       }
     } else {
@@ -95,32 +108,38 @@ export function setupInput(canvas, gameState, buttons) {
             case BUTTON_PLAYERS_UP:
               gameState.newPlayerUnits++;
               if(gameState.newPlayerUnits > MAX_UNITS) { gameState.newPlayerUnits = MAX_UNITS; }
+              renderCanvasTrue();
               break;
             
             case BUTTON_PLAYERS_DOWN:
               gameState.newPlayerUnits--;
               if(gameState.newPlayerUnits < 1) { gameState.newPlayerUnits = 1; }
+              renderCanvasTrue();
               break;
             
             case BUTTON_ENEMIES_UP:
               gameState.newEnemyUnits++;
               if(gameState.newEnemyUnits > MAX_UNITS) { gameState.newEnemyUnits = MAX_UNITS; }
+              renderCanvasTrue();
               break;
             
             case BUTTON_ENEMIES_DOWN:
               gameState.newEnemyUnits--;
               if(gameState.newEnemyUnits < 1) { gameState.newEnemyUnits = 1; }
+              renderCanvasTrue();
               break;
             
             case BUTTON_CANCEL:
               gameState.settingsOpen = false;
               gameState.newPlayerUnits = gameState.numPlayerUnits;
               gameState.newEnemyUnits = gameState.numEnemyUnits;
+              renderCanvasTrue();
               break;
             
             case BUTTON_ACCEPT:
               gameState.numPlayerUnits = gameState.newPlayerUnits;
               gameState.numEnemyUnits = gameState.newEnemyUnits;
+              renderCanvasTrue();
               restartGame();
               break;
 
@@ -145,6 +164,7 @@ export function setupHeaderInput(canvas, gameState, buttons) {
             gameState.settingsOpen = !gameState.settingsOpen;
             gameState.newPlayerUnits = gameState.numPlayerUnits;
             gameState.newEnemyUnits = gameState.numEnemyUnits;
+            renderCanvasTrue();
             break;
 
           default:

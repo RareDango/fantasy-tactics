@@ -39,7 +39,9 @@ import {
   b_up,
   b_down,
   b_accept,
-  b_cancel
+  b_cancel,
+  updateAnimations,
+  renderHeaderTrue
 } from "./render.js";
 import { createPlayerUnit, createEnemyUnit } from "./units.js";
 import { setupFooterInput, setupInput, setupHeaderInput } from "./input.js";
@@ -99,7 +101,7 @@ export function startGame() {
 }
 
 
-const FRAME_TIME = 1000 / 20; // 20fps
+const FRAME_TIME = 1000 / 30; // 30fps
 let lastTime = 0;
 function gameLoop(timestamp) {
   if (timestamp - lastTime < FRAME_TIME) {
@@ -109,6 +111,7 @@ function gameLoop(timestamp) {
   const delta = timestamp - lastTime;
   lastTime = timestamp;
   if(delta) {
+    updateAnimations(delta);
     render(delta);
     uiRender(delta);
   }
@@ -123,6 +126,8 @@ export function restartGame() {
   interrupt();
   createUnits(gameState.numPlayerUnits, gameState.numEnemyUnits);
   gameState.selectedUnitId = null;
+  renderHeaderTrue();
+  renderCanvasTrue();
 }
 
 function createUnits(numPlayerUnits, numEnemyUnits) {
@@ -215,6 +220,7 @@ export async function endTurn() {
   
   if (gameState.currentTurn === "player") {
     gameState.currentTurn = "enemy";
+    renderHeaderTrue();
     gameState.units.forEach(u => (
       u.team === "player" ? u.hasActed = true : u.hasActed = false
     ));
@@ -223,7 +229,7 @@ export async function endTurn() {
   }
 }
 
-export function update() {
+export function checkEndTurn() {
   let players = 0;
   let enemies = 0;
   for(let i = 0; i < gameState.units.length; i++) {
@@ -243,39 +249,49 @@ export function update() {
   if (end) { endTurn(); }
 }
 
+export function renderCanvasTrue() {
+  renderCanvas = true;
+}
+
+let renderCanvas = true;
 function render(delta) {
-  clear(canvas);
+  if(renderCanvas) {
+    console.log("Canvas rendered.");
+    clear(canvas);
 
-  drawGrid();
+    drawGrid();
 
-  if (gameState.selectedUnitId != null) {
-    const selectedUnit = gameState.units.find(
-      (u) => u.id === gameState.selectedUnitId,
-    );
+    if (gameState.selectedUnitId != null) {
+      const selectedUnit = gameState.units.find(
+        (u) => u.id === gameState.selectedUnitId,
+      );
 
-    const moveTiles = getMovableTiles(selectedUnit);
-    drawMoveTiles(moveTiles, selectedUnit.hasActed);
+      const moveTiles = getMovableTiles(selectedUnit);
+      drawMoveTiles(moveTiles, selectedUnit.hasActed);
 
-    const attackTiles = getAttackableTiles(selectedUnit);
-    drawAttackTiles(attackTiles, selectedUnit.hasActed);
-  }
+      const attackTiles = getAttackableTiles(selectedUnit);
+      drawAttackTiles(attackTiles, selectedUnit.hasActed);
+    }
 
-  for (const unit of gameState.units) {
-    const isSelected = unit.id === gameState.selectedUnitId;
-    drawUnit(unit, isSelected);
-  }
-  
-  drawAttacks(delta);
+    for (const unit of gameState.units) {
+      const isSelected = unit.id === gameState.selectedUnitId;
+      drawUnit(unit, isSelected);
+    }
+    
+    drawAttacks(delta);
 
-  if (gameState.units.filter((u) => u.team === "enemy").length < 1) {
-    // Player wins
-    drawFireworks(delta);
-  }
+    if (gameState.units.filter((u) => u.team === "enemy").length < 1) {
+      // Player wins
+      drawFireworks(delta);
+    }
 
 
-  // SETTINGS OPEN
-  if(gameState.settingsOpen) {
-    drawSettings(gameState, canvasButtons, delta);
+    // SETTINGS OPEN
+    if(gameState.settingsOpen) {
+      drawSettings(gameState, canvasButtons, delta);
+    }
+
+    renderCanvas = false;
   }
 }
 
@@ -285,10 +301,8 @@ function uiRender(delta) {
     oldSelectedUnitId = gameState.selectedUnitId;
   }
 
-  clear(header);
   drawHeader(gameState, headerButtons, delta);
 
-  clear(footer);
   drawFooter(gameVersion, updatedDate, footerButtons);
 }
 
@@ -314,6 +328,7 @@ async function enemyTurn(delta) {
     let actionsTaken = 0;
     while (enemy.actions > actionsTaken && !interruptEnemyTurn) {
       enemy.current = true;
+      renderCanvasTrue();
       // create a delay so we see the enemies moving around
       // instead of instantly teleporting and attacking all at once
       await new Promise((r) => setTimeout(r, DELAY));
@@ -322,7 +337,9 @@ async function enemyTurn(delta) {
 
       if (gameState.currentPlayers === 0) {
         enemy.current = false;
+        renderCanvasTrue();
         gameState.currentTurn = "player";
+        renderHeaderTrue();
         return;
       }
 
@@ -361,6 +378,7 @@ async function enemyTurn(delta) {
         if (!isTileOccupied(newX, newY)) {
           enemy.x = newX;
           enemy.y = newY;
+          renderCanvasTrue();
         }
       } else {
         // Attack if in range after moving
@@ -374,15 +392,19 @@ async function enemyTurn(delta) {
         }
       }
       enemy.current = false;
+      renderCanvasTrue();
     }
     if(interruptEnemyTurn) { break; }
     enemy.current = true;
+    renderCanvasTrue();
     await new Promise((r) => setTimeout(r, DELAY));
     enemy.current = false;
+    renderCanvasTrue();
   }
 
   // End enemy turn -> back to player
   gameState.currentTurn = "player";
+  renderHeaderTrue();
   gameState.units.filter((u) => u.team === "player").forEach((u) => (u.hasActed = false));
 }
 
