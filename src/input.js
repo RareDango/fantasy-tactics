@@ -18,7 +18,8 @@ import { getRatio } from "./main.js";
 import { renderHeaderTrue } from "./render.js";
 
 export function setupInput(canvas, gameState, buttons) {
-  canvas.addEventListener("click", (e) => {
+  canvas.addEventListener("mousedown", (e) => {
+    console.log("click");
     const rect = canvas.getBoundingClientRect();
     const ratio = getRatio();
 
