@@ -74,6 +74,7 @@ export function clearFireworks() {
 
 function loadImage(file) {
   const img = new Image();
+  img.addEventListener('load', function() { renderCanvasTrue(); });
   img.src = `./assets/${file}`;
   return img;
 }
