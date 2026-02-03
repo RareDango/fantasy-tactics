@@ -211,13 +211,14 @@ function setupButtons() {
   buttons.push(createButton(BUTTON_RESET, "RESET", null, 288, 32, 160, 64, "#9c4242", "#adadad"));
 }
 
-export function endTurn() {
+export async function endTurn() {
   
   if (gameState.currentTurn === "player") {
     gameState.currentTurn = "enemy";
     gameState.units.forEach(u => (
       u.team === "player" ? u.hasActed = true : u.hasActed = false
     ));
+    await new Promise((r) => setTimeout(r, 500));
     enemyTurn();
   }
 }
@@ -303,8 +304,7 @@ async function enemyTurn(delta) {
   }
 
   interruptEnemyTurn = false;
-  const delay = 250;
-  await new Promise((r) => setTimeout(r, delay * 2));
+  const DELAY = 250;
 
   for(let i = 0; i < gameState.units.length; i++) {
     const enemy = gameState.units[i];
@@ -316,7 +316,7 @@ async function enemyTurn(delta) {
       enemy.current = true;
       // create a delay so we see the enemies moving around
       // instead of instantly teleporting and attacking all at once
-      await new Promise((r) => setTimeout(r, delay));
+      await new Promise((r) => setTimeout(r, DELAY));
       if(interruptEnemyTurn) { break; }
       actionsTaken += 1;
 
@@ -377,7 +377,7 @@ async function enemyTurn(delta) {
     }
     if(interruptEnemyTurn) { break; }
     enemy.current = true;
-    await new Promise((r) => setTimeout(r, delay));
+    await new Promise((r) => setTimeout(r, DELAY));
     enemy.current = false;
   }
 
