@@ -114,6 +114,9 @@ function gameLoop(timestamp) {
     updateAnimations(delta);
     render(delta);
     uiRender(delta);
+
+    updateUnitCount();
+    if (gameState.currentEnemies < 1) { drawFireworks(delta); }
   }
   requestAnimationFrame(gameLoop);
 }
@@ -229,7 +232,7 @@ export async function endTurn() {
   }
 }
 
-export function checkEndTurn() {
+function updateUnitCount() {
   let players = 0;
   let enemies = 0;
   for(let i = 0; i < gameState.units.length; i++) {
@@ -238,7 +241,9 @@ export function checkEndTurn() {
   }
   gameState.currentPlayers = players;
   gameState.currentEnemies = enemies;
+}
 
+export function checkEndTurn() {
   let end = true;
   const units = gameState.units;
   for(let i = 0; i < units.length; i++) {
@@ -256,7 +261,7 @@ export function renderCanvasTrue() {
 let renderCanvas = true;
 function render(delta) {
   if(renderCanvas) {
-    console.log("Canvas rendered.");
+    //console.log("Canvas rendered.");
     clear(canvas);
 
     drawGrid();
@@ -279,12 +284,6 @@ function render(delta) {
     }
     
     drawAttacks(delta);
-
-    if (gameState.units.filter((u) => u.team === "enemy").length < 1) {
-      // Player wins
-      drawFireworks(delta);
-    }
-
 
     // SETTINGS OPEN
     if(gameState.settingsOpen) {

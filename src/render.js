@@ -198,6 +198,7 @@ export function drawFireworks(delta) {
       //const fSize = TILE_SIZE * 2;
       const fSize = f.drawSize;
       drawImage(ctx, f, f.x, f.y, f.drawSize, delta, f.hue);
+      renderCanvasTrue();
       if(f.index === f.length - 1) {
         f.kill = true;
       }
@@ -255,8 +256,10 @@ export function updateAnimations(delta) {
     }
   }
   for(let i = 0; i < fireworks.length; i++) {
+    console.log("updating firework...");
     const f = fireworks[i];
     if(f.updateAnimation(delta)) {
+      console.log("it updated!");
       updated = true;
     }
   }
@@ -272,7 +275,7 @@ export function renderHeaderTrue() { renderHeader = true; }
 export function drawHeader(gameState, buttons, delta) {
   // HEADER UI
   if(renderHeader) {
-    console.log("Header rendered.");
+    //console.log("Header rendered.");
     clear(header);
     // TOP BAR
     const numLines = 2;
@@ -377,7 +380,7 @@ export function drawFooter(gameVersion, updatedDate, buttons) {
   // FOOTER UI
 
   if(renderFooter) {
-    console.log("Footer rendered.");
+    //console.log("Footer rendered.");
     clear(footer);
     drawLine(fctx, 0, 0, CANVAS_WIDTH, 0, "#555", 1);
 
