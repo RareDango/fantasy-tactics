@@ -1,5 +1,6 @@
 export class AnimationData {
-    constructor(size = 64, length = 1, loop = true) {
+    constructor(arrayIndex, size = 64, length = 1, loop = true) {
+        this.arrayIndex = arrayIndex;
         this.hue        = 0;
         this.direction  = 0;
         this.size       = size;

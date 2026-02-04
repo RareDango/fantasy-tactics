@@ -37,7 +37,9 @@ import {
   drawSettings,
   updateAnimations,
   renderHeaderTrue,
-  tintImage
+  tintImage,
+  portraitsImages,
+  unitsImages
 } from "./render.js";
 import { createPlayerUnit, createEnemyUnit } from "./units.js";
 import { setupFooterInput, setupInput, setupHeaderInput } from "./input.js";
@@ -163,8 +165,12 @@ function createUnits(numPlayerUnits, numEnemyUnits) {
     const hueDiff = 360 / numPlayerUnits;
     const hue = (hueDiff * i) + (Math.random() * hueDiff);
     unit.hue = hue;
+    hues.push(hue);
 
-    unit.animationData = new AnimationData(64, 4);
+    portraitsImages[id] = tintImage(portraitsImages[id], unit.hue);
+    unitsImages[id] = tintImage(unitsImages[id], unit.hue);
+
+    unit.animationData = new AnimationData(id, 64, 4);
 
     gameState.units.push(unit);
     gameState.playerList.push(unit.name);
@@ -180,6 +186,14 @@ function createUnits(numPlayerUnits, numEnemyUnits) {
     gameState.units.push(createEnemyUnit(id, x, y));
     id++;
   }
+}
+const hues = [];
+export function resetHues() {
+  for(let i = 0; i < gameState.numPlayerUnits; i++) {
+    portraitsImages[i] = tintImage(portraitsImages[i], -hues[i]);
+    unitsImages[i] = tintImage(unitsImages[i], -hues[i]);
+  }
+  hues.length = 0;
 }
 
 function setupButtons() {

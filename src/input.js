@@ -12,7 +12,7 @@ import {
   BUTTON_ACCEPT
 } from "./constants.js";
 import { isTileMovable, isTileOccupied } from "./grid.js";
-import { canAct, restartGame, endTurn, checkEndTurn, renderCanvasTrue } from "./game.js";
+import { canAct, restartGame, endTurn, checkEndTurn, renderCanvasTrue, resetHues } from "./game.js";
 import { attack, inRange } from "./combat.js";
 import { getRatio } from "./main.js";
 import { renderHeaderTrue } from "./render.js";
@@ -186,6 +186,7 @@ export function setupFooterInput(canvas, gameState, buttons) {
             break;
 
           case BUTTON_RESET:
+            resetHues();
             restartGame();
             break;
 

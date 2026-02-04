@@ -15,8 +15,48 @@ export let assets;
 
 export async function start() {
   assets = await loadAssets();
+
+  assignImageArrays();
+  
   initGame();
   requestAnimationFrame(gameLoop);
+}
+
+function assignImageArrays() {
+  fireworksImages.push(assets.firework0);
+  fireworksImages.push(assets.firework1);
+  fireworksImages.push(assets.firework2);
+  fireworksImages.push(assets.firework3);
+  fireworksImages.push(assets.firework4);
+  fireworksImages.push(assets.firework5);
+  fireworksImages.push(assets.firework6);
+  fireworksImages.push(assets.firework7);
+
+  portraitsImages.push(assets.portrait0);
+  portraitsImages.push(assets.portrait1);
+  portraitsImages.push(assets.portrait2);
+  portraitsImages.push(assets.portrait3);
+  portraitsImages.push(assets.portrait4);
+  portraitsImages.push(assets.portrait5);
+  portraitsImages.push(assets.portrait6);
+  portraitsImages.push(assets.portrait7);
+  portraitsImages.push(assets.portrait8);
+  portraitsImages.push(assets.portrait9);
+  portraitsImages.push(assets.portrait10);
+  portraitsImages.push(assets.portrait11);
+
+  unitsImages.push(assets.knight0);
+  unitsImages.push(assets.knight1);
+  unitsImages.push(assets.knight2);
+  unitsImages.push(assets.knight3);
+  unitsImages.push(assets.knight4);
+  unitsImages.push(assets.knight5);
+  unitsImages.push(assets.knight6);
+  unitsImages.push(assets.knight7);
+  unitsImages.push(assets.knight8);
+  unitsImages.push(assets.knight9);
+  unitsImages.push(assets.knight10);
+  unitsImages.push(assets.knight11);
 }
 
 async function loadAssets() {
@@ -35,7 +75,41 @@ async function loadAssets() {
 
   assets.portrait = await loadImage("spritesheets/knight_animated.png");
   assets.attack = await loadImage("spritesheets/attack_animated.png");
-  assets.firework = await loadImage("spritesheets/fireworks_animated.png");
+
+  assets.firework0 = await loadImage("spritesheets/fireworks_animated.png");
+  assets.firework1 = await loadImage("spritesheets/fireworks_animated.png");
+  assets.firework2 = await loadImage("spritesheets/fireworks_animated.png");
+  assets.firework3 = await loadImage("spritesheets/fireworks_animated.png");
+  assets.firework4 = await loadImage("spritesheets/fireworks_animated.png");
+  assets.firework5 = await loadImage("spritesheets/fireworks_animated.png");
+  assets.firework6 = await loadImage("spritesheets/fireworks_animated.png");
+  assets.firework7 = await loadImage("spritesheets/fireworks_animated.png");
+
+  assets.portrait0  = await loadImage("spritesheets/knight_animated.png");
+  assets.portrait1  = await loadImage("spritesheets/knight_animated.png");
+  assets.portrait2  = await loadImage("spritesheets/knight_animated.png");
+  assets.portrait3  = await loadImage("spritesheets/knight_animated.png");
+  assets.portrait4  = await loadImage("spritesheets/knight_animated.png");
+  assets.portrait5  = await loadImage("spritesheets/knight_animated.png");
+  assets.portrait6  = await loadImage("spritesheets/knight_animated.png");
+  assets.portrait7  = await loadImage("spritesheets/knight_animated.png");
+  assets.portrait8  = await loadImage("spritesheets/knight_animated.png");
+  assets.portrait9  = await loadImage("spritesheets/knight_animated.png");
+  assets.portrait10 = await loadImage("spritesheets/knight_animated.png");
+  assets.portrait11 = await loadImage("spritesheets/knight_animated.png");
+
+  assets.knight0  = await loadImage("knight_blue.png");
+  assets.knight1  = await loadImage("knight_blue.png");
+  assets.knight2  = await loadImage("knight_blue.png");
+  assets.knight3  = await loadImage("knight_blue.png");
+  assets.knight4  = await loadImage("knight_blue.png");
+  assets.knight5  = await loadImage("knight_blue.png");
+  assets.knight6  = await loadImage("knight_blue.png");
+  assets.knight7  = await loadImage("knight_blue.png");
+  assets.knight8  = await loadImage("knight_blue.png");
+  assets.knight9  = await loadImage("knight_blue.png");
+  assets.knight10 = await loadImage("knight_blue.png");
+  assets.knight11 = await loadImage("knight_blue.png");
 
   return assets;
 }
@@ -54,7 +128,7 @@ let renderHeader = true;
 // Attacks
 const attacks = []
 export function newAttack(x, y, direction) {
-  const attack = new AnimationData(64, 11, false);
+  const attack = new AnimationData(null, 64, 11, false);
   attack.direction = direction;
   attack.setXY(x * TILE_SIZE, y * TILE_SIZE);
   attack.frameTime = 50;
@@ -72,9 +146,12 @@ export function clearAttacks() {
 }
 
 // Fireworks
-const fireworks = []
+const fireworks = [];
+const fireworksImages = [];
+let fireworkIndex = 0;
 function newFirework() {
-  const firework = new AnimationData(64, 11, false);
+  const firework = new AnimationData(fireworkIndex, 64, 11, false);
+
   firework.drawSize = TILE_SIZE + ((Math.random() + Math.random()) * TILE_SIZE * 2);
   firework.hue = Math.random() * 360;
   const range = (TILE_SIZE * GRID_WIDTH) - firework.drawSize;
@@ -86,6 +163,11 @@ function newFirework() {
   firework.direction = Math.random();
   firework.kill = false;
   fireworks.push(firework);
+
+  fireworksImages[fireworkIndex] = tintImage(fireworksImages[fireworkIndex], firework.hue);
+
+  fireworkIndex++;
+  if(fireworkIndex >= fireworksImages.length) { fireworkIndex = 0; }
 }
 
 export function clearFireworks() {
@@ -111,6 +193,8 @@ export function drawGrid() {
   }
 }
 
+export const unitsImages = [];
+export const portraitsImages = [];
 export function drawUnit(unit, isSelected) {
   const x = unit.x * TILE_SIZE;
   const y = unit.y * TILE_SIZE;
@@ -127,11 +211,10 @@ export function drawUnit(unit, isSelected) {
 
   drawImage(
     ctx,
-    unit.team === "player" ? assets.knight : assets.goblin,
+    unit.team === "player" ? unitsImages[unit.animationData.arrayIndex] : assets.goblin,
     x + 4,
     y + 4,
-    TILE_SIZE - 8,
-    unit.team === "player" ? unit.hue : 0
+    TILE_SIZE - 8
   )
 
   // Draw HP bar
@@ -144,12 +227,14 @@ export function drawUnit(unit, isSelected) {
   drawRect(ctx, hpX, hpY, maxWidth, hpHeight, "red");
   drawRect(ctx, hpX, hpY, hpWidth, hpHeight, "green");
 
-  drawRectStroke(ctx, hpX, hpY, maxWidth, hpHeight, "white", 1);
+  const outlineColor = "black";
+
+  drawRectStroke(ctx, hpX, hpY, maxWidth, hpHeight, outlineColor, 1);
 
   const offset = maxWidth / unit.maxHp;
   for(let i = 1; i < unit.maxHp; i++) {
     const offX = hpX + (offset * i);
-    drawLine(ctx, offX, hpY, offX, hpY + hpHeight, "white", 1);
+    drawLine(ctx, offX, hpY, offX, hpY + hpHeight, outlineColor, 1);
   }
 
 }
@@ -207,7 +292,7 @@ export function drawFireworks(delta) {
     for(let i = 0; i < fireworks.length; i++) {
       const f = fireworks[i];
       if(f.kill) { continue; }
-      drawImage(ctx, assets.firework, f.x, f.y, f.drawSize, f.hue, f);
+      drawImage(ctx, fireworksImages[f.arrayIndex], f.x, f.y, f.drawSize, 0, f);
       renderCanvasTrue();
       if(f.index === f.length - 1) {
         f.kill = true;
@@ -358,7 +443,7 @@ export function drawHeader(gameState, buttons, delta) {
       );
       // Unit portrait
       const pSize = TILE_SIZE * 2;
-      drawImage(hctx, assets.portrait, 0, TILE_SIZE, pSize, selectedUnit.hue, selectedUnit.animationData)
+      drawImage(hctx, portraitsImages[selectedUnit.animationData.arrayIndex], 0, TILE_SIZE, pSize, null, selectedUnit.animationData)
       
       let color = "#3b82f6";
       if(gameState.currentTurn === "enemy") { color = "#ef4444"; }
@@ -446,9 +531,6 @@ function drawRectStroke(context, x, y, width, height, color = "white", lineWidth
 
 function drawImage(context, image, x, y, size, hue = 0, animationData = null) {
   //context.filter = `hue-rotate(${hue}deg)`;
-  if(hue != 0) {
-      image = tintImage(image, hue);
-  }
   if(animationData) {
     context.save();
 
@@ -463,9 +545,6 @@ function drawImage(context, image, x, y, size, hue = 0, animationData = null) {
     context.restore();
   } else {
     context.drawImage(image, x, y, size, size);
-  }
-  if(hue != 0) {
-      image = tintImage(image, -hue);
   }
   //context.filter = "hue-rotate(0deg)";
 }

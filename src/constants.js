@@ -1,5 +1,5 @@
-export const gameVersion = "0.3.1";
-export const updatedDate = "Tue, Feb 3, 2026";
+export const gameVersion = "0.3.2";
+export const updatedDate = "Wed, Feb 4, 2026";
 
 export const MAX_UNITS = 12;
 
