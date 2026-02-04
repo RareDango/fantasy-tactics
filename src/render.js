@@ -43,7 +43,7 @@ export function newAttack(x, y, direction) {
   attack.setXY(x * TILE_SIZE, y * TILE_SIZE);
   attack.frameTime = 50;
   attack.hitFrame = 7;
-  attacks.push(attack)
+  attack.image.addEventListener('load', function() { attacks.push(attack) });
 
   return attack.hitFrame * attack.frameTime;
 }
@@ -57,15 +57,15 @@ export function clearAttacks() {
 const fireworks = []
 function newFirework() {
   const firework = new AnimatedImage("fireworks_animated.png", 64, 11, false);
-  firework.drawSize = TILE_SIZE * 1.5 + (Math.random() * TILE_SIZE * 2.5);
+  firework.drawSize = TILE_SIZE + ((Math.random() + Math.random()) * TILE_SIZE * 4);
   firework.hue = Math.random() * 360;
-  const x = (Math.random() * TILE_SIZE * (GRID_WIDTH - 2));
-  const y = (Math.random() * TILE_SIZE * (GRID_HEIGHT - 2));
+  const x = (Math.random() * TILE_SIZE * GRID_WIDTH) - (firework.drawSize / 2);
+  const y = (Math.random() * TILE_SIZE * GRID_HEIGHT) - (firework.drawSize / 2);
   firework.setXY(x, y);
   firework.frameTime = 100;
   firework.direction = Math.random();
   firework.kill = false;
-  fireworks.push(firework)
+  firework.image.addEventListener('load', function() { fireworks.push(firework) });
 }
 
 export function clearFireworks() {
@@ -240,7 +240,7 @@ export function updateAnimations(delta) {
   let updated = false;
   for(let i = 0; i < portraits.length; i++) {
     const p = portraits[i];
-    if(gameState.selectedUnitId) {
+    if(gameState.selectedUnitId != null) {
       if(p.updateAnimation(delta)) { updated = true; }
     }
   }
@@ -437,9 +437,16 @@ function drawRectStroke(context, x, y, width, height, color = "white", lineWidth
 }
 
 function drawImage(context, image, x, y, size, delta = 0, hue = 0, update = true) {
-  context.filter = `hue-rotate(${hue}deg)`;
+  //context.filter = `hue-rotate(${hue}deg)`;
+  if(hue != 0) {
+    if(image instanceof AnimatedImage){
+      image.image = tintImage(image.image, hue);
+    } else {
+      image = tintImage(image, hue);
+    }
+  }
   if(image instanceof AnimatedImage) {
-    if(image.direction != UP) {
+    //if(image.direction != UP) {
       context.save();
 
       const centerX = x + size / 2;
@@ -448,16 +455,108 @@ function drawImage(context, image, x, y, size, delta = 0, hue = 0, update = true
 
       const radians = image.direction * (Math.PI / 2);
       context.rotate(radians);
-      if(update) { image.updateAnimation(delta); }
       context.drawImage(image.image, image.offset, 0, image.size, image.size, x - centerX, y - centerY, size, size);
 
       context.restore();
-    } else {
-      image.updateAnimation(delta);
-      context.drawImage(image.image, image.offset, 0, image.size, image.size, x, y, size, size);
-    }
+    //} else {
+    //  console.log(image)
+    //  context.drawImage(image.image, image.offset, 0, image.size, image.size, x, y, size, size);
+    //}
   } else {
     context.drawImage(image, x, y, size, size);
   }
-  context.filter = "hue-rotate(0deg)";
+  if(hue != 0) {
+    if(image instanceof AnimatedImage){
+      image.image = tintImage(image.image, -hue);
+    } else {
+      image = tintImage(image, -hue);
+    }
+  }
+  //context.filter = "hue-rotate(0deg)";
+}
+
+function tintImage(img, hueDegrees) {
+  const c = document.createElement("canvas");
+  c.width = img.width;
+  c.height = img.height;
+  const ctx = c.getContext("2d");
+
+  ctx.drawImage(img, 0, 0);
+
+  const imageData = ctx.getImageData(0, 0, c.width, c.height);
+  const data = imageData.data;
+
+  for (let i = 0; i < data.length; i += 4) {
+    const r = data[i];
+    const g = data[i + 1];
+    const b = data[i + 2];
+
+    const [nr, ng, nb] = hueRotatePixel(r, g, b, hueDegrees);
+
+    data[i] = nr;
+    data[i + 1] = ng;
+    data[i + 2] = nb;
+  }
+
+  ctx.putImageData(imageData, 0, 0);
+  return c;
+}
+
+function hueRotatePixel(r, g, b, degrees) {
+  // Convert RGB [0,255] → [0,1]
+  r /= 255;
+  g /= 255;
+  b /= 255;
+
+  const max = Math.max(r, g, b);
+  const min = Math.min(r, g, b);
+  let h, s, l = (max + min) / 2;
+
+  if (max === min) {
+    h = s = 0; // grayscale
+  } else {
+    const d = max - min;
+    s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+
+    switch (max) {
+      case r: h = (g - b) / d + (g < b ? 6 : 0); break;
+      case g: h = (b - r) / d + 2; break;
+      case b: h = (r - g) / d + 4; break;
+    }
+
+    h /= 6;
+  }
+
+  // Rotate hue
+  h = (h + degrees / 360) % 1;
+  if (h < 0) h += 1;
+
+  // Convert HSL → RGB
+  let r2, g2, b2;
+
+  if (s === 0) {
+    r2 = g2 = b2 = l; // grayscale
+  } else {
+    const hue2rgb = (p, q, t) => {
+      if (t < 0) t += 1;
+      if (t > 1) t -= 1;
+      if (t < 1 / 6) return p + (q - p) * 6 * t;
+      if (t < 1 / 2) return q;
+      if (t < 2 / 3) return p + (q - p) * (2 / 3 - t) * 6;
+      return p;
+    };
+
+    const q = l < 0.5 ? l * (1 + s) : l + s - l * s;
+    const p = 2 * l - q;
+
+    r2 = hue2rgb(p, q, h + 1 / 3);
+    g2 = hue2rgb(p, q, h);
+    b2 = hue2rgb(p, q, h - 1 / 3);
+  }
+
+  return [
+    Math.round(r2 * 255),
+    Math.round(g2 * 255),
+    Math.round(b2 * 255)
+  ];
 }
