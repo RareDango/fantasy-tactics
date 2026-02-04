@@ -74,9 +74,9 @@ export function clearFireworks() {
 
 function loadImage(file) {
   const img = new Image();
-  img.addEventListener('load', function() { renderCanvasTrue(); });
+  renderCanvasTrue();
   img.src = `./assets/${file}`;
-  return img;
+  img.addEventListener('load', function() { return img; });
 }
 
 let hctx, ctx, fctx;
@@ -440,8 +440,18 @@ function drawImage(context, image, x, y, size, delta = 0, hue = 0, update = true
   //context.filter = `hue-rotate(${hue}deg)`;
   if(hue != 0) {
     if(image instanceof AnimatedImage){
+      if(image.image.width === 0) {
+        renderHeaderTrue();
+        renderCanvasTrue();
+        return;
+      }
       image.image = tintImage(image.image, hue);
     } else {
+      if(image.image.width === 0) {
+        renderHeaderTrue();
+        renderCanvasTrue();
+        return;
+      }
       image = tintImage(image, hue);
     }
   }
