@@ -130,6 +130,7 @@ export function restartGame() {
   renderCanvasTrue();
 }
 
+const portraits = [];
 function createUnits(numPlayerUnits, numEnemyUnits) {
   gameState.units.length = 0;
   gameState.playerList.length = 0;
@@ -165,6 +166,9 @@ function createUnits(numPlayerUnits, numEnemyUnits) {
     unit.hue = hue;
 
     unit.animationData = new AnimationData(64, 4);
+
+    
+    portraits[i] = 
 
     gameState.units.push(unit);
     gameState.playerList.push(unit.name);

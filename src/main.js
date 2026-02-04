@@ -1,5 +1,7 @@
-import { CONTAINER_WIDTH, CONTAINER_HEIGHT } from "./constants.js";
+import { CONTAINER_WIDTH, CONTAINER_HEIGHT, gameVersion } from "./constants.js";
 import { start } from "./render.js";
+
+console.log("Fantasy Tactics v" + gameVersion);
 
 let ratio = 1;
 export function getRatio() {

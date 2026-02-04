@@ -17,6 +17,7 @@ import { AnimationData } from "./AnimationData.js";
  * @property {number} attackPower
  * @property {boolean} hasActed
  * @property {boolean} current
+ * @property {number} portraitId;
  * @property {AnimationData} animationData
  */
 
