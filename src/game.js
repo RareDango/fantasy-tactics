@@ -21,6 +21,7 @@ import {
   TILE_SIZE
 } from "./constants.js";
 import {
+  assets,
   drawAttackTiles,
   drawMoveTiles,
   drawGrid,
@@ -31,23 +32,19 @@ import {
   clear,
   clearAttacks,
   clearFireworks,
-  resetPortraits,
   drawAttacks,
   drawFireworks,
-  b_settings,
   drawSettings,
-  b_up,
-  b_down,
-  b_accept,
-  b_cancel,
   updateAnimations,
-  renderHeaderTrue
+  renderHeaderTrue,
+  tintImage
 } from "./render.js";
 import { createPlayerUnit, createEnemyUnit } from "./units.js";
 import { setupFooterInput, setupInput, setupHeaderInput } from "./input.js";
 import { getMovableTiles, isTileOccupied, getAttackableTiles } from "./grid.js";
 import { attack, inRange } from "./combat.js";
 import { createButton } from "./buttons.js";
+import { AnimationData } from "./AnimationData.js";
 
 let interruptEnemyTurn = false;
 let header, canvas, footer;
@@ -75,7 +72,7 @@ export const gameState = {
 };
 let oldSelectedUnitId = null;
 
-export function startGame() {
+export function initGame() {
   gameState.selectedUnitId = null;
   gameState.currentTurn = "player";
 
@@ -97,13 +94,13 @@ export function startGame() {
   setupHeaderInput(header, gameState, headerButtons);
   setupFooterInput(footer, gameState, footerButtons);
 
-  gameLoop();
+  //gameLoop();
 }
 
 
 const FRAME_TIME = 1000 / 30; // 30fps
 let lastTime = 0;
-function gameLoop(timestamp) {
+export function gameLoop(timestamp) {
   if (timestamp - lastTime < FRAME_TIME) {
     requestAnimationFrame(gameLoop);
     return;
@@ -167,6 +164,7 @@ function createUnits(numPlayerUnits, numEnemyUnits) {
     const hue = (hueDiff * i) + (Math.random() * hueDiff);
     unit.hue = hue;
 
+    unit.animationData = new AnimationData(64, 4);
 
     gameState.units.push(unit);
     gameState.playerList.push(unit.name);
@@ -191,7 +189,7 @@ function setupButtons() {
   buttons.length = 0;
 
   const buff = 4;
-  const b1 = createButton(BUTTON_SETTINGS, null, b_settings, CANVAS_WIDTH - 64 + buff, buff, 64 - (buff * 2), 64 - (buff * 2));
+  const b1 = createButton(BUTTON_SETTINGS, null, assets.b_settings, CANVAS_WIDTH - 64 + buff, buff, 64 - (buff * 2), 64 - (buff * 2));
   buttons.push(b1);
 
   
@@ -200,15 +198,15 @@ function setupButtons() {
   buttons.length = 0;
 
   let alignX = TILE_SIZE * 1.5;
-  buttons.push(createButton(BUTTON_PLAYERS_DOWN, null, b_down, alignX, TILE_SIZE * 2, TILE_SIZE, TILE_SIZE));
-  buttons.push(createButton(BUTTON_ENEMIES_DOWN, null, b_down, alignX, TILE_SIZE * 3.75, TILE_SIZE, TILE_SIZE));
+  buttons.push(createButton(BUTTON_PLAYERS_DOWN, null, assets.b_down, alignX, TILE_SIZE * 2, TILE_SIZE, TILE_SIZE));
+  buttons.push(createButton(BUTTON_ENEMIES_DOWN, null, assets.b_down, alignX, TILE_SIZE * 3.75, TILE_SIZE, TILE_SIZE));
 
   alignX = TILE_SIZE * 5.5;
-  buttons.push(createButton(BUTTON_PLAYERS_UP, null, b_up, alignX, TILE_SIZE * 2, TILE_SIZE, TILE_SIZE));
-  buttons.push(createButton(BUTTON_ENEMIES_UP, null, b_up, alignX, TILE_SIZE * 3.75, TILE_SIZE, TILE_SIZE));
+  buttons.push(createButton(BUTTON_PLAYERS_UP, null, assets.b_up, alignX, TILE_SIZE * 2, TILE_SIZE, TILE_SIZE));
+  buttons.push(createButton(BUTTON_ENEMIES_UP, null, assets.b_up, alignX, TILE_SIZE * 3.75, TILE_SIZE, TILE_SIZE));
 
-  buttons.push(createButton(BUTTON_ACCEPT, null, b_accept, TILE_SIZE * 2.5, TILE_SIZE * 5.5, TILE_SIZE, TILE_SIZE));
-  buttons.push(createButton(BUTTON_CANCEL, null, b_cancel, TILE_SIZE * 4.5, TILE_SIZE * 5.5, TILE_SIZE, TILE_SIZE));
+  buttons.push(createButton(BUTTON_ACCEPT, null, assets.b_accept, TILE_SIZE * 2.5, TILE_SIZE * 5.5, TILE_SIZE, TILE_SIZE));
+  buttons.push(createButton(BUTTON_CANCEL, null, assets.b_cancel, TILE_SIZE * 4.5, TILE_SIZE * 5.5, TILE_SIZE, TILE_SIZE));
 
 
   // FOOTER
@@ -296,7 +294,7 @@ function render(delta) {
 
 function uiRender(delta) {
   if(gameState.selectedUnitId != oldSelectedUnitId) {
-    resetPortraits();
+    //resetPortraits();
     oldSelectedUnitId = gameState.selectedUnitId;
   }
 

@@ -4,10 +4,9 @@ html, body {
   width: 100%;
   height: 100%;
   background: #1e1e1e;
-  display: inline;
+  display: inline-flex;
   justify-content: center;
-  align-items:center;
-  vertical-align: top;
+  align-items: flex-start;
   height: 100vh;
 }
 

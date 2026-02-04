@@ -1,5 +1,5 @@
 import { CONTAINER_WIDTH, CONTAINER_HEIGHT } from "./constants.js";
-import { startGame } from "./game.js";
+import { start } from "./render.js";
 
 let ratio = 1;
 export function getRatio() {
@@ -31,4 +31,4 @@ function resize() {
   ratio = w / CONTAINER_WIDTH; // gives us the ratio between the hard coded pixels and whats actually displayed
 }
 
-startGame();
+start();

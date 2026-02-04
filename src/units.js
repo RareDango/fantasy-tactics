@@ -2,6 +2,8 @@
  * @typedef {'player' | 'enemy'} Team
  */
 
+import { AnimationData } from "./AnimationData.js";
+
 /**
  * @typedef {Object} Unit
  * @property {number} id
@@ -15,6 +17,7 @@
  * @property {number} attackPower
  * @property {boolean} hasActed
  * @property {boolean} current
+ * @property {AnimationData} animationData
  */
 
 /** @returns {Unit} */

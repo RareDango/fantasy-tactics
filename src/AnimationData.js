@@ -1,9 +1,5 @@
-export class AnimatedImage {
-    constructor(imgFile, size = 64, length = 1, loop = true) {
-        const img = new Image();
-        img.src = `./assets/spritesheets/${imgFile}`;
-
-        this.image      = img;
+export class AnimationData {
+    constructor(size = 64, length = 1, loop = true) {
         this.hue        = 0;
         this.direction  = 0;
         this.size       = size;

@@ -8,45 +8,63 @@ import {
   CANVAS_HEIGHT,
   UP
 } from "./constants.js";
-import { AnimatedImage } from "./AnimatedImage.js";
-import { gameState, renderCanvasTrue } from "./game.js";
+import { AnimationData } from "./AnimationData.js";
+import { gameState, renderCanvasTrue, initGame, gameLoop } from "./game.js";
 
-export const b_settings   = loadImage("button_gear.png");
-export const b_cancel = loadImage("button_x.png");
-export const b_accept = loadImage("button_check.png");
-export const b_up     = loadImage("button_up.png");
-export const b_down   = loadImage("button_down.png");
+export let assets;
 
-const settings_bg = loadImage("settings_bg.png");
+export async function start() {
+  assets = await loadAssets();
+  initGame();
+  requestAnimationFrame(gameLoop);
+}
 
-const knightImage     = loadImage("knight_blue.png");
-const goblinImage     = loadImage("goblin.png");
-const portraits = [];
+async function loadAssets() {
+  const assets = {};
+
+  assets.knight = await loadImage("knight_blue.png");
+  assets.goblin = await loadImage("goblin.png");
+
+  assets.settingsBackground = await loadImage("settings_bg.png");
+
+  assets.b_settings = await loadImage("button_gear.png");
+  assets.b_cancel = await loadImage("button_x.png");
+  assets.b_accept = await loadImage("button_check.png");
+  assets.b_up = await loadImage("button_up.png");
+  assets.b_down = await loadImage("./button_down.png");
+
+  assets.portrait = await loadImage("spritesheets/knight_animated.png");
+  assets.attack = await loadImage("spritesheets/attack_animated.png");
+  assets.firework = await loadImage("spritesheets/fireworks_animated.png");
+
+  return assets;
+}
+
+function loadImage(src) {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.onload = () => resolve(img);
+    img.onerror = reject;
+    img.src = `./assets/${src}`;
+  });
+}
 
 let renderHeader = true;
-
-// Portraits
-const aniKnight = new AnimatedImage("knight_animated.png", 64, 4);
-portraits.push(aniKnight)
-export function resetPortraits() {
-  for(let i = 0; i < portraits.length; i++) {
-    const p = portraits[i];
-    p.resetAnimation();
-  }
-}
 
 // Attacks
 const attacks = []
 export function newAttack(x, y, direction) {
-  const attack = new AnimatedImage("attack_animated.png", 64, 11, false);
+  const attack = new AnimationData(64, 11, false);
   attack.direction = direction;
   attack.setXY(x * TILE_SIZE, y * TILE_SIZE);
   attack.frameTime = 50;
   attack.hitFrame = 7;
-  attack.image.addEventListener('load', function() { attacks.push(attack) });
+  attacks.push(attack);
 
   return attack.hitFrame * attack.frameTime;
 }
+
+
 
 
 export function clearAttacks() {
@@ -56,27 +74,22 @@ export function clearAttacks() {
 // Fireworks
 const fireworks = []
 function newFirework() {
-  const firework = new AnimatedImage("fireworks_animated.png", 64, 11, false);
-  firework.drawSize = TILE_SIZE + ((Math.random() + Math.random()) * TILE_SIZE * 4);
+  const firework = new AnimationData(64, 11, false);
+  firework.drawSize = TILE_SIZE + ((Math.random() + Math.random()) * TILE_SIZE * 2);
   firework.hue = Math.random() * 360;
-  const x = (Math.random() * TILE_SIZE * GRID_WIDTH) - (firework.drawSize / 2);
-  const y = (Math.random() * TILE_SIZE * GRID_HEIGHT) - (firework.drawSize / 2);
+  const range = (TILE_SIZE * GRID_WIDTH) - firework.drawSize;
+  const centerpoint = firework.drawSize / 2;
+  const x = (Math.random() * range);
+  const y = (Math.random() * range);
   firework.setXY(x, y);
   firework.frameTime = 100;
   firework.direction = Math.random();
   firework.kill = false;
-  firework.image.addEventListener('load', function() { fireworks.push(firework) });
+  fireworks.push(firework);
 }
 
 export function clearFireworks() {
   fireworks.length = 0;
-}
-
-function loadImage(file) {
-  const img = new Image();
-  renderCanvasTrue();
-  img.src = `./assets/${file}`;
-  img.addEventListener('load', function() { return img; });
 }
 
 let hctx, ctx, fctx;
@@ -111,13 +124,12 @@ export function drawUnit(unit, isSelected) {
   if (unit.team === "enemy" && unit.current) {
     drawRect(ctx, x, y, TILE_SIZE, TILE_SIZE, "rgba(239, 68, 68, 0.25)");
   }
-  //ctx.drawImage(unit.team === "player" ? knightImage : goblinImage, x + 4, y + 4, TILE_SIZE - 8, TILE_SIZE - 8);
+
   drawImage(
     ctx,
-    unit.team === "player" ? knightImage : goblinImage,
+    unit.team === "player" ? assets.knight : assets.goblin,
     x + 4,
     y + 4,
-    TILE_SIZE - 8,
     TILE_SIZE - 8,
     unit.team === "player" ? unit.hue : 0
   )
@@ -169,7 +181,7 @@ export function drawAttacks(delta) {
   for(let i = 0; i < attacks.length; i++) {
     const a = attacks[i];
     if(a.kill) { continue; }
-    drawImage(ctx, a, a.x, a.y, a.size, delta);
+    drawImage(ctx, assets.attack, a.x, a.y, a.size, 0, a);
     if(a.index === a.length - 1) { a.kill = true; }
   }
 }
@@ -195,9 +207,7 @@ export function drawFireworks(delta) {
     for(let i = 0; i < fireworks.length; i++) {
       const f = fireworks[i];
       if(f.kill) { continue; }
-      //const fSize = TILE_SIZE * 2;
-      const fSize = f.drawSize;
-      drawImage(ctx, f, f.x, f.y, f.drawSize, delta, f.hue);
+      drawImage(ctx, assets.firework, f.x, f.y, f.drawSize, f.hue, f);
       renderCanvasTrue();
       if(f.index === f.length - 1) {
         f.kill = true;
@@ -211,7 +221,7 @@ export function drawSettings(gameState, buttons, delta) {
   drawRect(ctx, 0, 0, CANVAS_WIDTH, CANVAS_HEIGHT, "rgba(0, 0, 0, 0.5)");
   
   // settings background
-  drawImage(ctx, settings_bg, TILE_SIZE, TILE_SIZE, TILE_SIZE * 6, TILE_SIZE * 6);
+  drawImage(ctx, assets.settingsBackground, TILE_SIZE, TILE_SIZE, TILE_SIZE * 6, TILE_SIZE * 6);
 
   drawRect(ctx, TILE_SIZE * 1.25, TILE_SIZE * 1.75, TILE_SIZE * 5.5 , TILE_SIZE * 1.5, "rgba(255, 255, 255, 0.5)");
   drawRect(ctx, TILE_SIZE * 1.25, TILE_SIZE * 3.5, TILE_SIZE * 5.5 , TILE_SIZE * 1.5, "rgba(255, 255, 255, 0.5)");
@@ -238,11 +248,11 @@ export function drawSettings(gameState, buttons, delta) {
 export function updateAnimations(delta) {
   // HEADER
   let updated = false;
-  for(let i = 0; i < portraits.length; i++) {
-    const p = portraits[i];
-    if(gameState.selectedUnitId != null) {
-      if(p.updateAnimation(delta)) { updated = true; }
-    }
+  if(gameState.selectedUnitId != null) {
+    const selectedUnit = gameState.units.find(
+        (u) => u.id === gameState.selectedUnitId,
+    );
+    if(selectedUnit.animationData.updateAnimation(delta)) { updated = true; }
   }
   if(updated) { renderHeaderTrue(); }
 
@@ -256,10 +266,8 @@ export function updateAnimations(delta) {
     }
   }
   for(let i = 0; i < fireworks.length; i++) {
-    console.log("updating firework...");
     const f = fireworks[i];
     if(f.updateAnimation(delta)) {
-      console.log("it updated!");
       updated = true;
     }
   }
@@ -350,7 +358,7 @@ export function drawHeader(gameState, buttons, delta) {
       );
       // Unit portrait
       const pSize = TILE_SIZE * 2;
-      drawImage(hctx, aniKnight, 0, TILE_SIZE, pSize, delta, selectedUnit.hue);
+      drawImage(hctx, assets.portrait, 0, TILE_SIZE, pSize, selectedUnit.hue, selectedUnit.animationData)
       
       let color = "#3b82f6";
       if(gameState.currentTurn === "enemy") { color = "#ef4444"; }
@@ -436,56 +444,33 @@ function drawRectStroke(context, x, y, width, height, color = "white", lineWidth
   context.strokeRect(x, y, width, height);
 }
 
-function drawImage(context, image, x, y, size, delta = 0, hue = 0, update = true) {
+function drawImage(context, image, x, y, size, hue = 0, animationData = null) {
   //context.filter = `hue-rotate(${hue}deg)`;
   if(hue != 0) {
-    if(image instanceof AnimatedImage){
-      if(image.image.width === 0) {
-        renderHeaderTrue();
-        renderCanvasTrue();
-        return;
-      }
-      image.image = tintImage(image.image, hue);
-    } else {
-      if(image.image.width === 0) {
-        renderHeaderTrue();
-        renderCanvasTrue();
-        return;
-      }
       image = tintImage(image, hue);
-    }
   }
-  if(image instanceof AnimatedImage) {
-    //if(image.direction != UP) {
-      context.save();
+  if(animationData) {
+    context.save();
 
-      const centerX = x + size / 2;
-      const centerY = y + size / 2;
-      context.translate(centerX, centerY);
+    const centerX = x + size / 2;
+    const centerY = y + size / 2;
+    context.translate(centerX, centerY);
 
-      const radians = image.direction * (Math.PI / 2);
-      context.rotate(radians);
-      context.drawImage(image.image, image.offset, 0, image.size, image.size, x - centerX, y - centerY, size, size);
+    const radians = animationData.direction * (Math.PI / 2);
+    context.rotate(radians);
+    context.drawImage(image, animationData.offset, 0, animationData.size, animationData.size, x - centerX, y - centerY, size, size);
 
-      context.restore();
-    //} else {
-    //  console.log(image)
-    //  context.drawImage(image.image, image.offset, 0, image.size, image.size, x, y, size, size);
-    //}
+    context.restore();
   } else {
     context.drawImage(image, x, y, size, size);
   }
   if(hue != 0) {
-    if(image instanceof AnimatedImage){
-      image.image = tintImage(image.image, -hue);
-    } else {
       image = tintImage(image, -hue);
-    }
   }
   //context.filter = "hue-rotate(0deg)";
 }
 
-function tintImage(img, hueDegrees) {
+export function tintImage(img, hueDegrees) {
   const c = document.createElement("canvas");
   c.width = img.width;
   c.height = img.height;
