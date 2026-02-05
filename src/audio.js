@@ -7,7 +7,7 @@ click[2] = new Audio("./assets/audio/click.mp3");
 let clickIndex = 0;
 
 export function playClickSound() {
-  click[clickIndex].play();
+  //click[clickIndex].play();
   clickIndex++;
   if(clickIndex >= click.length) { clickIndex = 0; }
 }
