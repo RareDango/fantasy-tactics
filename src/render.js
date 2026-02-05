@@ -73,6 +73,8 @@ async function loadAssets() {
   assets.b_up = await loadImage("button_up.png");
   assets.b_down = await loadImage("./button_down.png");
 
+  assets.b_footer = await loadImage("./button_160x64.png");
+
   assets.portrait = await loadImage("spritesheets/knight_animated.png");
   assets.attack = await loadImage("spritesheets/attack_animated.png");
 
@@ -214,6 +216,7 @@ export function drawUnit(unit, isSelected) {
     unit.team === "player" ? unitsImages[unit.animationData.arrayIndex] : assets.goblin,
     x + 4,
     y + 4,
+    TILE_SIZE - 8,
     TILE_SIZE - 8
   )
 
@@ -224,7 +227,7 @@ export function drawUnit(unit, isSelected) {
   const hpWidth = (unit.hp / unit.maxHp) * (TILE_SIZE - 14);
   const hpHeight = 6;
 
-  drawRect(ctx, hpX, hpY, maxWidth, hpHeight, "red");
+  drawRect(ctx, hpX, hpY, maxWidth, hpHeight, "#aa0000");
   drawRect(ctx, hpX, hpY, hpWidth, hpHeight, "green");
 
   const outlineColor = "black";
@@ -266,7 +269,7 @@ export function drawAttacks(delta) {
   for(let i = 0; i < attacks.length; i++) {
     const a = attacks[i];
     if(a.kill) { continue; }
-    drawImage(ctx, assets.attack, a.x, a.y, a.size, 0, a);
+    drawImage(ctx, assets.attack, a.x, a.y, a.size, a.size, 0, a);
     if(a.index === a.length - 1) { a.kill = true; }
   }
 }
@@ -292,7 +295,7 @@ export function drawFireworks(delta) {
     for(let i = 0; i < fireworks.length; i++) {
       const f = fireworks[i];
       if(f.kill) { continue; }
-      drawImage(ctx, fireworksImages[f.arrayIndex], f.x, f.y, f.drawSize, 0, f);
+      drawImage(ctx, fireworksImages[f.arrayIndex], f.x, f.y, f.drawSize, f.drawSize, 0, f);
       renderCanvasTrue();
       if(f.index === f.length - 1) {
         f.kill = true;
@@ -314,7 +317,7 @@ export function drawSettings(gameState, buttons, delta) {
   // buttons
   for(let i = 0; i < buttons.length; i++) {
     const b = buttons[i];
-    drawImage(ctx, b.image, b.x, b.y, b.width);
+    drawImage(ctx, b.image, b.x, b.y, b.width, b.height);
   }
 
   // unit numbers
@@ -424,7 +427,7 @@ export function drawHeader(gameState, buttons, delta) {
 
       for(let i = 0; i < buttons.length; i++) {
         const b = buttons[i];
-        drawImage(hctx, b.image, b.x, b.y, b.width);
+        drawImage(hctx, b.image, b.x, b.y, b.width, b.height);
       }
     }
 
@@ -443,7 +446,7 @@ export function drawHeader(gameState, buttons, delta) {
       );
       // Unit portrait
       const pSize = TILE_SIZE * 2;
-      drawImage(hctx, portraitsImages[selectedUnit.animationData.arrayIndex], 0, TILE_SIZE, pSize, null, selectedUnit.animationData)
+      drawImage(hctx, portraitsImages[selectedUnit.animationData.arrayIndex], 0, TILE_SIZE, pSize, pSize, null, selectedUnit.animationData)
       
       let color = "#3b82f6";
       if(gameState.currentTurn === "enemy") { color = "#ef4444"; }
@@ -480,10 +483,16 @@ export function drawFooter(gameVersion, updatedDate, buttons) {
     // BUTTONS
     for(let i = 0; i < buttons.length; i++) {
       const b = buttons[i];
-      drawRect(fctx, b.x, b.y, b.width, b.height, b.color);
-      drawRectStroke(fctx, b.x, b.y, b.width, b.height, b.borderColor);
+      //drawRect(fctx, b.x, b.y, b.width, b.height, b.color);
+      //drawRectStroke(fctx, b.x, b.y, b.width, b.height, b.borderColor);
+
+      drawImage(fctx, b.image, b.x, b.y, b.width, b.height)
+
       if(b.text) {
-        textStyle(fctx, "28px Arial", "white", "middle", "center");
+        textStyle(fctx, "bold 26px Arial", "#ddd", "middle", "center");
+        fctx.strokeStyle = "#622";
+        fctx.lineWidth = 6;
+        drawTextStroke(fctx, b.text, b.x + b.width / 2, b.y + b.height / 2);
         drawText(fctx, b.text, b.x + b.width / 2, b.y + b.height / 2);
       }
     }
@@ -509,6 +518,10 @@ function drawText(context, text, x, y, maxWidth) {
   context.fillText(text, x, y, maxWidth);
 }
 
+function drawTextStroke(context, text, x, y, maxWidth) {
+  context.strokeText(text, x, y, maxWidth);
+}
+
 function drawLine(context, startX, startY, endX, endY, color = "white", width = 3) {
   context.strokeStyle = color;
   context.lineWidth = width;
@@ -529,24 +542,22 @@ function drawRectStroke(context, x, y, width, height, color = "white", lineWidth
   context.strokeRect(x, y, width, height);
 }
 
-function drawImage(context, image, x, y, size, hue = 0, animationData = null) {
-  //context.filter = `hue-rotate(${hue}deg)`;
+function drawImage(context, image, x, y, width, height, hue = 0, animationData = null) {
   if(animationData) {
     context.save();
 
-    const centerX = x + size / 2;
-    const centerY = y + size / 2;
+    const centerX = x + width / 2;
+    const centerY = y + width / 2;
     context.translate(centerX, centerY);
 
     const radians = animationData.direction * (Math.PI / 2);
     context.rotate(radians);
-    context.drawImage(image, animationData.offset, 0, animationData.size, animationData.size, x - centerX, y - centerY, size, size);
+    context.drawImage(image, animationData.offset, 0, animationData.size, animationData.size, x - centerX, y - centerY, width, width);
 
     context.restore();
   } else {
-    context.drawImage(image, x, y, size, size);
+    context.drawImage(image, x, y, width, height);
   }
-  //context.filter = "hue-rotate(0deg)";
 }
 
 export function tintImage(img, hueDegrees) {

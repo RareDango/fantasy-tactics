@@ -230,8 +230,8 @@ function setupButtons() {
   buttons = footerButtons;
   buttons.length = 0;
   
-  buttons.push(createButton(BUTTON_END_TURN, "END TURN", null, 64, 32, 160, 64, "#9c4242", "#adadad"));
-  buttons.push(createButton(BUTTON_RESET, "RESET", null, 288, 32, 160, 64, "#9c4242", "#adadad"));
+  buttons.push(createButton(BUTTON_END_TURN, "END TURN", assets.b_footer, 64, 32, 160, 64, "#9c4242", "#adadad"));
+  buttons.push(createButton(BUTTON_RESET, "RESET", assets.b_footer, 288, 32, 160, 64, "#9c4242", "#adadad"));
 }
 
 export async function endTurn() {
