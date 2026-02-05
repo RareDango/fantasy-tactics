@@ -1,9 +1,9 @@
-export const gameVersion = "0.4.1";
+export const gameVersion = "0.4.2";
 export const updatedDate = "Wed, Feb 4, 2026";
 
 export const MAX_UNITS = 32; // hangs if players set above 21. no idea why -> It was because that's how many quotes there were to pick from
-export const DEFAULT_NUM_PLAYERS = 5;
-export const DEFAULT_NUM_ENEMIES = 7;
+export const DEFAULT_NUM_PLAYERS = 4;
+export const DEFAULT_NUM_ENEMIES = 8;
 
 export const TILE_SIZE   = 64;
 export const GRID_WIDTH  = 8;

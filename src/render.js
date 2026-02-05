@@ -129,8 +129,14 @@ export function drawUnit(unit, isSelected) {
 
   if (isSelected) {
     drawRect(ctx, x + 6, y + 6, TILE_SIZE - 12, TILE_SIZE - 12, unit.actionsLeft < 1 ? "rgba(250, 204, 21, 0.25)" : "rgba(250, 204, 21, 0.75)" );
+    if(unit.actionsLeft && unit.attacksLeft) {
+      drawRectStroke(ctx, x + 3, y + 3, TILE_SIZE - 6, TILE_SIZE - 6, "rgba(250, 21, 21, 0.3)");
+    }
   } else if (unit.team == "player" && unit.actionsLeft > 0) {
     drawRectStroke(ctx, x + 6, y + 6, TILE_SIZE - 12, TILE_SIZE - 12, "rgba(250, 204, 21, 0.5)");
+    if(unit.actionsLeft && unit.attacksLeft) {
+      drawRectStroke(ctx, x + 3, y + 3, TILE_SIZE - 6, TILE_SIZE - 6, "rgba(250, 21, 21, 0.3)");
+    }
   }
 
   if (unit.team === "enemy" && unit.current) {
