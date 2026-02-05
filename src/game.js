@@ -70,7 +70,9 @@ export const gameState = {
   newEnemyUnits: 7,
 
   currentPlayers: 5,
-  currentEnemies: 7
+  currentEnemies: 7,
+
+  turnNumber: 1
 };
 let oldSelectedUnitId = null;
 
@@ -123,6 +125,7 @@ export function gameLoop(timestamp) {
 export function restartGame() {
   gameState.settingsOpen = false;
   gameState.currentTurn = 'player';
+  gameState.turnNumber = 1;
   clearAttacks();
   clearFireworks();
   interrupt();
@@ -415,6 +418,7 @@ async function enemyTurn(delta) {
 
   // End enemy turn -> back to player
   gameState.currentTurn = "player";
+  gameState.turnNumber++;
   renderHeaderTrue();
   gameState.units.filter((u) => u.team === "player").forEach((u) => (u.hasActed = false));
 }

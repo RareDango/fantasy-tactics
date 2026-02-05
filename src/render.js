@@ -388,11 +388,11 @@ export function drawHeader(gameState, buttons, delta) {
     }
 
     if (players === 0) { // Enemy wins
-      drawText(hctx, "You lose! Bad job, loser!", margin, margin);
+      drawText(hctx, `Turn: ${gameState.turnNumber}            You lose! Bad job, loser!`, margin, margin);
     } else if (enemies === 0) { // Player wins
-      drawText(hctx, "You win! Good job, champ!", margin, margin);
+      drawText(hctx, `Turn: ${gameState.turnNumber}          You win! Good job, champ!`, margin, margin);
     } else { // Display current turn
-      drawText(hctx, `Turn: ${gameState.currentTurn}`, margin, margin);
+      drawText(hctx, `Turn: ${gameState.turnNumber}`, margin, margin);
     }
 
     let offset = 0;
