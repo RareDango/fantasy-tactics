@@ -43,7 +43,8 @@ import {
 } from "./render.js";
 import { createPlayerUnit, createEnemyUnit } from "./units.js";
 import { setupFooterInput, setupInput, setupHeaderInput } from "./input.js";
-import { getMovableTiles, isTileOccupied, getAttackableTiles } from "./grid.js";
+import { getPlayerMovableTiles, isTileOccupied, getAttackableTiles } from "./grid.js";
+import { getMovableTiles } from "./movement.js";
 import { attack, inRange } from "./combat.js";
 import { createButton } from "./buttons.js";
 import { AnimationData } from "./AnimationData.js";
@@ -239,11 +240,15 @@ export async function endTurn() {
   
   if (gameState.currentTurn === "player") {
     gameState.currentTurn = "enemy";
+    for(let i = 0; i < gameState.units.length; i++) {
+      const u = gameState.units[i];
+      if(u.team === "enemy") { continue; }
+      u.actionsLeft = 0;
+      u.attacksLeft = 0;
+    }
     renderHeaderTrue();
-    gameState.units.forEach(u => (
-      u.team === "player" ? u.hasActed = true : u.hasActed = false
-    ));
     await new Promise((r) => setTimeout(r, 500));
+
     enemyTurn();
   }
 }
@@ -265,7 +270,7 @@ export function checkEndTurn() {
   for(let i = 0; i < units.length; i++) {
     const u = units[i];
     if(u.team === "enemy") { continue; }
-    if(!u.hasActed) { end = false; }
+    if(u.actionsLeft > 0) { end = false; }
   }
   if (end) { endTurn(); }
 }
@@ -277,7 +282,6 @@ export function renderCanvasTrue() {
 let renderCanvas = true;
 function render(delta) {
   if(renderCanvas) {
-    //console.log("Canvas rendered.");
     clear(canvas);
 
     drawGrid();
@@ -287,11 +291,11 @@ function render(delta) {
         (u) => u.id === gameState.selectedUnitId,
       );
 
-      const moveTiles = getMovableTiles(selectedUnit);
-      drawMoveTiles(moveTiles, selectedUnit.hasActed);
+      const moveTiles = getPlayerMovableTiles(selectedUnit);
+      drawMoveTiles(moveTiles, selectedUnit);
 
       const attackTiles = getAttackableTiles(selectedUnit);
-      drawAttackTiles(attackTiles, selectedUnit.hasActed);
+      drawAttackTiles(attackTiles, selectedUnit);
     }
 
     for (const unit of gameState.units) {
@@ -322,7 +326,7 @@ function uiRender(delta) {
 }
 
 export function canAct(unit) {
-  return !unit.hasActed && unit.team === gameState.currentTurn;
+  return unit.actionsLeft > 0 && unit.team === gameState.currentTurn;
 }
 
 async function enemyTurn(delta) {
@@ -340,15 +344,16 @@ async function enemyTurn(delta) {
     if(enemy.team === "player") { continue; }
 
     if(interruptEnemyTurn) { break; }
-    let actionsTaken = 0;
-    while (enemy.actions > actionsTaken && !interruptEnemyTurn) {
+    enemy.actionsLeft = enemy.maxActions;
+    enemy.attacksLeft = enemy.maxAttacks;
+    while (enemy.actionsLeft && !interruptEnemyTurn) {
       enemy.current = true;
       renderCanvasTrue();
       // create a delay so we see the enemies moving around
       // instead of instantly teleporting and attacking all at once
       await new Promise((r) => setTimeout(r, DELAY));
       if(interruptEnemyTurn) { break; }
-      actionsTaken += 1;
+      enemy.actionsLeft--;
 
       if (gameState.currentPlayers === 0) {
         enemy.current = false;
@@ -358,7 +363,6 @@ async function enemyTurn(delta) {
         return;
       }
 
-      // find closest player
       const players = gameState.units.filter((u) => u.team === "player");
       let closestPlayer;
       let minDist = GRID_HEIGHT * GRID_WIDTH;
@@ -398,10 +402,10 @@ async function enemyTurn(delta) {
       } else {
         // Attack if in range after moving
         for (const player of players) {
-          if (inRange(enemy, player) && !enemy.hasActed) {
+          if (inRange(enemy, player) && enemy.attacksLeft) {
 
             attack(enemy, player);
-            enemy.hasActed = true;
+            enemy.attacksLeft--;
             break; // attack only one unit per turn
           }
         }
@@ -421,7 +425,12 @@ async function enemyTurn(delta) {
   gameState.currentTurn = "player";
   gameState.turnNumber++;
   renderHeaderTrue();
-  gameState.units.filter((u) => u.team === "player").forEach((u) => (u.hasActed = false));
+  for(let i = 0; i < gameState.units.length; i++) {
+    const u = gameState.units[i];
+    if(u.team === "enemy") { continue; }
+    u.actionsLeft = u.maxActions;
+    u.attacksLeft = u.maxAttacks;
+  }
 }
 
 export function interrupt() {

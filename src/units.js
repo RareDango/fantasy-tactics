@@ -12,10 +12,11 @@ import { AnimationData } from "./AnimationData.js";
  * @property {number} y
  * @property {number} maxHp
  * @property {number} hp
- * @property {number} moveRange
+ * @property {number} maxActions
+ * @property {number} actionsLeft
  * @property {number} attackRange
- * @property {number} attackPower
- * @property {boolean} hasActed
+ * @property {number} maxAttacks
+ * @property {number} attacksLeft
  * @property {boolean} current
  * @property {number} portraitId;
  * @property {AnimationData} animationData
@@ -31,10 +32,11 @@ export function createPlayerUnit(id, x, y) {
     y,
     maxHp: 4,
     hp: 4,
-    moveRange: 3,
-    attackRange: 1, // melee only for now
-    attackPower: 1,
-    hasActed: false,
+    maxActions: 3,
+    actionsLeft: 3,
+    attackRange: 1,
+    maxAttacks: 1,
+    attacksLeft: 1,
     current: false,
     quote: "Hi!",
     hue: 0
@@ -49,11 +51,11 @@ export function createEnemyUnit(id, x, y) {
     y,
     maxHp: 2,
     hp: 2,
-    moveRange: 2,
+    maxActions: 3,
+    actionsLeft: 3,
     attackRange: 1,
-    attackPower: 1,
-    hasActed: false,
-    actions: 3,
+    maxAttacks: 1,
+    attacksLeft: 1,
     current: false
   };
 }

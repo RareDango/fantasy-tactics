@@ -128,8 +128,8 @@ export function drawUnit(unit, isSelected) {
   const y = unit.y * TILE_SIZE;
 
   if (isSelected) {
-    drawRect(ctx, x + 6, y + 6, TILE_SIZE - 12, TILE_SIZE - 12, unit.hasActed ? "rgba(250, 204, 21, 0.25)" : "rgba(250, 204, 21, 0.75)" );
-  } else if (unit.team == "player" && !unit.hasActed) {
+    drawRect(ctx, x + 6, y + 6, TILE_SIZE - 12, TILE_SIZE - 12, unit.actionsLeft < 1 ? "rgba(250, 204, 21, 0.25)" : "rgba(250, 204, 21, 0.75)" );
+  } else if (unit.team == "player" && unit.actionsLeft > 0) {
     drawRectStroke(ctx, x + 6, y + 6, TILE_SIZE - 12, TILE_SIZE - 12, "rgba(250, 204, 21, 0.5)");
   }
 
@@ -168,15 +168,17 @@ export function drawUnit(unit, isSelected) {
 
 }
 
-export function drawMoveTiles(tiles, unitHasActed) {
+export function drawMoveTiles(tiles, unit) {
   for (const tile of tiles) {
-    drawRect(ctx, tile.x * TILE_SIZE, tile.y * TILE_SIZE, TILE_SIZE, TILE_SIZE, unitHasActed ? "rgba(59, 130, 246, 0.1)" : "rgba(59, 130, 246, 0.25)");
+    drawRect(ctx, tile.x * TILE_SIZE, tile.y * TILE_SIZE, TILE_SIZE, TILE_SIZE, unit.actionsLeft < 1 ? "rgba(59, 130, 246, 0.1)" : "rgba(59, 130, 246, 0.25)");
   }
 }
 
-export function drawAttackTiles(tiles, acted) {
+export function drawAttackTiles(tiles, unit) {
+  let canAttack = false;
+  if(unit.actionsLeft && unit.attacksLeft) { canAttack = true; }
   for (const tile of tiles) {
-    drawRect(ctx, tile.x * TILE_SIZE, tile.y * TILE_SIZE, TILE_SIZE, TILE_SIZE, acted ? "rgba(246, 59, 59, 0.1)" : "rgba(246, 59, 59, 0.25)");
+    drawRect(ctx, tile.x * TILE_SIZE, tile.y * TILE_SIZE, TILE_SIZE, TILE_SIZE, !canAttack ? "rgba(246, 59, 59, 0.0)" : "rgba(246, 59, 59, 0.25)");
   }
 }
 
@@ -302,7 +304,6 @@ export function renderHeaderTrue() { renderHeader = true; }
 export function drawHeader(gameState, buttons, delta) {
   // HEADER UI
   if(renderHeader) {
-    //console.log("Header rendered.");
     clear(header);
     // TOP BAR
     const numLines = 2;
@@ -394,7 +395,9 @@ export function drawHeader(gameState, buttons, delta) {
       textStyle(hctx, `${textSize}px Arial`, "white", "top");
       drawText(hctx, `${selectedUnit.name}`, portraitSize + margin, TILE_SIZE + margin);
       drawText(hctx, `HP: ${selectedUnit.hp}/${selectedUnit.maxHp}`, portraitSize + margin, TILE_SIZE + textSize + margin * 2);
-      drawText(hctx, `\"${selectedUnit.quote}\"`, portraitSize + margin, TILE_SIZE + textSize * 2 + margin * 3);
+      drawText(hctx, `AP: ${selectedUnit.actionsLeft}/${selectedUnit.maxActions}`, portraitSize + margin + TILE_SIZE * 2, TILE_SIZE + textSize + margin * 2);
+      drawText(hctx, `Attacks: ${selectedUnit.attacksLeft}/${selectedUnit.maxAttacks}`, portraitSize + margin, TILE_SIZE + textSize * 2 + margin * 3);
+      drawText(hctx, `\"${selectedUnit.quote}\"`, portraitSize + margin, TILE_SIZE + textSize * 3 + margin * 4);
     }
 
     let color = "#3b82f6";
@@ -411,7 +414,6 @@ export function drawFooter(gameVersion, updatedDate, buttons) {
   // FOOTER UI
 
   if(renderFooter) {
-    //console.log("Footer rendered.");
     clear(footer);
     drawLine(fctx, 0, 0, CANVAS_WIDTH, 0, "#555", 1);
 

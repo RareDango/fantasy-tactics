@@ -20,7 +20,7 @@ export async function attack(attacker, defender) {
 
   await new Promise((r) => setTimeout(r, delay));
 
-  defender.hp -= attacker.attackPower;
+  defender.hp--;
 
   if (defender.hp <= 0) {
     defender.hp = 0; // clamp to zero

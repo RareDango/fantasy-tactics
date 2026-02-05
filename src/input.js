@@ -77,25 +77,28 @@ export function setupInput(canvas, gameState, buttons) {
 
       // If a unit is selected and tile is movable -> move
       if (selectedUnit && canAct(selectedUnit) && isTileMovable(selectedUnit, gridX, gridY)) {
+        const distance = Math.abs(selectedUnit.x - gridX) + Math.abs(selectedUnit.y - gridY);
+        selectedUnit.actionsLeft -= distance;
         selectedUnit.x = gridX;
         selectedUnit.y = gridY;
+        if(selectedUnit.actionsLeft < 1) { gameState.selectedUnitId = null; }
         renderCanvasTrue();
-        selectedUnit.hasActed = true; // mark as acted
-        gameState.selectedUnitId = null;
         renderHeaderTrue();
         checkEndTurn();
         return;
       }
       // If a unit is selected and clicked tile has an enemy -> attack
-      if (selectedUnit && canAct(selectedUnit) && clickedUnit && clickedUnit.team !== selectedUnit.team) {
+      if (selectedUnit && canAct(selectedUnit) && clickedUnit && clickedUnit.team !== selectedUnit.team && selectedUnit.attacksLeft) {
         // check range
         if (inRange(selectedUnit, clickedUnit)) {
           attack(selectedUnit, clickedUnit);
-          selectedUnit.hasActed = true;
+          selectedUnit.attacksLeft--;
+          selectedUnit.actionsLeft--;
+          if(selectedUnit.actionsLeft < 1) { gameState.selectedUnitId = null; }
+        } else {
+          // Otherwise -> deselect
+          gameState.selectedUnitId = null;
         }
-
-        // Otherwise -> deselect
-        gameState.selectedUnitId = null;
         renderHeaderTrue();
         renderCanvasTrue();
         checkEndTurn();

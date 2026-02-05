@@ -1,24 +1,41 @@
 import { inRange } from "./combat.js";
 import { GRID_WIDTH, GRID_HEIGHT } from "./constants.js";
 import { gameState } from "./game.js";
+import { containsTile, getMovableTiles, listArrayObjects } from "./movement.js";
 
-export function getMovableTiles(unit) {
-  const tiles = [];
-
-  for (let x = 0; x < GRID_WIDTH; x++) {
-    for (let y = 0; y < GRID_HEIGHT; y++) {
-      const distance = Math.abs(unit.x - x) + Math.abs(unit.y - y);
-      if (distance > 0 && distance <= unit.moveRange && !isTileOccupied(x, y)) {
-        tiles.push({ x, y });
-      }
+export function getPlayerMovableTiles(unit) {
+  const tiles = getMovableTiles(unit, unit.actionsLeft);
+  const length = tiles.length;
+  for(let i = 0; i < length; i++) {
+    if(tiles[i].d === unit.actionsLeft) {
+      tiles.push(tiles[i]);
     }
   }
-
   return tiles;
+}
+
+function getDistance(a, b) {
+  return Math.abs(a.x - b.x) + Math.abs(a.y - b.y);
 }
 
 export function getAttackableTiles(unit) {
   const tiles = [];
+
+  for(let x = 0; x < GRID_WIDTH; x++) {
+    for(let y = 0; y < GRID_HEIGHT; y++) {
+      if(isTileOccupied(x, y)) {
+        for(let i = 0; i < gameState.units.length; i++) {
+          const u = gameState.units[i];
+          if(u.team === unit.team) { continue; }
+          if(u.x === x && u.y === y && inRange(unit, u)) {
+            tiles.push({x, y});
+          }
+        }
+      }
+    }
+  }
+
+  /*
 
   for (let x = 0; x < GRID_WIDTH; x++) {
     for (let y = 0; y < GRID_HEIGHT; y++) {
@@ -32,16 +49,15 @@ export function getAttackableTiles(unit) {
       }
     }
   }
+    */
 
   return tiles;
 }
 
 export function isTileMovable(unit, x, y) {
-  if (isTileOccupied(x, y)) {
-    return false;
-  }
-  const distance = Math.abs(unit.x - x) + Math.abs(unit.y - y);
-  return distance > 0 && distance <= unit.moveRange && !isTileOccupied(x, y);
+  const tiles = getMovableTiles(unit, unit.actionsLeft);
+  if(containsTile({x:x, y:y}, tiles)) { return true; }
+  return false;
 }
 
 export function isTileOccupied(x, y) {
