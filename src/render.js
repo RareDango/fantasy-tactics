@@ -5,7 +5,8 @@ import {
   FOOTER_HEIGHT,
   CANVAS_WIDTH,
   HEADER_HEIGHT,
-  CANVAS_HEIGHT
+  CANVAS_HEIGHT,
+  MAX_UNITS
 } from "./constants.js";
 import { AnimationData } from "./AnimationData.js";
 import { gameState, renderCanvasTrue, initGame, gameLoop } from "./game.js";
@@ -39,10 +40,10 @@ async function loadAssets() {
   for(let i = 0; i < 8; i++) { assets.fireworksImages.push(await loadImage("spritesheets/fireworks_animated.png")); }
 
   assets.portraitsImages = [];
-  for(let i = 0; i < 12; i++) { assets.portraitsImages.push(await loadImage("spritesheets/knight_animated.png")); }
+  for(let i = 0; i < MAX_UNITS; i++) { assets.portraitsImages.push(await loadImage("spritesheets/knight_animated.png")); }
 
   assets.unitsImages = [];
-  for(let i = 0; i < 12; i++) { assets.unitsImages.push(await loadImage("knight_blue.png")); }
+  for(let i = 0; i < MAX_UNITS; i++) { assets.unitsImages.push(await loadImage("knight_blue.png")); }
 
   return assets;
 }
@@ -255,6 +256,11 @@ export function drawSettings(gameState, buttons, delta) {
 
   const eString = `ENEMIES: ${gameState.newEnemyUnits}`;
   drawText(ctx, eString, center, enemiesY);
+
+  textStyle(ctx, "20px Arial", "#333", "middle", "center")
+  const minMax = `Min = 1      Max = ${MAX_UNITS}`;
+  drawText(ctx, minMax, CANVAS_WIDTH / 2, 92)
+
 }
 
 export function updateAnimations(delta) {

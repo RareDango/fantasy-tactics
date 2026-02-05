@@ -1,7 +1,7 @@
 export const gameVersion = "0.3.5";
 export const updatedDate = "Wed, Feb 4, 2026";
 
-export const MAX_UNITS = 12;
+export const MAX_UNITS = 20; // hangs if players set above 21. no idea why
 
 export const TILE_SIZE   = 64;
 export const GRID_WIDTH  = 8;
