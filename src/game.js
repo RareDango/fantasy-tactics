@@ -137,15 +137,19 @@ function createUnits(numPlayerUnits, numEnemyUnits) {
   gameState.units.length = 0;
   gameState.playerList.length = 0;
 
+  const locations = [];
+  for(let x = 0; x < GRID_WIDTH; x++) {
+    for(let y = 0; y < GRID_HEIGHT; y++) {
+      locations.push({x, y});
+    }
+  }
+
   let id = 0;
   for (let i = 0; i < numPlayerUnits; i++) {
-    let x = Math.floor(Math.random() * GRID_WIDTH);
-    let y = Math.floor(Math.random() * GRID_HEIGHT);
-    while (isTileOccupied(x, y)) {
-      x = Math.floor(Math.random() * GRID_WIDTH);
-      y = Math.floor(Math.random() * GRID_HEIGHT);
-    }
-    const unit = createPlayerUnit(id, x, y);
+    const options = locations.filter((l) => !isTileOccupied(l.x, l.y));
+    const pos = options[Math.floor(Math.random() * options.length)];
+    const unit = createPlayerUnit(id, pos.x, pos.y);
+
 
     // Give random name to player units from list of names in constants.js
     let name = NAMES[Math.floor(Math.random() * NAMES.length)];
@@ -158,9 +162,11 @@ function createUnits(numPlayerUnits, numEnemyUnits) {
     // Give random quote to player units from list of quotes in constants.js
     let quote = QUOTES[Math.floor(Math.random() * QUOTES.length)];
     // If quotes are shared, get a new one until all quotes are unique
+    /*
     while(gameState.units.find((u) => u.quote === quote)) {
       quote = QUOTES[Math.floor(Math.random() * QUOTES.length)];
     }
+      *///Commented out so we can have more units than quotes. 
     unit.quote = quote;
 
     const hueDiff = 360 / numPlayerUnits;
@@ -177,14 +183,11 @@ function createUnits(numPlayerUnits, numEnemyUnits) {
     gameState.playerList.push(unit.name);
     id++;
   }
+
   for (let i = 0; i < numEnemyUnits; i++) {
-    let x = Math.floor(Math.random() * GRID_WIDTH);
-    let y = Math.floor(Math.random() * GRID_HEIGHT);
-    while (isTileOccupied(x, y)) {
-      x = Math.floor(Math.random() * GRID_WIDTH);
-      y = Math.floor(Math.random() * GRID_HEIGHT);
-    }
-    gameState.units.push(createEnemyUnit(id, x, y));
+    const options = locations.filter((l) => !isTileOccupied(l.x, l.y));
+    const pos = options[Math.floor(Math.random() * options.length)];
+    gameState.units.push(createEnemyUnit(id, pos.x, pos.y));
     id++;
   }
 }

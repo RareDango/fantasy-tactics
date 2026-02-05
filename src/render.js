@@ -309,8 +309,6 @@ export function drawHeader(gameState, buttons, delta) {
     const textSize = (TILE_SIZE - (numLines + 1) * margin) / numLines;
     const portraitSize = TILE_SIZE * 2;
 
-    textStyle(hctx, `${textSize}px Arial`, "white", "top");
-
     let players = 0;
     let enemies = 0;
 
@@ -320,10 +318,16 @@ export function drawHeader(gameState, buttons, delta) {
       else { enemies++; }
     }
 
+    textStyle(hctx, `${textSize}px Arial`, "white", "top");
     if (players === 0) { // Enemy wins
-      drawText(hctx, `Turn: ${gameState.turnNumber}            You lose! Bad job, loser!`, margin, margin);
+      drawText(hctx, `Turn: ${gameState.turnNumber}`, margin, margin);
+      textStyle(hctx, `${textSize}px Arial`, "white", "top", "center");
+      drawText(hctx, "You lose! Bad job, loser!", CANVAS_WIDTH / 2, margin);
+
     } else if (enemies === 0) { // Player wins
-      drawText(hctx, `Turn: ${gameState.turnNumber}          You win! Good job, champ!`, margin, margin);
+      drawText(hctx, `Turn: ${gameState.turnNumber}`, margin, margin);
+      textStyle(hctx, `${textSize}px Arial`, "white", "top", "center");
+      drawText(hctx, "You win! Good job, champ!", CANVAS_WIDTH / 2, margin);
     } else { // Display current turn
       drawText(hctx, `Turn: ${gameState.turnNumber}`, margin, margin);
     }

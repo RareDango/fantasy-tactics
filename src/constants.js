@@ -1,7 +1,7 @@
 export const gameVersion = "0.3.5";
 export const updatedDate = "Wed, Feb 4, 2026";
 
-export const MAX_UNITS = 20; // hangs if players set above 21. no idea why
+export const MAX_UNITS = 32; // hangs if players set above 21. no idea why
 
 export const TILE_SIZE   = 64;
 export const GRID_WIDTH  = 8;
@@ -38,6 +38,7 @@ export const NAMES = [
     "Josh", "Maxwell", "Krista", "Mo",
     "나연", "정연", "사나", "모모", "지효", "미나", "다현", "채영", "쯔위",
     "소연", "우기", "미연", "슈화", "민니", "수진",
+    "솔라", "문별", "휘인", "화사",
     "Charlie", "Pip", "Leafy", "Jolene",
     "Montana", "Jovi", "Puddle", "Veythra", "Ze'eil", "Torq"
 ]
