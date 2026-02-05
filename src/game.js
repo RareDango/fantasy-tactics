@@ -37,9 +37,7 @@ import {
   drawSettings,
   updateAnimations,
   renderHeaderTrue,
-  tintImage,
-  portraitsImages,
-  unitsImages
+  tintImage
 } from "./render.js";
 import { createPlayerUnit, createEnemyUnit } from "./units.js";
 import { setupFooterInput, setupInput, setupHeaderInput } from "./input.js";
@@ -170,8 +168,8 @@ function createUnits(numPlayerUnits, numEnemyUnits) {
     unit.hue = hue;
     hues.push(hue);
 
-    portraitsImages[id] = tintImage(portraitsImages[id], unit.hue);
-    unitsImages[id] = tintImage(unitsImages[id], unit.hue);
+    assets.portraitsImages[id] = tintImage(assets.portraitsImages[id], unit.hue);
+    assets.unitsImages[id] = tintImage(assets.unitsImages[id], unit.hue);
 
     unit.animationData = new AnimationData(id, 64, 4);
 
@@ -193,8 +191,8 @@ function createUnits(numPlayerUnits, numEnemyUnits) {
 const hues = [];
 export function resetHues() {
   for(let i = 0; i < gameState.numPlayerUnits; i++) {
-    portraitsImages[i] = tintImage(portraitsImages[i], -hues[i]);
-    unitsImages[i] = tintImage(unitsImages[i], -hues[i]);
+    assets.portraitsImages[i] = tintImage(assets.portraitsImages[i], -hues[i]);
+    assets.unitsImages[i] = tintImage(assets.unitsImages[i], -hues[i]);
   }
   hues.length = 0;
 }
@@ -230,8 +228,8 @@ function setupButtons() {
   buttons = footerButtons;
   buttons.length = 0;
   
-  buttons.push(createButton(BUTTON_END_TURN, "END TURN", assets.b_footer, 64, 32, 160, 64, "#9c4242", "#adadad"));
-  buttons.push(createButton(BUTTON_RESET, "RESET", assets.b_footer, 288, 32, 160, 64, "#9c4242", "#adadad"));
+  buttons.push(createButton(BUTTON_END_TURN, "END TURN", assets.b_footer, 64, 26, 160, 64, "#9c4242", "#adadad"));
+  buttons.push(createButton(BUTTON_RESET, "RESET", assets.b_footer, 288, 26, 160, 64, "#9c4242", "#adadad"));
 }
 
 export async function endTurn() {

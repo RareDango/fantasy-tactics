@@ -5,8 +5,7 @@ import {
   FOOTER_HEIGHT,
   CANVAS_WIDTH,
   HEADER_HEIGHT,
-  CANVAS_HEIGHT,
-  UP
+  CANVAS_HEIGHT
 } from "./constants.js";
 import { AnimationData } from "./AnimationData.js";
 import { gameState, renderCanvasTrue, initGame, gameLoop } from "./game.js";
@@ -15,103 +14,35 @@ export let assets;
 
 export async function start() {
   assets = await loadAssets();
-
-  assignImageArrays();
-  
   initGame();
   requestAnimationFrame(gameLoop);
-}
-
-function assignImageArrays() {
-  fireworksImages.push(assets.firework0);
-  fireworksImages.push(assets.firework1);
-  fireworksImages.push(assets.firework2);
-  fireworksImages.push(assets.firework3);
-  fireworksImages.push(assets.firework4);
-  fireworksImages.push(assets.firework5);
-  fireworksImages.push(assets.firework6);
-  fireworksImages.push(assets.firework7);
-
-  portraitsImages.push(assets.portrait0);
-  portraitsImages.push(assets.portrait1);
-  portraitsImages.push(assets.portrait2);
-  portraitsImages.push(assets.portrait3);
-  portraitsImages.push(assets.portrait4);
-  portraitsImages.push(assets.portrait5);
-  portraitsImages.push(assets.portrait6);
-  portraitsImages.push(assets.portrait7);
-  portraitsImages.push(assets.portrait8);
-  portraitsImages.push(assets.portrait9);
-  portraitsImages.push(assets.portrait10);
-  portraitsImages.push(assets.portrait11);
-
-  unitsImages.push(assets.knight0);
-  unitsImages.push(assets.knight1);
-  unitsImages.push(assets.knight2);
-  unitsImages.push(assets.knight3);
-  unitsImages.push(assets.knight4);
-  unitsImages.push(assets.knight5);
-  unitsImages.push(assets.knight6);
-  unitsImages.push(assets.knight7);
-  unitsImages.push(assets.knight8);
-  unitsImages.push(assets.knight9);
-  unitsImages.push(assets.knight10);
-  unitsImages.push(assets.knight11);
 }
 
 async function loadAssets() {
   const assets = {};
 
-  assets.knight = await loadImage("knight_blue.png");
+  assets.fantasyTactics = await loadImage("fantasy_tactics.png");
+
   assets.goblin = await loadImage("goblin.png");
 
   assets.settingsBackground = await loadImage("settings_bg.png");
-
   assets.b_settings = await loadImage("button_gear.png");
   assets.b_cancel = await loadImage("button_x.png");
   assets.b_accept = await loadImage("button_check.png");
   assets.b_up = await loadImage("button_up.png");
   assets.b_down = await loadImage("./button_down.png");
-
   assets.b_footer = await loadImage("./button_160x64.png");
 
-  assets.portrait = await loadImage("spritesheets/knight_animated.png");
   assets.attack = await loadImage("spritesheets/attack_animated.png");
 
-  assets.firework0 = await loadImage("spritesheets/fireworks_animated.png");
-  assets.firework1 = await loadImage("spritesheets/fireworks_animated.png");
-  assets.firework2 = await loadImage("spritesheets/fireworks_animated.png");
-  assets.firework3 = await loadImage("spritesheets/fireworks_animated.png");
-  assets.firework4 = await loadImage("spritesheets/fireworks_animated.png");
-  assets.firework5 = await loadImage("spritesheets/fireworks_animated.png");
-  assets.firework6 = await loadImage("spritesheets/fireworks_animated.png");
-  assets.firework7 = await loadImage("spritesheets/fireworks_animated.png");
+  assets.fireworksImages = [];
+  for(let i = 0; i < 8; i++) { assets.fireworksImages.push(await loadImage("spritesheets/fireworks_animated.png")); }
 
-  assets.portrait0  = await loadImage("spritesheets/knight_animated.png");
-  assets.portrait1  = await loadImage("spritesheets/knight_animated.png");
-  assets.portrait2  = await loadImage("spritesheets/knight_animated.png");
-  assets.portrait3  = await loadImage("spritesheets/knight_animated.png");
-  assets.portrait4  = await loadImage("spritesheets/knight_animated.png");
-  assets.portrait5  = await loadImage("spritesheets/knight_animated.png");
-  assets.portrait6  = await loadImage("spritesheets/knight_animated.png");
-  assets.portrait7  = await loadImage("spritesheets/knight_animated.png");
-  assets.portrait8  = await loadImage("spritesheets/knight_animated.png");
-  assets.portrait9  = await loadImage("spritesheets/knight_animated.png");
-  assets.portrait10 = await loadImage("spritesheets/knight_animated.png");
-  assets.portrait11 = await loadImage("spritesheets/knight_animated.png");
+  assets.portraitsImages = [];
+  for(let i = 0; i < 12; i++) { assets.portraitsImages.push(await loadImage("spritesheets/knight_animated.png")); }
 
-  assets.knight0  = await loadImage("knight_blue.png");
-  assets.knight1  = await loadImage("knight_blue.png");
-  assets.knight2  = await loadImage("knight_blue.png");
-  assets.knight3  = await loadImage("knight_blue.png");
-  assets.knight4  = await loadImage("knight_blue.png");
-  assets.knight5  = await loadImage("knight_blue.png");
-  assets.knight6  = await loadImage("knight_blue.png");
-  assets.knight7  = await loadImage("knight_blue.png");
-  assets.knight8  = await loadImage("knight_blue.png");
-  assets.knight9  = await loadImage("knight_blue.png");
-  assets.knight10 = await loadImage("knight_blue.png");
-  assets.knight11 = await loadImage("knight_blue.png");
+  assets.unitsImages = [];
+  for(let i = 0; i < 12; i++) { assets.unitsImages.push(await loadImage("knight_blue.png")); }
 
   return assets;
 }
@@ -139,17 +70,13 @@ export function newAttack(x, y, direction) {
 
   return attack.hitFrame * attack.frameTime;
 }
-
-
-
-
 export function clearAttacks() {
   attacks.length = 0;
 }
 
 // Fireworks
 const fireworks = [];
-const fireworksImages = [];
+//const fireworksImages = [];
 let fireworkIndex = 0;
 function newFirework() {
   const firework = new AnimationData(fireworkIndex, 64, 11, false);
@@ -166,12 +93,11 @@ function newFirework() {
   firework.kill = false;
   fireworks.push(firework);
 
-  fireworksImages[fireworkIndex] = tintImage(fireworksImages[fireworkIndex], firework.hue);
+  assets.fireworksImages[fireworkIndex] = tintImage(assets.fireworksImages[fireworkIndex], firework.hue);
 
   fireworkIndex++;
-  if(fireworkIndex >= fireworksImages.length) { fireworkIndex = 0; }
+  if(fireworkIndex >= assets.fireworksImages.length) { fireworkIndex = 0; }
 }
-
 export function clearFireworks() {
   fireworks.length = 0;
 }
@@ -195,8 +121,6 @@ export function drawGrid() {
   }
 }
 
-export const unitsImages = [];
-export const portraitsImages = [];
 export function drawUnit(unit, isSelected) {
   const x = unit.x * TILE_SIZE;
   const y = unit.y * TILE_SIZE;
@@ -213,7 +137,7 @@ export function drawUnit(unit, isSelected) {
 
   drawImage(
     ctx,
-    unit.team === "player" ? unitsImages[unit.animationData.arrayIndex] : assets.goblin,
+    unit.team === "player" ? assets.unitsImages[unit.animationData.arrayIndex] : assets.goblin,
     x + 4,
     y + 4,
     TILE_SIZE - 8,
@@ -295,7 +219,7 @@ export function drawFireworks(delta) {
     for(let i = 0; i < fireworks.length; i++) {
       const f = fireworks[i];
       if(f.kill) { continue; }
-      drawImage(ctx, fireworksImages[f.arrayIndex], f.x, f.y, f.drawSize, f.drawSize, 0, f);
+      drawImage(ctx, assets.fireworksImages[f.arrayIndex], f.x, f.y, f.drawSize, f.drawSize, 0, f);
       renderCanvasTrue();
       if(f.index === f.length - 1) {
         f.kill = true;
@@ -446,7 +370,7 @@ export function drawHeader(gameState, buttons, delta) {
       );
       // Unit portrait
       const pSize = TILE_SIZE * 2;
-      drawImage(hctx, portraitsImages[selectedUnit.animationData.arrayIndex], 0, TILE_SIZE, pSize, pSize, null, selectedUnit.animationData)
+      drawImage(hctx, assets.portraitsImages[selectedUnit.animationData.arrayIndex], 0, TILE_SIZE, pSize, pSize, null, selectedUnit.animationData)
       
       let color = "#3b82f6";
       if(gameState.currentTurn === "enemy") { color = "#ef4444"; }
@@ -496,6 +420,8 @@ export function drawFooter(gameVersion, updatedDate, buttons) {
         drawText(fctx, b.text, b.x + b.width / 2, b.y + b.height / 2);
       }
     }
+
+    drawImage(fctx, assets.fantasyTactics, 0, TILE_SIZE * 1.5, CANVAS_WIDTH, TILE_SIZE);
 
     const versionText = `Version: ${gameVersion} - Updated: ${updatedDate}`;
     textStyle(fctx, "16px Arial", "#bbb", "alphabetic", "right");

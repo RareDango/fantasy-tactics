@@ -4,14 +4,10 @@ import { start } from "./render.js";
 console.log("Fantasy Tactics v" + gameVersion);
 
 let ratio = 1;
-export function getRatio() {
-    return ratio;
-}
+export function getRatio() { return ratio; }
 
 resize();
-window.addEventListener("resize", () => {
-  resize();
-});
+window.addEventListener("resize", () => { resize(); });
 
 function resize() {
   let aspect = CONTAINER_WIDTH / CONTAINER_HEIGHT;
