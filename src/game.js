@@ -18,7 +18,9 @@ import {
   BUTTON_ENEMIES_DOWN,
   BUTTON_ACCEPT,
   BUTTON_CANCEL,
-  TILE_SIZE
+  TILE_SIZE,
+  DEFAULT_NUM_PLAYERS,
+  DEFAULT_NUM_ENEMIES
 } from "./constants.js";
 import {
   assets,
@@ -61,14 +63,14 @@ export const gameState = {
 
   settingsOpen: false,
 
-  numPlayerUnits: 5,
-  numEnemyUnits: 7,
+  numPlayerUnits: DEFAULT_NUM_PLAYERS,
+  numEnemyUnits: DEFAULT_NUM_ENEMIES,
 
-  newPlayerUnits: 5,
-  newEnemyUnits: 7,
+  newPlayerUnits: DEFAULT_NUM_PLAYERS,
+  newEnemyUnits: DEFAULT_NUM_ENEMIES,
 
-  currentPlayers: 5,
-  currentEnemies: 7,
+  currentPlayers: DEFAULT_NUM_PLAYERS,
+  currentEnemies: DEFAULT_NUM_ENEMIES,
 
   turnNumber: 1
 };
@@ -95,8 +97,6 @@ export function initGame() {
   setupInput(canvas, gameState, canvasButtons);
   setupHeaderInput(header, gameState, headerButtons);
   setupFooterInput(footer, gameState, footerButtons);
-
-  //gameLoop();
 }
 
 
@@ -149,7 +149,6 @@ function createUnits(numPlayerUnits, numEnemyUnits) {
     const options = locations.filter((l) => !isTileOccupied(l.x, l.y));
     const pos = options[Math.floor(Math.random() * options.length)];
     const unit = createPlayerUnit(id, pos.x, pos.y);
-
 
     // Give random name to player units from list of names in constants.js
     let name = NAMES[Math.floor(Math.random() * NAMES.length)];
@@ -223,8 +222,9 @@ function setupButtons() {
   buttons.push(createButton(BUTTON_PLAYERS_UP, null, assets.b_up, alignX, TILE_SIZE * 2, TILE_SIZE, TILE_SIZE));
   buttons.push(createButton(BUTTON_ENEMIES_UP, null, assets.b_up, alignX, TILE_SIZE * 3.75, TILE_SIZE, TILE_SIZE));
 
-  buttons.push(createButton(BUTTON_ACCEPT, null, assets.b_accept, TILE_SIZE * 2.5, TILE_SIZE * 5.5, TILE_SIZE, TILE_SIZE));
-  buttons.push(createButton(BUTTON_CANCEL, null, assets.b_cancel, TILE_SIZE * 4.5, TILE_SIZE * 5.5, TILE_SIZE, TILE_SIZE));
+  buttons.push(createButton(BUTTON_ACCEPT, null, assets.b_accept, TILE_SIZE * 2,   TILE_SIZE * 5.5, TILE_SIZE, TILE_SIZE));
+  buttons.push(createButton(BUTTON_RESET,  null, assets.b_reset,  TILE_SIZE * 3.5, TILE_SIZE * 5.5, TILE_SIZE, TILE_SIZE));
+  buttons.push(createButton(BUTTON_CANCEL, null, assets.b_cancel, TILE_SIZE * 5,   TILE_SIZE * 5.5, TILE_SIZE, TILE_SIZE));
 
 
   // FOOTER

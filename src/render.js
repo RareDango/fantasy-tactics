@@ -30,6 +30,7 @@ async function loadAssets() {
   assets.b_settings = await loadImage("button_gear.png");
   assets.b_cancel = await loadImage("button_x.png");
   assets.b_accept = await loadImage("button_check.png");
+  assets.b_reset = await loadImage("button_reset.png");
   assets.b_up = await loadImage("button_up.png");
   assets.b_down = await loadImage("./button_down.png");
   assets.b_footer = await loadImage("./button_160x64.png");

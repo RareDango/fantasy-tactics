@@ -9,7 +9,9 @@ import {
   BUTTON_ENEMIES_UP,
   BUTTON_ENEMIES_DOWN,
   BUTTON_CANCEL,
-  BUTTON_ACCEPT
+  BUTTON_ACCEPT,
+  DEFAULT_NUM_PLAYERS,
+  DEFAULT_NUM_ENEMIES
 } from "./constants.js";
 import { isTileMovable, isTileOccupied } from "./grid.js";
 import { canAct, restartGame, endTurn, checkEndTurn, renderCanvasTrue, resetHues } from "./game.js";
@@ -142,6 +144,11 @@ export function setupInput(canvas, gameState, buttons) {
               renderCanvasTrue();
               restartGame();
               break;
+            
+            case BUTTON_RESET:
+              gameState.newPlayerUnits = DEFAULT_NUM_PLAYERS;
+              gameState.newEnemyUnits = DEFAULT_NUM_ENEMIES;
+              renderCanvasTrue();
 
             default:
               break;
