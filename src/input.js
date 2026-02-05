@@ -18,6 +18,7 @@ import { canAct, restartGame, endTurn, checkEndTurn, renderCanvasTrue, resetHues
 import { attack, inRange } from "./combat.js";
 import { getRatio } from "./main.js";
 import { renderHeaderTrue } from "./render.js";
+import { playClickSound } from "./audio.js";
 
 export function setupInput(canvas, gameState, buttons) {
   canvas.addEventListener("pointerdown", (e) => {
@@ -209,7 +210,9 @@ export function setupFooterInput(canvas, gameState, buttons) {
 }
 
 function inButton(canvas, e, button) {
-  return inRect(canvas, e, button.x, button.y, button.width, button.height);
+  const click = inRect(canvas, e, button.x, button.y, button.width, button.height);
+  if(click) { playClickSound(); }
+  return click;
 }
 
 function inRect(canvas, e, x, y, width, height) {
