@@ -30,4 +30,5 @@ canvas {
   display: flex;
   flex-direction: column;
   background: #2b2b2b;
+  align-content: start;
 }
