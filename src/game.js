@@ -121,6 +121,11 @@ export function gameLoop(timestamp) {
   requestAnimationFrame(gameLoop);
 }
 
+function update(dt) {
+  processCurrentAction(dt);
+}
+
+
 export function restartGame() {
   gameState.settingsOpen = false;
   gameState.currentTurn = 'player';
@@ -436,3 +441,28 @@ async function enemyTurn(delta) {
 export function interrupt() {
   interruptEnemyTurn = true;
 }
+
+
+
+
+
+/*
+
+//// New enemy turn. not yet implemented. need much code refactoring.
+
+function enemyTurn(enemy) {
+  const path = findPath(enemy, target);
+
+  commandQueue.push({
+    type: "move",
+    unit: enemy,
+    path
+  });
+
+  commandQueue.push({
+    type: "attack",
+    attacker: enemy,
+    target
+  });
+}
+  */

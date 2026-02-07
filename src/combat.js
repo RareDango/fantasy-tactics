@@ -39,3 +39,93 @@ export function inRange(attacker, defender) {
   const dy = Math.abs(attacker.y - defender.y);
   return dx + dy <= attacker.attackRange;
 }
+
+
+
+// ENEMY AI STUFF --- not actually implemented yet. please do at some point VVV
+
+function scoreTarget(enemy, player) {
+  let score = 0;
+
+  score -= manhattan(enemy, player); // closer = better
+  score += (player.maxHp - player.hp) * 2; // wounded targets
+  //score += player.attack * 1.5; // not currently using attack and defence calcs in game
+  //score -= player.defense;
+  return score;
+}
+
+function manhattan(a, b) {
+  return Math.abs(a.x - b.x) + Math.abs(a.y - b.y);
+}
+
+export function chooseTarget(enemy, players) {
+  let best = null;
+  let bestScore = -Infinity;
+
+  for (const p of players) {
+    const score = scoreTarget(enemy, p);
+    if (score > bestScore) {
+      bestScore = score;
+      best = p;
+    }
+  }
+
+  return best;
+}
+
+export function findPath(start, goal) {
+  const open = [];
+  const closed = new Set();
+
+  open.push({
+    x: start.x,
+    y: start.y,
+    g: 0,
+    h: heuristic(start, goal),
+    f: heuristic(start, goal),
+    parent: null
+  });
+
+  while (open.length > 0) {
+    let best = 0;
+    for (let i = 1; i < open.length; i++) {
+      if (open[i].f < open[best].f) best = i;
+    }
+
+    const current = open.splice(best, 1)[0];
+
+    if (current.x === goal.x && current.y === goal.y) {
+      return reconstructPath(current);
+    }
+
+    closed.add(key(current.x, current.y));
+
+    for (const d of directions) {
+      const nx = current.x + d.x;
+      const ny = current.y + d.y;
+
+      if (isOutOfBounds(nx, ny)) continue;
+      if (isBlocked(nx, ny)) continue;
+      if (closed.has(key(nx, ny))) continue;
+
+      const g = current.g + 1;
+      const h = heuristic({x:nx,y:ny}, goal);
+      const f = g + h;
+
+      const node = open.find(n => n.x === nx && n.y === ny);
+
+      if (!node || g < node.g) {
+        if (node) {
+          node.g = g;
+          node.f = f;
+          node.parent = current;
+        } else {
+          open.push({ x: nx, y: ny, g, h, f, parent: current });
+        }
+      }
+    }
+  }
+
+  return null;
+}
+

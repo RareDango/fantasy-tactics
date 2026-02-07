@@ -10,9 +10,7 @@ html, body {
   height: 100vh;
 }
 
-canvas {
-  touch-action: none;
-}
+
 
 #header {
   background: #111;
