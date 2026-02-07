@@ -1,4 +1,4 @@
-export const gameVersion = "0.4.4";
+export const gameVersion = "0.4.4a";
 export const updatedDate = "Thu, Feb 5, 2026";
 
 export const MAX_UNITS = 32; // hangs if players set above 21. no idea why -> It was because that's how many quotes there were to pick from
