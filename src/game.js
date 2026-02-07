@@ -335,6 +335,7 @@ export function canAct(unit) {
 }
 
 async function enemyTurn(delta) {
+  gameState.selectedUnitId = null;
   const enemies = gameState.units.filter((u) => u.team === "enemy");
   if(gameState.units.filter( (u) => u.team === 'player').length < 1) {
     for (const enemy of enemies) { enemy.current = false; }
