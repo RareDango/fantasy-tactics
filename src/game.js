@@ -18,11 +18,15 @@ import {
   BUTTON_ENEMIES_DOWN,
   BUTTON_ACCEPT,
   BUTTON_CANCEL,
+  BUTTON_OGRES_UP,
+  BUTTON_OGRES_DOWN,
+  BUTTON_OGRES_ACCEPT,
   TILE_SIZE,
   DEFAULT_NUM_PLAYERS,
   DEFAULT_NUM_ENEMIES,
   TAB_UNITS,
   TAB_VISUALS,
+  TAB_BARS,
   BUTTON_WHITE_GRID,
   BUTTON_SET_TO_DEFAULT,
   BUTTON_CLOSE_SETTINGS
@@ -82,7 +86,9 @@ export const gameState = {
 
   turnNumber: 1,
 
-  whiteGrid: false
+  whiteGrid: false,
+  ogrePercent: 20,
+  newOgrePercent: 20
 };
 let oldSelectedUnitId = null;
 
@@ -194,8 +200,8 @@ function createUnits(numPlayerUnits, numEnemyUnits) {
     id++;
   }
 
-  const ogrePercent = 0.2; // 1 being 100%
-  const numOgres = Math.floor(numEnemyUnits * ogrePercent);
+  const ogreRate = gameState.ogrePercent / 100;
+  const numOgres = Math.floor(numEnemyUnits * ogreRate);
   for (let i = 0; i < numEnemyUnits; i++) {
     const options = locations.filter((l) => !isTileOccupied(l.x, l.y));
     const pos = options[Math.floor(Math.random() * options.length)];
@@ -237,6 +243,7 @@ function setupButtons() {
 
   buttons.push(createButton(TAB_UNITS, null, assets.t_units, TILE_SIZE * 1.5, TILE_SIZE / 2 + 4, TILE_SIZE, TILE_SIZE));
   buttons.push(createButton(TAB_VISUALS, null, assets.t_units, TILE_SIZE * 2.5, TILE_SIZE / 2 + 4, TILE_SIZE, TILE_SIZE));
+  buttons.push(createButton(TAB_BARS, null, assets.t_units, TILE_SIZE * 3.5, TILE_SIZE / 2 + 4, TILE_SIZE, TILE_SIZE));
 
   // BUTTONS
   buttons = canvasButtons;
@@ -258,6 +265,13 @@ function setupButtons() {
   // Visuals Tab Buttons
   buttons.push(createButton(BUTTON_WHITE_GRID, "White Grid Lines", null, TILE_SIZE * 1.5, TILE_SIZE * 2 + 28, TILE_SIZE, TILE_SIZE, "#ddd", "#555"));
 
+  // Bars Tab Buttons
+  buttons.push(createButton(BUTTON_OGRES_UP, null, assets.b_up, TILE_SIZE * 1.5, TILE_SIZE * 2.5, TILE_SIZE, TILE_SIZE));
+  buttons.push(createButton(BUTTON_OGRES_DOWN, null, assets.b_down, TILE_SIZE * 2.5, TILE_SIZE * 2.5, TILE_SIZE, TILE_SIZE));
+  buttons.push(createButton(BUTTON_OGRES_ACCEPT, null, assets.b_accept, TILE_SIZE * 5.5, TILE_SIZE * 2.5, TILE_SIZE, TILE_SIZE));
+  
+
+  //
   buttons.push(createButton(BUTTON_CLOSE_SETTINGS, null, assets.b_cancel, TILE_SIZE * 6 + 22, TILE_SIZE + 40, 32, 32));
 
   // FOOTER
@@ -344,11 +358,20 @@ function render(delta) {
         case TAB_UNITS:
           canvasTabs[TAB_UNITS].image = assets.t_units;
           canvasTabs[TAB_VISUALS].image = assets.t_visuals_dark;
+          canvasTabs[TAB_BARS].image = assets.t_bars_dark;
           break;
         
         case TAB_VISUALS:
           canvasTabs[TAB_UNITS].image = assets.t_units_dark;
           canvasTabs[TAB_VISUALS].image = assets.t_visuals;
+          canvasTabs[TAB_BARS].image = assets.t_bars_dark;
+          break;
+
+        case TAB_BARS:
+          canvasTabs[TAB_UNITS].image = assets.t_units_dark;
+          canvasTabs[TAB_VISUALS].image = assets.t_visuals_dark;
+          canvasTabs[TAB_BARS].image = assets.t_bars;
+          break;
       }
 
       drawSettings(gameState, canvasButtons, canvasTabs, delta);

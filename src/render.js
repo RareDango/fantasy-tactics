@@ -9,10 +9,13 @@ import {
   MAX_UNITS,
   TAB_UNITS,
   TAB_VISUALS,
+  TAB_BARS,
   BUTTON_ACCEPT,
   BUTTON_PLAYERS_DOWN,
   BUTTON_WHITE_GRID,
-  BUTTON_CLOSE_SETTINGS
+  BUTTON_CLOSE_SETTINGS,
+  BUTTON_OGRES_UP,
+  BUTTON_OGRES_ACCEPT
 } from "./constants.js";
 import { AnimationData } from "./AnimationData.js";
 import { gameState, renderCanvasTrue, initGame, gameLoop } from "./game.js";
@@ -283,10 +286,6 @@ export function drawSettings(gameState, buttons, tabs, delta) {
     textStyle(ctx, "20px Arial", "#333", "middle", "center");
     drawText(ctx, `Max Units = ${MAX_UNITS}`, CANVAS_WIDTH / 2, 92 + 28);
   } else if (gameState.activeTab === TAB_VISUALS) {
-
-
-    // TODO: put in visuals options
-
     // white gridlines
     for(let i = 0; i < buttons.length; i++) {
       const b = buttons[i];
@@ -306,6 +305,14 @@ export function drawSettings(gameState, buttons, tabs, delta) {
     // fireworks?
 
 
+  } else if(gameState.activeTab === TAB_BARS) {
+    textStyle(ctx, "24px Arial", "black");
+    drawText(ctx, `Ogre%:${gameState.newOgrePercent}`, TILE_SIZE * 3.55, TILE_SIZE * 3)
+    for(let i = 0; i < buttons.length; i++) {
+      const b = buttons[i];
+      if(b.id < BUTTON_OGRES_UP || b.id > BUTTON_OGRES_ACCEPT) { continue; }
+      drawImage(ctx, b.image, b.x, b.y, b.width, b.height);
+    }
   }
 
 }

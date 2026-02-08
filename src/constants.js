@@ -1,4 +1,4 @@
-export const GAME_VERSION = "0.5.1";
+export const GAME_VERSION = "0.5.2";
 export const DATE_UPDATED = "Sun, Feb 8, 2026";
 
 export const MAX_UNITS = 64;
@@ -26,6 +26,7 @@ export const LEFT  = 3;
 // TAB IDs
 export const TAB_UNITS = 0;
 export const TAB_VISUALS = 1;
+export const TAB_BARS = 2;
 
 // BUTTON IDs
 export const BUTTON_RESET    = 10;
@@ -48,6 +49,11 @@ export const BUTTON_PLAYERS_DOWN = 19;
 
 // Visuals Tab
 export const BUTTON_WHITE_GRID = 20;
+
+// Bars Tab
+export const BUTTON_OGRES_UP = 30;
+export const BUTTON_OGRES_DOWN = 31;
+export const BUTTON_OGRES_ACCEPT = 32;
 
 
 

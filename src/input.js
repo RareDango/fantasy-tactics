@@ -14,9 +14,13 @@ import {
   DEFAULT_NUM_ENEMIES,
   TAB_UNITS,
   TAB_VISUALS,
+  TAB_BARS,
   BUTTON_WHITE_GRID,
   BUTTON_SET_TO_DEFAULT,
-  BUTTON_CLOSE_SETTINGS
+  BUTTON_CLOSE_SETTINGS,
+  BUTTON_OGRES_UP,
+  BUTTON_OGRES_DOWN,
+  BUTTON_OGRES_ACCEPT
 } from "./constants.js";
 import { isTileMovable, isTileOccupied } from "./grid.js";
 import { canAct, restartGame, endTurn, checkEndTurn, renderCanvasTrue, resetHues } from "./game.js";
@@ -122,6 +126,10 @@ export function setupInput(canvas, gameState, buttons, tabs) {
               gameState.activeTab = TAB_VISUALS;
               break;
             
+            case TAB_BARS:
+              gameState.activeTab = TAB_BARS;
+              break;
+            
             default:
               break;
           }
@@ -136,6 +144,7 @@ export function setupInput(canvas, gameState, buttons, tabs) {
               gameState.settingsOpen = false;
               gameState.newPlayerUnits = gameState.numPlayerUnits;
               gameState.newEnemyUnits = gameState.numEnemyUnits;
+              gameState.newOgrePercent = gameState.ogrePercent;
               break;
               
             case BUTTON_PLAYERS_UP:
@@ -173,6 +182,7 @@ export function setupInput(canvas, gameState, buttons, tabs) {
                 gameState.settingsOpen = false;
                 gameState.newPlayerUnits = gameState.numPlayerUnits;
                 gameState.newEnemyUnits = gameState.numEnemyUnits;
+                gameState.newOgrePercent = gameState.ogrePercent;
               }
               break;
             
@@ -180,6 +190,7 @@ export function setupInput(canvas, gameState, buttons, tabs) {
               if(gameState.activeTab === TAB_UNITS) {
                 gameState.numPlayerUnits = gameState.newPlayerUnits;
                 gameState.numEnemyUnits = gameState.newEnemyUnits;
+                gameState.newOgrePercent = gameState.ogrePercent;
                 restartGame();
               }
               break;
@@ -195,6 +206,32 @@ export function setupInput(canvas, gameState, buttons, tabs) {
               if(gameState.activeTab === TAB_VISUALS) {
                 gameState.whiteGrid = !gameState.whiteGrid;
               }
+              break;
+            
+            case BUTTON_OGRES_UP:
+              if(gameState.activeTab === TAB_BARS) {
+                gameState.newOgrePercent += 5;
+                if(gameState.newOgrePercent > 100) {
+                  gameState.newOgrePercent = 100;
+                }
+              }
+              break;
+
+            case BUTTON_OGRES_DOWN:
+              if(gameState.activeTab === TAB_BARS) {
+                gameState.newOgrePercent -= 5;
+                if(gameState.newOgrePercent < 0) {
+                  gameState.newOgrePercent = 0;
+                }
+              }
+              break;
+            
+            case BUTTON_OGRES_ACCEPT:
+              if(gameState.activeTab === TAB_BARS) {
+                gameState.ogrePercent = gameState.newOgrePercent;
+                restartGame();
+              }
+              break;
 
             default:
               break;
