@@ -16,6 +16,12 @@ export async function loadAssets() {
   assets.b_down = await loadImage("./button_down.png");
   assets.b_footer = await loadImage("./button_160x64.png");
 
+  assets.t_units = await loadImage("./opt_units.png");
+  assets.t_units_dark = await loadImage("./opt_units_dark.png");
+
+  assets.t_visuals = await loadImage("./opt_visuals.png");
+  assets.t_visuals_dark = await loadImage("./opt_visuals_dark.png");
+
   assets.attack = await loadImage("spritesheets/attack_animated.png");
 
   assets.fireworksImages = [];

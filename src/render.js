@@ -6,7 +6,13 @@ import {
   CANVAS_WIDTH,
   HEADER_HEIGHT,
   CANVAS_HEIGHT,
-  MAX_UNITS
+  MAX_UNITS,
+  TAB_UNITS,
+  TAB_VISUALS,
+  BUTTON_ACCEPT,
+  BUTTON_PLAYERS_DOWN,
+  BUTTON_WHITE_GRID,
+  BUTTON_CLOSE_SETTINGS
 } from "./constants.js";
 import { AnimationData } from "./AnimationData.js";
 import { gameState, renderCanvasTrue, initGame, gameLoop } from "./game.js";
@@ -100,9 +106,10 @@ export function drawGrid() {
     }
   }
   // Grid Lines
+  const color = gameState.whiteGrid ? "#eee" : "#111";
   for (let i = 0; i <= GRID_WIDTH; i++) {
-    drawLine(ctx, i * TILE_SIZE, 0, i * TILE_SIZE, GRID_HEIGHT * TILE_SIZE, "#111", 1);
-    drawLine(ctx, 0, i * TILE_SIZE, GRID_WIDTH * TILE_SIZE, i * TILE_SIZE, "#111", 1);
+    drawLine(ctx, i * TILE_SIZE, 0, i * TILE_SIZE, GRID_HEIGHT * TILE_SIZE, color, 1);
+    drawLine(ctx, 0, i * TILE_SIZE, GRID_WIDTH * TILE_SIZE, i * TILE_SIZE, color, 1);
   }
 }
 
@@ -221,36 +228,76 @@ export function drawFireworks(delta) {
   }
 }
 
-export function drawSettings(gameState, buttons, delta) {
+export function drawSettings(gameState, buttons, tabs, delta) {
   // darken game
   drawRect(ctx, 0, 0, CANVAS_WIDTH, CANVAS_HEIGHT, "rgba(0, 0, 0, 0.5)");
   
-  // settings background
-  drawImage(ctx, assets.settingsBackground, TILE_SIZE, TILE_SIZE, TILE_SIZE * 6, TILE_SIZE * 6);
-
-  drawRect(ctx, TILE_SIZE * 1.25, TILE_SIZE * 1.75, TILE_SIZE * 5.5 , TILE_SIZE * 1.5, "rgba(255, 255, 255, 0.5)");
-  drawRect(ctx, TILE_SIZE * 1.25, TILE_SIZE * 3.5, TILE_SIZE * 5.5 , TILE_SIZE * 1.5, "rgba(255, 255, 255, 0.5)");
-
-  // buttons
-  for(let i = 0; i < buttons.length; i++) {
-    const b = buttons[i];
-    drawImage(ctx, b.image, b.x, b.y, b.width, b.height);
+  // tabs
+  for(let i = 0; i < tabs.length; i++) {
+    const t = tabs[i];
+    drawImage(ctx, t.image, t.x, t.y, t.width, t.height);
   }
 
-  // unit numbers
-  const center = CANVAS_WIDTH / 2;
-  const playersY = TILE_SIZE * 2.5;
-  const enemiesY = TILE_SIZE * 4.25;
+  // settings background
+  drawImage(ctx, assets.settingsBackground, TILE_SIZE, TILE_SIZE * 1 + 28, TILE_SIZE * 6, TILE_SIZE * 6);
 
-  textStyle(ctx, "24px Arial", "black", "middle", "center")
-  const pString = `PLAYERS: ${gameState.newPlayerUnits}`;
-  drawText(ctx, pString, center, playersY);
+  for(let i = 0; i < buttons.length; i++) {
+      const b = buttons[i];
+      if(b.id < BUTTON_CLOSE_SETTINGS || b.id > BUTTON_CLOSE_SETTINGS) { continue; }
+      drawImage(ctx, b.image, b.x, b.y, b.width, b.height);
+    }
 
-  const eString = `ENEMIES: ${gameState.newEnemyUnits}`;
-  drawText(ctx, eString, center, enemiesY);
+  if(gameState.activeTab === TAB_UNITS) {
+    drawRect(ctx, TILE_SIZE * 1.25, TILE_SIZE * 1.75 + 32, TILE_SIZE * 5.5 , TILE_SIZE * 1.5, "rgba(255, 255, 255, 0.5)");
+    drawRect(ctx, TILE_SIZE * 1.25, TILE_SIZE * 3.5 + 32, TILE_SIZE * 5.5 , TILE_SIZE * 1.5, "rgba(255, 255, 255, 0.5)");
 
-  textStyle(ctx, "20px Arial", "#333", "middle", "center")
-  drawText(ctx, `Max Units = ${MAX_UNITS}`, CANVAS_WIDTH / 2, 92)
+    // buttons
+    for(let i = 0; i < buttons.length; i++) {
+      const b = buttons[i];
+      if(b.id < BUTTON_ACCEPT || b.id > BUTTON_PLAYERS_DOWN) { continue; }
+      drawImage(ctx, b.image, b.x, b.y, b.width, b.height);
+    }
+
+    // unit numbers
+    const center = CANVAS_WIDTH / 2;
+    const playersY = TILE_SIZE * 2.5 + 28;
+    const enemiesY = TILE_SIZE * 4.25 + 28;
+
+    const col = (gameState.newEnemyUnits + gameState.newPlayerUnits) >= MAX_UNITS ? "red" : "black";
+    textStyle(ctx, "24px Arial", col, "middle", "center");
+    const pString = `PLAYERS: ${gameState.newPlayerUnits}`;
+    drawText(ctx, pString, center, playersY);
+
+    const eString = `ENEMIES: ${gameState.newEnemyUnits}`;
+    drawText(ctx, eString, center, enemiesY);
+
+    textStyle(ctx, "20px Arial", "#333", "middle", "center");
+    drawText(ctx, `Max Units = ${MAX_UNITS}`, CANVAS_WIDTH / 2, 92 + 28);
+  } else if (gameState.activeTab === TAB_VISUALS) {
+
+
+    // TODO: put in visuals options
+
+    // white gridlines
+    for(let i = 0; i < buttons.length; i++) {
+      const b = buttons[i];
+      if(b.id < BUTTON_WHITE_GRID || b.id > BUTTON_WHITE_GRID) { continue; }
+      //drawImage(ctx, b.image, b.x, b.y, b.width, b.height);
+      drawRect(ctx, b.x, b.y, b.width, b.height, b.color);
+      drawRectStroke(ctx, b.x, b.y, b.width, b.height, b.borderColor);
+      if(gameState.whiteGrid) {
+        const buffer = 8;
+        drawLine(ctx, b.x + buffer, b.y + buffer, b.x + b.width - buffer, b.y + b.height - buffer, "black", 3);
+        drawLine(ctx, b.x + b.width - buffer, b.y + buffer, b.x + buffer, b.y + b.height - buffer, "black", 3);
+      }
+      textStyle(ctx, "24px Arial", "black");
+      drawText(ctx, b.text, b.x + TILE_SIZE * 1.5, b.y + TILE_SIZE / 2)
+    }
+
+    // fireworks?
+
+
+  }
 
 }
 
@@ -470,6 +517,7 @@ function drawRectStroke(context, x, y, width, height, color = "white", lineWidth
 }
 
 function drawImage(context, image, x, y, width, height, hue = 0, animationData = null) {
+  if(!image) { return; }
   if(animationData) {
     context.save();
 

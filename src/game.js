@@ -20,7 +20,12 @@ import {
   BUTTON_CANCEL,
   TILE_SIZE,
   DEFAULT_NUM_PLAYERS,
-  DEFAULT_NUM_ENEMIES
+  DEFAULT_NUM_ENEMIES,
+  TAB_UNITS,
+  TAB_VISUALS,
+  BUTTON_WHITE_GRID,
+  BUTTON_SET_TO_DEFAULT,
+  BUTTON_CLOSE_SETTINGS
 } from "./constants.js";
 import {
   drawAttackTiles,
@@ -53,6 +58,7 @@ let interruptEnemyTurn = false;
 let header, canvas, footer;
 
 const headerButtons = [];
+const canvasTabs = []
 const canvasButtons = [];
 const footerButtons = [];
 
@@ -63,6 +69,7 @@ export const gameState = {
   currentTurn: "player", // 'player' or 'enemy'
 
   settingsOpen: false,
+  activeTab: TAB_UNITS,
 
   numPlayerUnits: DEFAULT_NUM_PLAYERS,
   numEnemyUnits: DEFAULT_NUM_ENEMIES,
@@ -73,7 +80,9 @@ export const gameState = {
   currentPlayers: DEFAULT_NUM_PLAYERS,
   currentEnemies: DEFAULT_NUM_ENEMIES,
 
-  turnNumber: 1
+  turnNumber: 1,
+
+  whiteGrid: false
 };
 let oldSelectedUnitId = null;
 
@@ -97,7 +106,7 @@ export function initGame() {
 
   createUnits(gameState.numPlayerUnits, gameState.numEnemyUnits);
 
-  setupInput(canvas, gameState, canvasButtons);
+  setupInput(canvas, gameState, canvasButtons, canvasTabs);
   setupHeaderInput(header, gameState, headerButtons);
   setupFooterInput(footer, gameState, footerButtons);
 }
@@ -210,21 +219,35 @@ function setupButtons() {
 
   
   // CANVAS
+
+  // TABS
+  buttons = canvasTabs;
+  buttons.length = 0;
+
+  buttons.push(createButton(TAB_UNITS, null, assets.t_units, TILE_SIZE * 1.5, TILE_SIZE / 2 + 4, TILE_SIZE, TILE_SIZE));
+  buttons.push(createButton(TAB_VISUALS, null, assets.t_units, TILE_SIZE * 2.5, TILE_SIZE / 2 + 4, TILE_SIZE, TILE_SIZE));
+
+  // BUTTONS
   buttons = canvasButtons;
   buttons.length = 0;
 
+  // Units Tab Buttons
   let alignX = TILE_SIZE * 1.5;
-  buttons.push(createButton(BUTTON_PLAYERS_DOWN, null, assets.b_down, alignX, TILE_SIZE * 2, TILE_SIZE, TILE_SIZE));
-  buttons.push(createButton(BUTTON_ENEMIES_DOWN, null, assets.b_down, alignX, TILE_SIZE * 3.75, TILE_SIZE, TILE_SIZE));
+  buttons.push(createButton(BUTTON_PLAYERS_DOWN, null, assets.b_down, alignX, TILE_SIZE * 2 + 32, TILE_SIZE, TILE_SIZE));
+  buttons.push(createButton(BUTTON_ENEMIES_DOWN, null, assets.b_down, alignX, TILE_SIZE * 3.75 + 32, TILE_SIZE, TILE_SIZE));
 
   alignX = TILE_SIZE * 5.5;
-  buttons.push(createButton(BUTTON_PLAYERS_UP, null, assets.b_up, alignX, TILE_SIZE * 2, TILE_SIZE, TILE_SIZE));
-  buttons.push(createButton(BUTTON_ENEMIES_UP, null, assets.b_up, alignX, TILE_SIZE * 3.75, TILE_SIZE, TILE_SIZE));
+  buttons.push(createButton(BUTTON_PLAYERS_UP, null, assets.b_up, alignX, TILE_SIZE * 2 + 32, TILE_SIZE, TILE_SIZE));
+  buttons.push(createButton(BUTTON_ENEMIES_UP, null, assets.b_up, alignX, TILE_SIZE * 3.75 + 32, TILE_SIZE, TILE_SIZE));
 
-  buttons.push(createButton(BUTTON_ACCEPT, null, assets.b_accept, TILE_SIZE * 2,   TILE_SIZE * 5.5, TILE_SIZE, TILE_SIZE));
-  buttons.push(createButton(BUTTON_RESET,  null, assets.b_reset,  TILE_SIZE * 3.5, TILE_SIZE * 5.5, TILE_SIZE, TILE_SIZE));
-  buttons.push(createButton(BUTTON_CANCEL, null, assets.b_cancel, TILE_SIZE * 5,   TILE_SIZE * 5.5, TILE_SIZE, TILE_SIZE));
+  buttons.push(createButton(BUTTON_ACCEPT, null, assets.b_accept, TILE_SIZE * 2,   TILE_SIZE * 5.5 + 28, TILE_SIZE, TILE_SIZE));
+  buttons.push(createButton(BUTTON_SET_TO_DEFAULT,  null, assets.b_reset,  TILE_SIZE * 3.5, TILE_SIZE * 5.5 + 28, TILE_SIZE, TILE_SIZE));
+  buttons.push(createButton(BUTTON_CANCEL, null, assets.b_cancel, TILE_SIZE * 5,   TILE_SIZE * 5.5 + 28, TILE_SIZE, TILE_SIZE));
 
+  // Visuals Tab Buttons
+  buttons.push(createButton(BUTTON_WHITE_GRID, "White Grid Lines", null, TILE_SIZE * 1.5, TILE_SIZE * 2 + 28, TILE_SIZE, TILE_SIZE, "#ddd", "#555"));
+
+  buttons.push(createButton(BUTTON_CLOSE_SETTINGS, null, assets.b_cancel, TILE_SIZE * 6 + 22, TILE_SIZE + 40, 32, 32));
 
   // FOOTER
   buttons = footerButtons;
@@ -305,7 +328,19 @@ function render(delta) {
 
     // SETTINGS OPEN
     if(gameState.settingsOpen) {
-      drawSettings(gameState, canvasButtons, delta);
+
+      switch (gameState.activeTab) {
+        case TAB_UNITS:
+          canvasTabs[TAB_UNITS].image = assets.t_units;
+          canvasTabs[TAB_VISUALS].image = assets.t_visuals_dark;
+          break;
+        
+        case TAB_VISUALS:
+          canvasTabs[TAB_UNITS].image = assets.t_units_dark;
+          canvasTabs[TAB_VISUALS].image = assets.t_visuals;
+      }
+
+      drawSettings(gameState, canvasButtons, canvasTabs, delta);
     }
 
     renderCanvas = false;

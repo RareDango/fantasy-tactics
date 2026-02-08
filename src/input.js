@@ -11,7 +11,12 @@ import {
   BUTTON_CANCEL,
   BUTTON_ACCEPT,
   DEFAULT_NUM_PLAYERS,
-  DEFAULT_NUM_ENEMIES
+  DEFAULT_NUM_ENEMIES,
+  TAB_UNITS,
+  TAB_VISUALS,
+  BUTTON_WHITE_GRID,
+  BUTTON_SET_TO_DEFAULT,
+  BUTTON_CLOSE_SETTINGS
 } from "./constants.js";
 import { isTileMovable, isTileOccupied } from "./grid.js";
 import { canAct, restartGame, endTurn, checkEndTurn, renderCanvasTrue, resetHues } from "./game.js";
@@ -19,7 +24,7 @@ import { attack, inRange } from "./combat.js";
 import { getRatio } from "./main.js";
 import { renderHeaderTrue } from "./render.js";
 
-export function setupInput(canvas, gameState, buttons) {
+export function setupInput(canvas, gameState, buttons, tabs) {
   canvas.addEventListener("pointerdown", (e) => {
     const rect = canvas.getBoundingClientRect();
     const ratio = getRatio();
@@ -105,59 +110,96 @@ export function setupInput(canvas, gameState, buttons) {
         return;
       }
     } else {
+      for(let i = 0; i < tabs.length; i++) {
+        const t = tabs[i];
+        if (inButton(canvas, e, t)) {
+          switch (t.id) {
+            case TAB_UNITS:
+              gameState.activeTab = TAB_UNITS;
+              break;
+
+            case TAB_VISUALS:
+              gameState.activeTab = TAB_VISUALS;
+              break;
+            
+            default:
+              break;
+          }
+          renderCanvasTrue();
+        }
+      }
       for(let i = 0; i < buttons.length; i++) {
         const b = buttons[i];
         if (inButton(canvas, e, b)) {
           switch (b.id) {
-
-            case BUTTON_PLAYERS_UP:
-              gameState.newPlayerUnits++;
-              if(gameState.newPlayerUnits >= MAX_UNITS) { gameState.newPlayerUnits--; }
-              if(gameState.newPlayerUnits + gameState.newEnemyUnits > MAX_UNITS) { gameState.newEnemyUnits--; }
-              renderCanvasTrue();
-              break;
-            
-            case BUTTON_PLAYERS_DOWN:
-              gameState.newPlayerUnits--;
-              if(gameState.newPlayerUnits < 1) { gameState.newPlayerUnits = 1; }
-              renderCanvasTrue();
-              break;
-            
-            case BUTTON_ENEMIES_UP:
-              gameState.newEnemyUnits++;
-              if(gameState.newEnemyUnits >= MAX_UNITS) { gameState.newEnemyUnits--; }
-              if(gameState.newEnemyUnits + gameState.newPlayerUnits > MAX_UNITS) { gameState.newPlayerUnits--; }
-              renderCanvasTrue();
-              break;
-            
-            case BUTTON_ENEMIES_DOWN:
-              gameState.newEnemyUnits--;
-              if(gameState.newEnemyUnits < 1) { gameState.newEnemyUnits = 1; }
-              renderCanvasTrue();
-              break;
-            
-            case BUTTON_CANCEL:
+            case BUTTON_CLOSE_SETTINGS:
               gameState.settingsOpen = false;
               gameState.newPlayerUnits = gameState.numPlayerUnits;
               gameState.newEnemyUnits = gameState.numEnemyUnits;
-              renderCanvasTrue();
+              break;
+              
+            case BUTTON_PLAYERS_UP:
+              if(gameState.activeTab === TAB_UNITS) {
+                gameState.newPlayerUnits++;
+                if(gameState.newPlayerUnits >= MAX_UNITS) { gameState.newPlayerUnits--; }
+                if(gameState.newPlayerUnits + gameState.newEnemyUnits > MAX_UNITS) { gameState.newPlayerUnits--; }
+              }
+              break;
+            
+            case BUTTON_PLAYERS_DOWN:
+              if(gameState.activeTab === TAB_UNITS) {
+                gameState.newPlayerUnits--;
+                if(gameState.newPlayerUnits < 1) { gameState.newPlayerUnits = 1; }
+              }
+              break;
+            
+            case BUTTON_ENEMIES_UP:
+              if(gameState.activeTab === TAB_UNITS) {
+                gameState.newEnemyUnits++;
+                if(gameState.newEnemyUnits >= MAX_UNITS) { gameState.newEnemyUnits--; }
+                if(gameState.newEnemyUnits + gameState.newPlayerUnits > MAX_UNITS) { gameState.newEnemyUnits--; }
+              }
+              break;
+            
+            case BUTTON_ENEMIES_DOWN:
+              if(gameState.activeTab === TAB_UNITS) {
+                gameState.newEnemyUnits--;
+                if(gameState.newEnemyUnits < 1) { gameState.newEnemyUnits = 1; }
+              }
+              break;
+            
+            case BUTTON_CANCEL:
+              if(gameState.activeTab === TAB_UNITS) {
+                gameState.settingsOpen = false;
+                gameState.newPlayerUnits = gameState.numPlayerUnits;
+                gameState.newEnemyUnits = gameState.numEnemyUnits;
+              }
               break;
             
             case BUTTON_ACCEPT:
-              gameState.numPlayerUnits = gameState.newPlayerUnits;
-              gameState.numEnemyUnits = gameState.newEnemyUnits;
-              renderCanvasTrue();
-              restartGame();
+              if(gameState.activeTab === TAB_UNITS) {
+                gameState.numPlayerUnits = gameState.newPlayerUnits;
+                gameState.numEnemyUnits = gameState.newEnemyUnits;
+                restartGame();
+              }
               break;
             
-            case BUTTON_RESET:
-              gameState.newPlayerUnits = DEFAULT_NUM_PLAYERS;
-              gameState.newEnemyUnits = DEFAULT_NUM_ENEMIES;
-              renderCanvasTrue();
+            case BUTTON_SET_TO_DEFAULT:
+              if(gameState.activeTab === TAB_UNITS) {
+                gameState.newPlayerUnits = DEFAULT_NUM_PLAYERS;
+                gameState.newEnemyUnits = DEFAULT_NUM_ENEMIES;
+              }
+              break;
+            
+            case BUTTON_WHITE_GRID:
+              if(gameState.activeTab === TAB_VISUALS) {
+                gameState.whiteGrid = !gameState.whiteGrid;
+              }
 
             default:
               break;
           }
+          renderCanvasTrue();
         }
       }
     }

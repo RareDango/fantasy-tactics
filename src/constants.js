@@ -1,5 +1,5 @@
-export const GAME_VERSION = "0.4.6";
-export const DATE_UPDATED = "Sat, Feb 7, 2026";
+export const GAME_VERSION = "0.4.7";
+export const DATE_UPDATED = "Sun, Feb 8, 2026";
 
 export const MAX_UNITS = 64; // hangs if players set above 21. no idea why -> It was because that's how many quotes there were to pick from
 export const DEFAULT_NUM_PLAYERS = 5;
@@ -23,20 +23,33 @@ export const RIGHT = 1;
 export const DOWN  = 2;
 export const LEFT  = 3;
 
+// TAB IDs
+export const TAB_UNITS = 0;
+export const TAB_VISUALS = 1;
+
 // BUTTON IDs
-export const BUTTON_RESET    = 0;
-export const BUTTON_END_TURN = 1;
+export const BUTTON_RESET    = 10;
+export const BUTTON_END_TURN = 11;
 
-export const BUTTON_SETTINGS = 2;
+export const BUTTON_SETTINGS = 12;
 
-export const BUTTON_ACCEPT   = 3;
-export const BUTTON_CANCEL   = 4;
-export const BUTTON_SET_TO_DEFAULT = 5;
+// Settings
+export const BUTTON_CLOSE_SETTINGS = 99;
 
-export const BUTTON_ENEMIES_UP   = 6;
-export const BUTTON_ENEMIES_DOWN = 7;
-export const BUTTON_PLAYERS_UP   = 8;
-export const BUTTON_PLAYERS_DOWN = 9;
+// Units Tab
+export const BUTTON_ACCEPT   = 13;
+export const BUTTON_CANCEL   = 14;
+export const BUTTON_SET_TO_DEFAULT = 15;
+
+export const BUTTON_ENEMIES_UP   = 16;
+export const BUTTON_ENEMIES_DOWN = 17;
+export const BUTTON_PLAYERS_UP   = 18;
+export const BUTTON_PLAYERS_DOWN = 19;
+
+// Visuals Tab
+export const BUTTON_WHITE_GRID = 20;
+
+
 
 export const NAMES = [
     "Josh", "Maxwell", "Krista", "Mo",
