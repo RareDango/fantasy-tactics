@@ -10,52 +10,12 @@ import {
 } from "./constants.js";
 import { AnimationData } from "./AnimationData.js";
 import { gameState, renderCanvasTrue, initGame, gameLoop } from "./game.js";
+import { assets } from "./assets.js";
 
-export let assets;
 
 export async function start() {
-  assets = await loadAssets();
   initGame();
   requestAnimationFrame(gameLoop);
-}
-
-async function loadAssets() {
-  const assets = {};
-
-  assets.fantasyTactics = await loadImage("fantasy_tactics.png");
-
-  assets.goblin = await loadImage("goblin.png");
-
-  assets.settingsBackground = await loadImage("settings_bg.png");
-  assets.b_settings = await loadImage("button_gear.png");
-  assets.b_cancel = await loadImage("button_x.png");
-  assets.b_accept = await loadImage("button_check.png");
-  assets.b_reset = await loadImage("button_reset.png");
-  assets.b_up = await loadImage("button_up.png");
-  assets.b_down = await loadImage("./button_down.png");
-  assets.b_footer = await loadImage("./button_160x64.png");
-
-  assets.attack = await loadImage("spritesheets/attack_animated.png");
-
-  assets.fireworksImages = [];
-  for(let i = 0; i < 8; i++) { assets.fireworksImages.push(await loadImage("spritesheets/fireworks_animated.png")); }
-
-  assets.portraitsImages = [];
-  for(let i = 0; i < MAX_UNITS; i++) { assets.portraitsImages.push(await loadImage("spritesheets/knight_animated.png")); }
-
-  assets.unitsImages = [];
-  for(let i = 0; i < MAX_UNITS; i++) { assets.unitsImages.push(await loadImage("knight_blue.png")); }
-
-  return assets;
-}
-
-function loadImage(src) {
-  return new Promise((resolve, reject) => {
-    const img = new Image();
-    img.onload = () => resolve(img);
-    img.onerror = reject;
-    img.src = `./assets/${src}`;
-  });
 }
 
 let renderHeader = true;
@@ -267,8 +227,7 @@ export function drawSettings(gameState, buttons, delta) {
   drawText(ctx, eString, center, enemiesY);
 
   textStyle(ctx, "20px Arial", "#333", "middle", "center")
-  const minMax = `Min = 1      Max = ${MAX_UNITS}`;
-  drawText(ctx, minMax, CANVAS_WIDTH / 2, 92)
+  drawText(ctx, `Max Units = ${MAX_UNITS}`, CANVAS_WIDTH / 2, 92)
 
 }
 

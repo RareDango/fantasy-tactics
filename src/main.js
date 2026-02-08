@@ -1,7 +1,8 @@
-import { CONTAINER_WIDTH, CONTAINER_HEIGHT, gameVersion } from "./constants.js";
+import { loadAssets } from "./assets.js";
+import { CONTAINER_WIDTH, CONTAINER_HEIGHT, GAME_VERSION } from "./constants.js";
 import { start } from "./render.js";
 
-console.log("Fantasy Tactics v" + gameVersion);
+console.log("Fantasy Tactics v" + GAME_VERSION);
 
 let ratio = 1;
 export function getRatio() { return ratio; }
@@ -29,4 +30,5 @@ function resize() {
   ratio = w / CONTAINER_WIDTH; // gives us the ratio between the hard coded pixels and whats actually displayed
 }
 
+await loadAssets();
 start();

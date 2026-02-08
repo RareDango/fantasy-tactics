@@ -5,8 +5,8 @@ import {
   GRID_HEIGHT,
   HEADER_HEIGHT,
   FOOTER_HEIGHT,
-  gameVersion,
-  updatedDate,
+  GAME_VERSION,
+  DATE_UPDATED,
   NAMES,
   QUOTES,
   BUTTON_RESET,
@@ -23,7 +23,6 @@ import {
   DEFAULT_NUM_ENEMIES
 } from "./constants.js";
 import {
-  assets,
   drawAttackTiles,
   drawMoveTiles,
   drawGrid,
@@ -41,10 +40,10 @@ import {
   renderHeaderTrue,
   tintImage
 } from "./render.js";
+import { assets } from "./assets.js";
 import { createPlayerUnit, createEnemyUnit } from "./units.js";
 import { setupFooterInput, setupInput, setupHeaderInput } from "./input.js";
 import { getPlayerMovableTiles, isTileOccupied, getAttackableTiles } from "./grid.js";
-import { getMovableTiles } from "./movement.js";
 import { attack, inRange } from "./combat.js";
 import { createButton } from "./buttons.js";
 import { AnimationData } from "./AnimationData.js";
@@ -327,7 +326,7 @@ function uiRender(delta) {
 
   drawHeader(gameState, headerButtons, delta);
 
-  drawFooter(gameVersion, updatedDate, footerButtons);
+  drawFooter(GAME_VERSION, DATE_UPDATED, footerButtons);
 }
 
 export function canAct(unit) {

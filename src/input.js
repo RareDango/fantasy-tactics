@@ -18,7 +18,6 @@ import { canAct, restartGame, endTurn, checkEndTurn, renderCanvasTrue, resetHues
 import { attack, inRange } from "./combat.js";
 import { getRatio } from "./main.js";
 import { renderHeaderTrue } from "./render.js";
-import { playClickSound } from "./audio.js";
 
 export function setupInput(canvas, gameState, buttons) {
   canvas.addEventListener("pointerdown", (e) => {
@@ -113,7 +112,8 @@ export function setupInput(canvas, gameState, buttons) {
 
             case BUTTON_PLAYERS_UP:
               gameState.newPlayerUnits++;
-              if(gameState.newPlayerUnits > MAX_UNITS) { gameState.newPlayerUnits = MAX_UNITS; }
+              if(gameState.newPlayerUnits >= MAX_UNITS) { gameState.newPlayerUnits--; }
+              if(gameState.newPlayerUnits + gameState.newEnemyUnits > MAX_UNITS) { gameState.newEnemyUnits--; }
               renderCanvasTrue();
               break;
             
@@ -125,7 +125,8 @@ export function setupInput(canvas, gameState, buttons) {
             
             case BUTTON_ENEMIES_UP:
               gameState.newEnemyUnits++;
-              if(gameState.newEnemyUnits > MAX_UNITS) { gameState.newEnemyUnits = MAX_UNITS; }
+              if(gameState.newEnemyUnits >= MAX_UNITS) { gameState.newEnemyUnits--; }
+              if(gameState.newEnemyUnits + gameState.newPlayerUnits > MAX_UNITS) { gameState.newPlayerUnits--; }
               renderCanvasTrue();
               break;
             
@@ -211,7 +212,6 @@ export function setupFooterInput(canvas, gameState, buttons) {
 
 function inButton(canvas, e, button) {
   const click = inRect(canvas, e, button.x, button.y, button.width, button.height);
-  if(click) { playClickSound(); }
   return click;
 }
 
