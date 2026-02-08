@@ -133,14 +133,23 @@ export function drawUnit(unit, isSelected) {
     drawRect(ctx, x, y, TILE_SIZE, TILE_SIZE, "rgba(239, 68, 68, 0.25)");
   }
 
-  drawImage(
-    ctx,
-    unit.team === "player" ? assets.unitsImages[unit.animationData.arrayIndex] : assets.goblin,
-    x + 4,
-    y + 4,
-    TILE_SIZE - 8,
-    TILE_SIZE - 8
-  )
+
+  let image;
+  if(unit.team === "player") {
+    image = assets.unitsImages[unit.animationData.arrayIndex];
+  } else {
+    switch(unit.type) {
+      case 0:
+        image = assets.goblin;
+        break;
+      case 1:
+        image = assets.ogre;
+        break;
+      default:
+        image = assets.b_cancel;
+    }
+  }
+  drawImage(ctx, image, x, y, TILE_SIZE, TILE_SIZE)
 
   // Draw HP bar
   const hpX = x + 7;
@@ -248,8 +257,8 @@ export function drawSettings(gameState, buttons, tabs, delta) {
     }
 
   if(gameState.activeTab === TAB_UNITS) {
-    drawRect(ctx, TILE_SIZE * 1.25, TILE_SIZE * 1.75 + 32, TILE_SIZE * 5.5 , TILE_SIZE * 1.5, "rgba(255, 255, 255, 0.5)");
-    drawRect(ctx, TILE_SIZE * 1.25, TILE_SIZE * 3.5 + 32, TILE_SIZE * 5.5 , TILE_SIZE * 1.5, "rgba(255, 255, 255, 0.5)");
+    drawRect(ctx, TILE_SIZE * 1.25, TILE_SIZE * 2.25, TILE_SIZE * 5.5 , TILE_SIZE * 1.5, "rgba(255, 255, 255, 0.5)");
+    drawRect(ctx, TILE_SIZE * 1.25, TILE_SIZE * 4, TILE_SIZE * 5.5 , TILE_SIZE * 1.5, "rgba(255, 255, 255, 0.5)");
 
     // buttons
     for(let i = 0; i < buttons.length; i++) {
@@ -260,8 +269,8 @@ export function drawSettings(gameState, buttons, tabs, delta) {
 
     // unit numbers
     const center = CANVAS_WIDTH / 2;
-    const playersY = TILE_SIZE * 2.5 + 28;
-    const enemiesY = TILE_SIZE * 4.25 + 28;
+    const playersY = TILE_SIZE * 3;
+    const enemiesY = TILE_SIZE * 4.75;
 
     const col = (gameState.newEnemyUnits + gameState.newPlayerUnits) >= MAX_UNITS ? "red" : "black";
     textStyle(ctx, "24px Arial", col, "middle", "center");

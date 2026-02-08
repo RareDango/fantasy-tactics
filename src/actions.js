@@ -1,6 +1,11 @@
 let currentAction = null;
 let actionQueue = []
 
+const Actions = {
+  MOVE: 0,
+  ATTACK: 1,
+}
+
 function processCurrentAction(delta) {
   if (!currentAction && actionQueue.length > 0) {
     currentAction = actionQueue.shift();
@@ -10,7 +15,7 @@ function processCurrentAction(delta) {
 
   if (!currentAction) return;
 
-  if (currentAction.type === "move") {
+  if (currentAction.type === Actions.MOVE) {
     processMoveCommand(currentAction, delta);
   }
 }

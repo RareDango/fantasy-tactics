@@ -47,6 +47,7 @@ export function createEnemyUnit(id, x, y) {
   return {
     id,
     team: 'enemy',
+    type: 0,
     x,
     y,
     maxHp: 2,

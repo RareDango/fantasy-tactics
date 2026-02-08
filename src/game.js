@@ -162,6 +162,7 @@ function createUnits(numPlayerUnits, numEnemyUnits) {
     }
   }
 
+  const nameList = Array.from(NAMES);
   let id = 0;
   for (let i = 0; i < numPlayerUnits; i++) {
     const options = locations.filter((l) => !isTileOccupied(l.x, l.y));
@@ -169,8 +170,10 @@ function createUnits(numPlayerUnits, numEnemyUnits) {
     const unit = createPlayerUnit(id, pos.x, pos.y);
 
     // Give random name to player units from list of names in constants.js
-    let name = NAMES[Math.floor(Math.random() * NAMES.length)];
-    unit.name = name;
+
+    const nameIndex = Math.floor(Math.random() * nameList.length);
+    unit.name = nameList[nameIndex];
+    nameList.splice(nameIndex, 1);
 
     // Give random quote to player units from list of quotes in constants.js
     let quote = QUOTES[Math.floor(Math.random() * QUOTES.length)];
@@ -191,10 +194,18 @@ function createUnits(numPlayerUnits, numEnemyUnits) {
     id++;
   }
 
+  const ogrePercent = 0.2; // 1 being 100%
+  const numOgres = Math.floor(numEnemyUnits * ogrePercent);
   for (let i = 0; i < numEnemyUnits; i++) {
     const options = locations.filter((l) => !isTileOccupied(l.x, l.y));
     const pos = options[Math.floor(Math.random() * options.length)];
-    gameState.units.push(createEnemyUnit(id, pos.x, pos.y));
+    const unit = createEnemyUnit(id, pos.x, pos.y)
+    if(i < numOgres){
+      unit.type = 1;
+      unit.maxHp = 3;
+      unit.hp = 3;
+    }
+    gameState.units.push(unit);
     id++;
   }
 }
@@ -233,12 +244,12 @@ function setupButtons() {
 
   // Units Tab Buttons
   let alignX = TILE_SIZE * 1.5;
-  buttons.push(createButton(BUTTON_PLAYERS_DOWN, null, assets.b_down, alignX, TILE_SIZE * 2 + 32, TILE_SIZE, TILE_SIZE));
-  buttons.push(createButton(BUTTON_ENEMIES_DOWN, null, assets.b_down, alignX, TILE_SIZE * 3.75 + 32, TILE_SIZE, TILE_SIZE));
+  buttons.push(createButton(BUTTON_PLAYERS_DOWN, null, assets.b_down, alignX, TILE_SIZE * 2.5, TILE_SIZE, TILE_SIZE));
+  buttons.push(createButton(BUTTON_ENEMIES_DOWN, null, assets.b_down, alignX, TILE_SIZE * 4.25, TILE_SIZE, TILE_SIZE));
 
   alignX = TILE_SIZE * 5.5;
-  buttons.push(createButton(BUTTON_PLAYERS_UP, null, assets.b_up, alignX, TILE_SIZE * 2 + 32, TILE_SIZE, TILE_SIZE));
-  buttons.push(createButton(BUTTON_ENEMIES_UP, null, assets.b_up, alignX, TILE_SIZE * 3.75 + 32, TILE_SIZE, TILE_SIZE));
+  buttons.push(createButton(BUTTON_PLAYERS_UP, null, assets.b_up, alignX, TILE_SIZE * 2.5, TILE_SIZE, TILE_SIZE));
+  buttons.push(createButton(BUTTON_ENEMIES_UP, null, assets.b_up, alignX, TILE_SIZE * 4.25, TILE_SIZE, TILE_SIZE));
 
   buttons.push(createButton(BUTTON_ACCEPT, null, assets.b_accept, TILE_SIZE * 2,   TILE_SIZE * 5.5 + 28, TILE_SIZE, TILE_SIZE));
   buttons.push(createButton(BUTTON_SET_TO_DEFAULT,  null, assets.b_reset,  TILE_SIZE * 3.5, TILE_SIZE * 5.5 + 28, TILE_SIZE, TILE_SIZE));

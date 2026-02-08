@@ -1,7 +1,7 @@
-export const GAME_VERSION = "0.4.7";
+export const GAME_VERSION = "0.5.1";
 export const DATE_UPDATED = "Sun, Feb 8, 2026";
 
-export const MAX_UNITS = 64; // hangs if players set above 21. no idea why -> It was because that's how many quotes there were to pick from
+export const MAX_UNITS = 64;
 export const DEFAULT_NUM_PLAYERS = 5;
 export const DEFAULT_NUM_ENEMIES = 10;
 export const MAX_FIREWORKS = 8;
@@ -57,7 +57,12 @@ export const NAMES = [
     "소연", "우기", "미연", "슈화", "민니", "수진",
     "솔라", "문별", "휘인", "화사",
     "Charlie", "Pip", "Leafy", "Jolene",
-    "Montana", "Jovi", "Puddle", "Veythra", "Ze'eil", "Torq"
+    "Montana", "Jovi", "Puddle", "Veythra", "Ze'eil", "Torq",
+    "Bilbo", "Frodo", "Samwise", "Meriadoc", "Peregrin",
+    "Legolas", "Gimli", "Aragorn", "Boromir", "Gandalf",
+    "혜정", "설현", "찬미", "도화", "유나", "지민", "초아", "유경",
+    "나영", "청하", "세정", "채연", "결경", "소혜", "연정", "유정", "도연", "소미",
+    "Rory", "Lorelai"
 ]
 
 export const QUOTES = [

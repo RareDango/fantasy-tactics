@@ -6,6 +6,7 @@ export async function loadAssets() {
   assets.fantasyTactics = await loadImage("fantasy_tactics.png");
 
   assets.goblin = await loadImage("goblin.png");
+  assets.ogre = await loadImage("ogre.png");
 
   assets.settingsBackground = await loadImage("settings_bg.png");
   assets.b_settings = await loadImage("button_gear.png");
@@ -22,6 +23,9 @@ export async function loadAssets() {
   assets.t_visuals = await loadImage("./opt_visuals.png");
   assets.t_visuals_dark = await loadImage("./opt_visuals_dark.png");
 
+  assets.t_bars = await loadImage("./opt_bars.png");
+  assets.t_bars_dark = await loadImage("./opt_bars_dark.png");
+
   assets.attack = await loadImage("spritesheets/attack_animated.png");
 
   assets.fireworksImages = [];
@@ -33,6 +37,8 @@ export async function loadAssets() {
   assets.unitsImages = [];
   for(let i = 0; i < MAX_UNITS; i++) { assets.unitsImages.push(await loadImage("knight_blue.png")); }
 
+  //Tile images sourced from:
+  //https://www.vecteezy.com/vector-art/13987849-stone-wall-from-bricks-rock-game-background-in-cartoon-style-seamless-textured-surface-ui-game-asset-road-or-floor-material-vector-illustration
   assets.tiles = await loadImage("./stone_tiles.png");
 
   return assets;
