@@ -76,10 +76,33 @@ export function setupRenderer(h, c, f) {
   fctx = f.getContext("2d");
 }
 
+const map = [];
+const tileData = new AnimationData(assets.tiles, 64, 16);
+export function setupMap() {
+  map.length = 0;
+  for(let x = 0; x < GRID_WIDTH; x++) {
+    for(let y = 0; y < GRID_HEIGHT; y++) {
+      const randIndex = Math.floor(Math.random() * 16);
+      map.push(randIndex);
+    }
+  }
+}
+
 export function drawGrid() {
+  // Tile Images
+  for(let x = 0; x < GRID_WIDTH; x++) {
+    for(let y = 0; y < GRID_HEIGHT; y++) {
+      const arrayIndex = x * GRID_WIDTH + y;
+      tileData.index = map[arrayIndex];
+      const px = x * TILE_SIZE;
+      const py = y * TILE_SIZE;
+      drawImage(ctx, assets.tiles, px, py, TILE_SIZE, TILE_SIZE, 0, tileData);
+    }
+  }
+  // Grid Lines
   for (let i = 0; i <= GRID_WIDTH; i++) {
-    drawLine(ctx, i * TILE_SIZE, 0, i * TILE_SIZE, GRID_HEIGHT * TILE_SIZE, "#555", 1);
-    drawLine(ctx, 0, i * TILE_SIZE, GRID_WIDTH * TILE_SIZE, i * TILE_SIZE, "#555", 1);
+    drawLine(ctx, i * TILE_SIZE, 0, i * TILE_SIZE, GRID_HEIGHT * TILE_SIZE, "#111", 1);
+    drawLine(ctx, 0, i * TILE_SIZE, GRID_WIDTH * TILE_SIZE, i * TILE_SIZE, "#111", 1);
   }
 }
 
@@ -456,7 +479,7 @@ function drawImage(context, image, x, y, width, height, hue = 0, animationData =
 
     const radians = animationData.direction * (Math.PI / 2);
     context.rotate(radians);
-    context.drawImage(image, animationData.offset, 0, animationData.size, animationData.size, x - centerX, y - centerY, width, width);
+    context.drawImage(image, animationData.index * animationData.size, 0, animationData.size, animationData.size, x - centerX, y - centerY, width, width);
 
     context.restore();
   } else {

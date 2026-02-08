@@ -38,7 +38,8 @@ import {
   drawSettings,
   updateAnimations,
   renderHeaderTrue,
-  tintImage
+  tintImage,
+  setupMap
 } from "./render.js";
 import { assets } from "./assets.js";
 import { createPlayerUnit, createEnemyUnit } from "./units.js";
@@ -77,6 +78,8 @@ export const gameState = {
 let oldSelectedUnitId = null;
 
 export function initGame() {
+  setupMap();
+
   gameState.selectedUnitId = null;
   gameState.currentTurn = "player";
 
@@ -134,6 +137,7 @@ export function restartGame() {
   interrupt();
   createUnits(gameState.numPlayerUnits, gameState.numEnemyUnits);
   gameState.selectedUnitId = null;
+  setupMap();
   renderHeaderTrue();
   renderCanvasTrue();
 }
@@ -157,20 +161,10 @@ function createUnits(numPlayerUnits, numEnemyUnits) {
 
     // Give random name to player units from list of names in constants.js
     let name = NAMES[Math.floor(Math.random() * NAMES.length)];
-    // If names are shared, get a new one until all names are unique
-    while(gameState.units.find((u) => u.name === name)) {
-      name = NAMES[Math.floor(Math.random() * NAMES.length)];
-    }
     unit.name = name;
 
     // Give random quote to player units from list of quotes in constants.js
     let quote = QUOTES[Math.floor(Math.random() * QUOTES.length)];
-    // If quotes are shared, get a new one until all quotes are unique
-    /*
-    while(gameState.units.find((u) => u.quote === quote)) {
-      quote = QUOTES[Math.floor(Math.random() * QUOTES.length)];
-    }
-      *///Commented out so we can have more units than quotes. 
     unit.quote = quote;
 
     const hueDiff = 360 / numPlayerUnits;

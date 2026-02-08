@@ -8,7 +8,6 @@ export class AnimationData {
         this.frameTime  = 200;
         this.index      = 0;
         this.delta      = 0;
-        this.offset     = 0;
         this.loop       = loop;
         this.x          = null;
         this.y          = null;
@@ -27,7 +26,6 @@ export class AnimationData {
             if(this.index >= this.length) {
                 this.index = this.loop ? 0 : this.length - 1;
             }
-            this.offset = this.index * this.size;
         }
         return updated;
     }
@@ -35,7 +33,6 @@ export class AnimationData {
     resetAnimation() {
         this.index  = 0;
         this.delta  = 0;
-        this.offset = 0;
     }
 
     setXY(x, y) {

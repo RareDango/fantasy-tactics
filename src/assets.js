@@ -27,6 +27,8 @@ export async function loadAssets() {
   assets.unitsImages = [];
   for(let i = 0; i < MAX_UNITS; i++) { assets.unitsImages.push(await loadImage("knight_blue.png")); }
 
+  assets.tiles = await loadImage("./stone_tiles.png");
+
   return assets;
 }
 
