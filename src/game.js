@@ -418,9 +418,34 @@ async function enemyTurn(delta) {
   interruptEnemyTurn = false;
   const DELAY = 250;
 
+  const enemyDist = [];
+  const enemiesOrdered = [];
   for(let i = 0; i < gameState.units.length; i++) {
     const enemy = gameState.units[i];
     if(enemy.team === "player") { continue; }
+    const t = getTargets({x: enemy.x, y: enemy.y, d: 0}, 32);
+    if(t) {
+      enemyDist.push({u: enemy, d: t[0].d});
+    } else {
+      enemyDist.push({u: enemy, d: 100});
+    }
+  }
+  let dist = 0;
+  while(enemyDist.length > 0) {
+    dist++;
+
+    for(let i = 0; i < enemyDist.length; i++) {
+      if(enemyDist[i].d === dist) {
+        enemiesOrdered.push(enemyDist[i].u);
+        enemyDist.splice(i, 1);
+        i--;
+      }
+    }
+  }
+
+
+  for(let i = 0; i < enemiesOrdered.length; i++) {
+    const enemy = enemiesOrdered[i];
 
     if(interruptEnemyTurn) { break; }
     enemy.actionsLeft = enemy.maxActions;
