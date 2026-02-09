@@ -40,20 +40,6 @@ export function inRange(attacker, defender) {
   return dx + dy <= attacker.attackRange;
 }
 
-
-
-// ENEMY AI STUFF --- not actually implemented yet. please do at some point VVV
-
-function scoreTarget(enemy, player) {
-  let score = 0;
-
-  score -= manhattan(enemy, player); // closer = better
-  score += (player.maxHp - player.hp) * 2; // wounded targets
-  //score += player.attack * 1.5; // not currently using attack and defence calcs in game
-  //score -= player.defense;
-  return score;
-}
-
 function manhattan(a, b) {
   return Math.abs(a.x - b.x) + Math.abs(a.y - b.y);
 }

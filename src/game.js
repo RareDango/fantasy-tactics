@@ -178,9 +178,12 @@ function createUnits(numPlayerUnits, numEnemyUnits) {
 
     // Give random name to player units from list of names in constants.js
 
-    const nameIndex = Math.floor(Math.random() * nameList.length);
-    unit.name = nameList[nameIndex];
-    nameList.splice(nameIndex, 1);
+    let index = Math.floor(Math.random() * nameList.length);
+    if(index > nameList.length / 2) {
+      index = Math.floor(Math.random() * nameList.length);
+    }
+    unit.name = nameList[index];
+    nameList.splice(index, 1);
 
     // Give random quote to player units from list of quotes in constants.js
     let quote = QUOTES[Math.floor(Math.random() * QUOTES.length)];
