@@ -57,6 +57,7 @@ import { getPlayerMovableTiles, isTileOccupied, getAttackableTiles } from "./gri
 import { attack, inRange } from "./combat.js";
 import { createButton } from "./buttons.js";
 import { AnimationData } from "./AnimationData.js";
+import { findPath, getTargets } from "./movement.js";
 
 let interruptEnemyTurn = false;
 let header, canvas, footer;
@@ -401,28 +402,16 @@ export function canAct(unit) {
 
 async function enemyTurn(delta) {
   gameState.selectedUnitId = null;
-  let cancelTurn = true;
-  let numPlayers = 0;
-  let numEnemies = 0;
-  for(let i = 0; i < gameState.units.length; i++) {
-    const u = gameState.units[i];
-    if(u.team === "player") {
-      numPlayers++;
-    }
-    if(u.team === "enemy") {
-      numEnemies++;
-      u.current = false;
-    }
-  }
-  if(numPlayers < 1 || numEnemies < 1) {
+
+  if(isGameOver()) {
     // End enemy turn -> back to player
-  gameState.currentTurn = "player";
-  renderHeaderTrue();
-  for(let i = 0; i < gameState.units.length; i++) {
-    const u = gameState.units[i];
-    u.actionsLeft = u.maxActions;
-    u.attacksLeft = u.maxAttacks;
-  }
+    gameState.currentTurn = "player";
+    renderHeaderTrue();
+    for(let i = 0; i < gameState.units.length; i++) {
+      const u = gameState.units[i];
+      u.actionsLeft = u.maxActions;
+      u.attacksLeft = u.maxAttacks;
+    }
     return;
   }
 
@@ -444,8 +433,7 @@ async function enemyTurn(delta) {
       await new Promise((r) => setTimeout(r, DELAY));
       if(interruptEnemyTurn) { break; }
       enemy.actionsLeft--;
-
-      if (gameState.currentPlayers === 0) {
+      if (isGameOver()) {
         enemy.current = false;
         renderCanvasTrue();
         gameState.currentTurn = "player";
@@ -453,49 +441,63 @@ async function enemyTurn(delta) {
         return;
       }
 
-      const players = gameState.units.filter((u) => u.team === "player");
+      
       let closestPlayer;
-      let minDist = GRID_HEIGHT * GRID_WIDTH;
+      const targets = getTargets({x: enemy.x, y: enemy.y, d: 0}, 32);
+      closestPlayer = targets[0];
+      if(closestPlayer) {
+        const path = findPath({x: enemy.x, y: enemy.y}, {x: closestPlayer.x, y: closestPlayer.y});
+        if(path != null && !isTileOccupied(path[0].x, path[0].y)) {
+          enemy.x = path[0].x;
+          enemy.y = path[0].y;
+        }
+      } else if(!closestPlayer) {
+        // find manhattan closest
+        let minDist = GRID_HEIGHT * GRID_WIDTH;
 
-      for(let j = 0; j < gameState.units.length; j++) {
-        const player = gameState.units[j];
-        if(player.team === "enemy") { continue; }
+        for(let j = 0; j < gameState.units.length; j++) {
+          const player = gameState.units[j];
+          if(player.team === "enemy") { continue; }
 
-        const dist = Math.abs(enemy.x - player.x) + Math.abs(enemy.y - player.y);
-        if (dist < minDist) {
-          minDist = dist;
-          closestPlayer = player;
+          const dist = Math.abs(enemy.x - player.x) + Math.abs(enemy.y - player.y);
+          if (dist < minDist) {
+            minDist = dist;
+            closestPlayer = player;
+          }
+        }
+        // move one step toward player
+        const dx = closestPlayer.x - enemy.x;
+        const dy = closestPlayer.y - enemy.y;
+
+        const adx = Math.abs(dx);
+        const ady = Math.abs(dy);
+
+        if (adx + ady > 1) {
+          let newX = enemy.x;
+          let newY = enemy.y;
+          if (adx >= ady) {
+            newX += dx > 0 ? 1 : -1;
+          } else {
+            newY += dy > 0 ? 1 : -1;
+          }
+
+          if (!isTileOccupied(newX, newY)) {
+            enemy.x = newX;
+            enemy.y = newY;
+            renderCanvasTrue();
+          }
         }
       }
-
-      // move one step toward player
-      const dx = closestPlayer.x - enemy.x;
-      const dy = closestPlayer.y - enemy.y;
-
-      const adx = Math.abs(dx);
-      const ady = Math.abs(dy);
-
-      if (adx + ady > 1) {
-        let newX = enemy.x;
-        let newY = enemy.y;
-        if (adx >= ady) {
-          newX += dx > 0 ? 1 : -1;
-        } else {
-          newY += dy > 0 ? 1 : -1;
-        }
-
-        if (!isTileOccupied(newX, newY)) {
-          enemy.x = newX;
-          enemy.y = newY;
-          renderCanvasTrue();
-        }
-      } else {
+      if(enemy.attacksLeft > 0 && enemy.actionsLeft > 0) {
         // Attack if in range after moving
+        const players = gameState.units.filter((u) => u.team === "player");
         for (const player of players) {
           if (inRange(enemy, player) && enemy.attacksLeft) {
-
+            renderCanvasTrue();
+            await new Promise((r) => setTimeout(r, DELAY));
             attack(enemy, player);
             enemy.attacksLeft--;
+            enemy.actionsLeft--;
             break; // attack only one unit per turn
           }
         }
@@ -521,6 +523,28 @@ async function enemyTurn(delta) {
     u.actionsLeft = u.maxActions;
     u.attacksLeft = u.maxAttacks;
   }
+}
+
+export function isGameOver() {
+  let numPlayers = 0;
+  let numEnemies = 0;
+  for(let i = 0; i < gameState.units.length; i++) {
+    const u = gameState.units[i];
+    if(u.team === "player") { numPlayers++; }
+    if(u.team === "enemy")  { numEnemies++; }
+  }
+  if(numPlayers > 0 && numEnemies > 0) { return false; }
+  return true;
+}
+
+export function getUnitAt(x, y) {
+  const units = gameState.units;
+  for(let i = 0; i < units.length; i++) {
+    if(x === units[i].x && y === units[i].y) {
+      return units[i];
+    }
+  }
+  return undefined;
 }
 
 export function interrupt() {
