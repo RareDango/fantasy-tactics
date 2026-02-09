@@ -121,13 +121,13 @@ export function setupInput(canvas, gameState, buttons, tabs) {
             case TAB_UNITS:
               gameState.activeTab = TAB_UNITS;
               break;
-
-            case TAB_VISUALS:
-              gameState.activeTab = TAB_VISUALS;
-              break;
             
             case TAB_BARS:
               gameState.activeTab = TAB_BARS;
+              break;
+
+            case TAB_VISUALS:
+              gameState.activeTab = TAB_VISUALS;
               break;
             
             default:

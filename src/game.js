@@ -242,8 +242,8 @@ function setupButtons() {
   buttons.length = 0;
 
   buttons.push(createButton(TAB_UNITS, null, assets.t_units, TILE_SIZE * 1.5, TILE_SIZE / 2 + 4, TILE_SIZE, TILE_SIZE));
-  buttons.push(createButton(TAB_VISUALS, null, assets.t_units, TILE_SIZE * 2.5, TILE_SIZE / 2 + 4, TILE_SIZE, TILE_SIZE));
-  buttons.push(createButton(TAB_BARS, null, assets.t_units, TILE_SIZE * 3.5, TILE_SIZE / 2 + 4, TILE_SIZE, TILE_SIZE));
+  buttons.push(createButton(TAB_BARS, null, assets.t_bars, TILE_SIZE * 2.5, TILE_SIZE / 2 + 4, TILE_SIZE, TILE_SIZE));
+  buttons.push(createButton(TAB_VISUALS, null, assets.t_visuals, TILE_SIZE * 3.5, TILE_SIZE / 2 + 4, TILE_SIZE, TILE_SIZE));
 
   // BUTTONS
   buttons = canvasButtons;
@@ -357,20 +357,23 @@ function render(delta) {
       switch (gameState.activeTab) {
         case TAB_UNITS:
           canvasTabs[TAB_UNITS].image = assets.t_units;
+          canvasTabs[TAB_BARS].image = assets.t_bars_dark;
           canvasTabs[TAB_VISUALS].image = assets.t_visuals_dark;
-          canvasTabs[TAB_BARS].image = assets.t_bars_dark;
-          break;
-        
-        case TAB_VISUALS:
-          canvasTabs[TAB_UNITS].image = assets.t_units_dark;
-          canvasTabs[TAB_VISUALS].image = assets.t_visuals;
-          canvasTabs[TAB_BARS].image = assets.t_bars_dark;
           break;
 
         case TAB_BARS:
           canvasTabs[TAB_UNITS].image = assets.t_units_dark;
-          canvasTabs[TAB_VISUALS].image = assets.t_visuals_dark;
           canvasTabs[TAB_BARS].image = assets.t_bars;
+          canvasTabs[TAB_VISUALS].image = assets.t_visuals_dark;
+          break;
+
+        case TAB_VISUALS:
+          canvasTabs[TAB_UNITS].image = assets.t_units_dark;
+          canvasTabs[TAB_BARS].image = assets.t_bars_dark;
+          canvasTabs[TAB_VISUALS].image = assets.t_visuals;
+          break;
+
+        default:
           break;
       }
 
