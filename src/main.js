@@ -28,6 +28,7 @@ function resize() {
   container.style.height = `${h}px`;
 
   ratio = w / CONTAINER_WIDTH; // gives us the ratio between the hard coded pixels and whats actually displayed
+  window.scrollTo(0, 0);
 }
 
 await loadAssets();
