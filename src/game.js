@@ -401,9 +401,28 @@ export function canAct(unit) {
 
 async function enemyTurn(delta) {
   gameState.selectedUnitId = null;
-  const enemies = gameState.units.filter((u) => u.team === "enemy");
-  if(gameState.units.filter( (u) => u.team === 'player').length < 1) {
-    for (const enemy of enemies) { enemy.current = false; }
+  let cancelTurn = true;
+  let numPlayers = 0;
+  let numEnemies = 0;
+  for(let i = 0; i < gameState.units.length; i++) {
+    const u = gameState.units[i];
+    if(u.team === "player") {
+      numPlayers++;
+    }
+    if(u.team === "enemy") {
+      numEnemies++;
+      u.current = false;
+    }
+  }
+  if(numPlayers < 1 || numEnemies < 1) {
+    // End enemy turn -> back to player
+  gameState.currentTurn = "player";
+  renderHeaderTrue();
+  for(let i = 0; i < gameState.units.length; i++) {
+    const u = gameState.units[i];
+    u.actionsLeft = u.maxActions;
+    u.attacksLeft = u.maxAttacks;
+  }
     return;
   }
 
