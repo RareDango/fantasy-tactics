@@ -1,9 +1,10 @@
-export const GAME_VERSION = "0.5.7";
+export const GAME_VERSION = "0.5.8";
 export const DATE_UPDATED = "Sun, Feb 8, 2026";
 
 export const MAX_UNITS = 64;
 export const DEFAULT_NUM_PLAYERS = 5;
 export const DEFAULT_NUM_ENEMIES = 9;
+export const DEFAULT_OGRE_PERCENT = 25;
 export const MAX_FIREWORKS = 8;
 
 export const TILE_SIZE   = 64;

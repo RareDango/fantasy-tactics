@@ -29,7 +29,8 @@ import {
   TAB_BARS,
   BUTTON_WHITE_GRID,
   BUTTON_SET_TO_DEFAULT,
-  BUTTON_CLOSE_SETTINGS
+  BUTTON_CLOSE_SETTINGS,
+  DEFAULT_OGRE_PERCENT
 } from "./constants.js";
 import {
   drawAttackTiles,
@@ -88,8 +89,8 @@ export const gameState = {
   turnNumber: 1,
 
   whiteGrid: false,
-  ogrePercent: 20,
-  newOgrePercent: 20
+  ogrePercent: DEFAULT_OGRE_PERCENT,
+  newOgrePercent: DEFAULT_OGRE_PERCENT
 };
 let oldSelectedUnitId = null;
 
