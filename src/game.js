@@ -519,7 +519,6 @@ async function enemyTurn(delta) {
       }
       if(enemy.attacksLeft > 0 && enemy.actionsLeft > 0) {
         // Attack if in range after moving
-        const players = gameState.units.filter((u) => u.team === "player");
         for (const player of players) {
           if (inRange(enemy, player) && enemy.attacksLeft) {
             renderCanvasTrue();
