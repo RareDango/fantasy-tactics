@@ -22,7 +22,11 @@ export async function attack(attacker, defender) {
 
   defender.hp--;
 
+  if(attacker.team === "player") { attacker.dmgDealt++; }
+  if(defender.team === "player") { defender.dmgTaken++; }
+
   if (defender.hp <= 0) {
+    if(attacker.team === "player") { attacker.kills++; }
     defender.hp = 0; // clamp to zero
     if(gameState.selectedUnitId === defender.id) { gameState.selectedUnitId = null; }
     gameState.units = gameState.units.filter( (u) => u.id !== defender.id );

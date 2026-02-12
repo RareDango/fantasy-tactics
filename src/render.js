@@ -465,6 +465,21 @@ export function drawHeader(gameState, buttons, delta) {
       drawText(hctx, `AP: ${selectedUnit.actionsLeft}/${selectedUnit.maxActions}`, portraitSize + margin + TILE_SIZE * 2, TILE_SIZE + textSize + margin * 2);
       drawText(hctx, `Attacks: ${selectedUnit.attacksLeft}/${selectedUnit.maxAttacks}`, portraitSize + margin, TILE_SIZE + textSize * 2 + margin * 3);
       drawText(hctx, `\"${selectedUnit.quote}\"`, portraitSize + margin, TILE_SIZE + textSize * 3 + margin * 4);
+    } else {
+      const numLines = 4;
+      const margin = 8;
+      const textSize = (portraitSize - (numLines + 1) * margin) / numLines;
+
+      const mdd = gameState.mostDmgDealt;
+      const mdt = gameState.mostDmgTaken;
+      const mks = gameState.mostKills;
+      const mmv = gameState.mostMoved;
+      
+      textStyle(hctx, `${textSize}px Arial`, "white", "top");
+      drawText(hctx, `Most Dmg Dealt: ${mdd.dmgDealt} - ${mdd.name}`, margin, TILE_SIZE + margin);
+      drawText(hctx, `Most Dmg Taken: ${mdt.dmgTaken} - ${mdt.name}`, margin, TILE_SIZE + textSize + margin * 2);
+      drawText(hctx, `Most Kills: ${mks.kills} - ${mks.name}`, margin, TILE_SIZE + textSize * 2 + margin * 3);
+      drawText(hctx, `Most Moved: ${mmv.moved} - ${mmv.name}`, margin, TILE_SIZE + textSize * 3 + margin * 4);
     }
 
     let color = "#3b82f6";

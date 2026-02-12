@@ -39,7 +39,12 @@ export function createPlayerUnit(id, x, y) {
     attacksLeft: 1,
     current: false,
     quote: "Hi!",
-    hue: 0
+    hue: 0,
+
+    dmgDealt: 0,
+    dmgTaken: 0,
+    kills: 0,
+    moved: 0
   };
 }
 

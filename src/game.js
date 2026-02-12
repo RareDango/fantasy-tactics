@@ -99,7 +99,12 @@ export const gameState = {
 
   whiteGrid: false,
   ogrePercent: DEFAULT_OGRE_PERCENT,
-  newOgrePercent: DEFAULT_OGRE_PERCENT
+  newOgrePercent: DEFAULT_OGRE_PERCENT,
+
+  mostDmgDealt: null,
+  mostDmgTaken: null,
+  mostKills: null,
+  mostMoved: null
 };
 let oldSelectedUnitId = null;
 
@@ -145,6 +150,7 @@ export function gameLoop(timestamp) {
     uiRender(delta);
 
     updateUnitCount();
+    updateMVP();
     if (gameState.currentEnemies < 1) { drawFireworks(delta); }
   }
   requestAnimationFrame(gameLoop);
@@ -152,6 +158,29 @@ export function gameLoop(timestamp) {
 
 function update(dt) {
   processCurrentAction(dt);
+}
+
+function updateMVP() {
+  for(let i = 0; i < gameState.units.length; i++) {
+    const unit = gameState.units[i];
+    if(unit.team === "enemy") { continue; }
+    if(gameState.mostDmgDealt.dmgDealt < unit.dmgDealt) {
+      gameState.mostDmgDealt = unit;
+      renderHeaderTrue();
+    }
+    if(gameState.mostDmgTaken.dmgTaken < unit.dmgTaken) {
+      gameState.mostDmgTaken = unit;
+      renderHeaderTrue();
+    }
+    if(gameState.mostKills.kills < unit.kills) {
+      gameState.mostKills = unit;
+      renderHeaderTrue();
+    }
+    if(gameState.mostMoved.moved < unit.moved) {
+      gameState.mostMoved = unit;
+      renderHeaderTrue();
+    }
+  }
 }
 
 
@@ -231,6 +260,12 @@ function createUnits(numPlayerUnits, numEnemyUnits) {
     gameState.units.push(unit);
     id++;
   }
+
+  const u = gameState.units[0];
+  gameState.mostDmgDealt = u;
+  gameState.mostDmgTaken = u;
+  gameState.mostKills = u;
+  gameState.mostMoved = u;
 }
 
 

@@ -27,7 +27,7 @@ import {
   DEFAULT_NUM_OBSTACLES
 } from "./constants.js";
 import { isTileMovable, isTileOccupied } from "./grid.js";
-import { canAct, restartGame, endTurn, checkEndTurn, renderCanvasTrue, resetHues } from "./game.js";
+import { canAct, restartGame, endTurn, checkEndTurn, renderCanvasTrue, resetHues, isGameOver } from "./game.js";
 import { attack, inRange } from "./combat.js";
 import { getRatio } from "./main.js";
 import { renderHeaderTrue } from "./render.js";
@@ -101,6 +101,7 @@ export function setupInput(canvas, gameState, buttons, tabs) {
       if (selectedUnit && canAct(selectedUnit) && isTileMovable(selectedUnit, gridX, gridY)) {
         const distance = Math.abs(selectedUnit.x - gridX) + Math.abs(selectedUnit.y - gridY);
         selectedUnit.actionsLeft -= distance;
+        if(!isGameOver()) { selectedUnit.moved += distance; }
         selectedUnit.x = gridX;
         selectedUnit.y = gridY;
         if(selectedUnit.actionsLeft < 1) { gameState.selectedUnitId = null; }
