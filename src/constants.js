@@ -1,8 +1,8 @@
-export const GAME_VERSION = "0.6.0";
+export const GAME_VERSION = "0.6.1";
 export const DATE_UPDATED =  "Wed, Feb 11, 2026";
 
 export const MAX_UNITS = 64;
-export const MAX_OBSTACLES = MAX_UNITS / 2;
+export const MAX_OBSTACLES = 24;
 export const DEFAULT_NUM_PLAYERS = 5;
 export const DEFAULT_NUM_ENEMIES = 8;
 export const DEFAULT_OGRE_PERCENT = 25;

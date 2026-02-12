@@ -63,7 +63,7 @@ import { attack, inRange } from "./combat.js";
 import { createButton } from "./buttons.js";
 import { AnimationData } from "./AnimationData.js";
 import { findPath, getTargets } from "./movement.js";
-import { createObstacle, isMapFullyConnected } from "./obstacles.js";
+import { createObstacle, getWallImageIndex, isMapFullyConnected } from "./obstacles.js";
 
 let interruptEnemyTurn = false;
 let header, canvas, footer;
@@ -243,13 +243,16 @@ function createObstacles(obs) {
       x = Math.floor(Math.random() * GRID_WIDTH);
       y = Math.floor(Math.random() * GRID_HEIGHT);
     }
-
-    gameState.obstacles.push(createObstacle(i, x, y));
+    const ad = new AnimationData(0, 64, 16);
+    gameState.obstacles.push(createObstacle(i, x, y, ad));
   }
   if (!isMapFullyConnected()) {
-    console.log("Map not walkable. Trying again.");
+    //console.log("Map not walkable. Trying again.");
     gameState.obstacles.length = 0;
     createObstacles(obs);
+  }
+  for(const o of gameState.obstacles) {
+    o.animationData.index = getWallImageIndex(o.x, o.y);
   }
 }
 

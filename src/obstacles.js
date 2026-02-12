@@ -1,19 +1,22 @@
 import { GRID_HEIGHT, GRID_WIDTH } from "./constants.js";
 import { gameState } from "./game.js";
+import { AnimationData } from "./AnimationData.js";
 
 /**
  * @typedef {Object} Obstacle
  * @property {number} id
  * @property {number} x
  * @property {number} y
+ * @property {AnimationData} animationData
  */
 
 /** @returns {Obstacle} */
-export function createObstacle(id, x, y) {
+export function createObstacle(id, x, y, animationData) {
   return {
     id,
     x,
-    y
+    y,
+    animationData
   };
 }
 
@@ -90,3 +93,36 @@ export function isMapFullyConnected() {
   return visited.size === walkableCount;
 }
 
+export function getWallImageIndex(x, y) {
+  let u = false;
+  let r = false;
+  let d = false;
+  let l = false;
+
+  if(containsObstacle(x, y-1)) { u = true; }
+  if(containsObstacle(x+1, y)) { r = true; }
+  if(containsObstacle(x, y+1)) { d = true; }
+  if(containsObstacle(x-1, y)) { l = true; }
+
+  if(!u && !r && !d && !l) { return 0; }
+
+  if(u && !r && !d && !l) { return 1; }
+  if(!u && r && !d && !l) { return 2; }
+  if(!u && !r && d && !l) { return 3; }
+  if(!u && !r && !d && l) { return 4; }
+
+  if(u && r && !d && !l) { return 5; }
+  if(u && !r && d && !l) { return 6; }
+  if(u && !r && !d && l) { return 7; }
+  if(!u && r && d && !l) { return 8; }
+  if(!u && r && !d && l) { return 9; }
+  if(!u && !r && d && l) { return 10; }
+
+  if(u && r && d && !l) { return 11; }
+  if(u && r && !d && l) { return 12; }
+  if(u && !r && d && l) { return 13; }
+  if(!u && r && d && l) { return 14; }
+
+  if(u && r && d && l) { return 15; }
+  return undefined;
+}

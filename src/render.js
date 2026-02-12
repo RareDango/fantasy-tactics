@@ -181,7 +181,7 @@ export function drawObstacle(obs) {
   const x = obs.x * TILE_SIZE;
   const y = obs.y * TILE_SIZE;
 
-  drawImage(ctx, assets.wall, x, y, TILE_SIZE, TILE_SIZE);
+  drawImage(ctx, assets.wall, x, y-10, TILE_SIZE, TILE_SIZE, 0, obs.animationData);
 }
 
 export function drawMoveTiles(tiles, unit) {
