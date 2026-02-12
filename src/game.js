@@ -16,6 +16,8 @@ import {
   BUTTON_PLAYERS_DOWN,
   BUTTON_ENEMIES_UP,
   BUTTON_ENEMIES_DOWN,
+  BUTTON_OBSTACLES_UP,
+  BUTTON_OBSTACLES_DOWN,
   BUTTON_ACCEPT,
   BUTTON_CANCEL,
   BUTTON_OGRES_UP,
@@ -30,13 +32,15 @@ import {
   BUTTON_WHITE_GRID,
   BUTTON_SET_TO_DEFAULT,
   BUTTON_CLOSE_SETTINGS,
-  DEFAULT_OGRE_PERCENT
+  DEFAULT_OGRE_PERCENT,
+  DEFAULT_NUM_OBSTACLES
 } from "./constants.js";
 import {
   drawAttackTiles,
   drawMoveTiles,
   drawGrid,
   drawUnit,
+  drawObstacle,
   drawHeader,
   drawFooter,
   setupRenderer,
@@ -59,6 +63,7 @@ import { attack, inRange } from "./combat.js";
 import { createButton } from "./buttons.js";
 import { AnimationData } from "./AnimationData.js";
 import { findPath, getTargets } from "./movement.js";
+import { createObstacle, isMapFullyConnected } from "./obstacles.js";
 
 let interruptEnemyTurn = false;
 let header, canvas, footer;
@@ -70,6 +75,7 @@ const footerButtons = [];
 
 export const gameState = {
   units: [],
+  obstacles: [],
   playerList: [],
   selectedUnitId: null,
   currentTurn: "player", // 'player' or 'enemy'
@@ -85,6 +91,9 @@ export const gameState = {
 
   currentPlayers: DEFAULT_NUM_PLAYERS,
   currentEnemies: DEFAULT_NUM_ENEMIES,
+
+  numObstacles: DEFAULT_NUM_OBSTACLES,
+  newObstacles: DEFAULT_NUM_OBSTACLES,
 
   turnNumber: 1,
 
@@ -113,6 +122,7 @@ export function initGame() {
   setupButtons()
 
   createUnits(gameState.numPlayerUnits, gameState.numEnemyUnits);
+  createObstacles(gameState.numObstacles);
 
   setupInput(canvas, gameState, canvasButtons, canvasTabs);
   setupHeaderInput(header, gameState, headerButtons);
@@ -154,6 +164,8 @@ export function restartGame() {
   interrupt();
   createUnits(gameState.numPlayerUnits, gameState.numEnemyUnits);
   gameState.selectedUnitId = null;
+  gameState.obstacles.length = 0;
+  createObstacles(gameState.numObstacles);
   setupMap();
   renderHeaderTrue();
   renderCanvasTrue();
@@ -220,6 +232,28 @@ function createUnits(numPlayerUnits, numEnemyUnits) {
     id++;
   }
 }
+
+
+function createObstacles(obs) {
+  for(let i = 0; i < obs; i++) {
+    let x = Math.floor(Math.random() * GRID_WIDTH);
+    let y = Math.floor(Math.random() * GRID_HEIGHT);
+
+    while(isTileOccupied(x, y)) {
+      x = Math.floor(Math.random() * GRID_WIDTH);
+      y = Math.floor(Math.random() * GRID_HEIGHT);
+    }
+
+    gameState.obstacles.push(createObstacle(i, x, y));
+  }
+  if (!isMapFullyConnected()) {
+    console.log("Map not walkable. Trying again.");
+    gameState.obstacles.length = 0;
+    createObstacles(obs);
+  }
+}
+
+
 const hues = [];
 export function resetHues() {
   for(let i = 0; i < gameState.numPlayerUnits; i++) {
@@ -256,12 +290,14 @@ function setupButtons() {
 
   // Units Tab Buttons
   let alignX = TILE_SIZE * 1.5;
-  buttons.push(createButton(BUTTON_PLAYERS_DOWN, null, assets.b_down, alignX, TILE_SIZE * 2.5, TILE_SIZE, TILE_SIZE));
-  buttons.push(createButton(BUTTON_ENEMIES_DOWN, null, assets.b_down, alignX, TILE_SIZE * 4.25, TILE_SIZE, TILE_SIZE));
+  buttons.push(createButton(BUTTON_PLAYERS_DOWN, null, assets.b_down, alignX, TILE_SIZE * 2.325, TILE_SIZE, TILE_SIZE));
+  buttons.push(createButton(BUTTON_ENEMIES_DOWN, null, assets.b_down, alignX, TILE_SIZE * 3.475, TILE_SIZE, TILE_SIZE));
+  buttons.push(createButton(BUTTON_OBSTACLES_DOWN, null, assets.b_down, alignX, TILE_SIZE * 4.625, TILE_SIZE, TILE_SIZE));
 
   alignX = TILE_SIZE * 5.5;
-  buttons.push(createButton(BUTTON_PLAYERS_UP, null, assets.b_up, alignX, TILE_SIZE * 2.5, TILE_SIZE, TILE_SIZE));
-  buttons.push(createButton(BUTTON_ENEMIES_UP, null, assets.b_up, alignX, TILE_SIZE * 4.25, TILE_SIZE, TILE_SIZE));
+  buttons.push(createButton(BUTTON_PLAYERS_UP, null, assets.b_up, alignX, TILE_SIZE * 2.325, TILE_SIZE, TILE_SIZE));
+  buttons.push(createButton(BUTTON_ENEMIES_UP, null, assets.b_up, alignX, TILE_SIZE * 3.475, TILE_SIZE, TILE_SIZE));
+  buttons.push(createButton(BUTTON_OBSTACLES_UP, null, assets.b_up, alignX, TILE_SIZE * 4.625, TILE_SIZE, TILE_SIZE));
 
   buttons.push(createButton(BUTTON_ACCEPT, null, assets.b_accept, TILE_SIZE * 2,   TILE_SIZE * 5.5 + 28, TILE_SIZE, TILE_SIZE));
   buttons.push(createButton(BUTTON_SET_TO_DEFAULT,  null, assets.b_reset,  TILE_SIZE * 3.5, TILE_SIZE * 5.5 + 28, TILE_SIZE, TILE_SIZE));
@@ -353,6 +389,10 @@ function render(delta) {
       const isSelected = unit.id === gameState.selectedUnitId;
       drawUnit(unit, isSelected);
     }
+
+    for(const obs of gameState.obstacles) {
+      drawObstacle(obs);
+    }
     
     drawAttacks(delta);
 
@@ -428,7 +468,7 @@ async function enemyTurn(delta) {
     const enemy = gameState.units[i];
     if(enemy.team === "player") { continue; }
     const t = getTargets({x: enemy.x, y: enemy.y, d: 0}, 32);
-    if(t) {
+    if(t[0]) {
       enemyDist.push({u: enemy, d: t[0].d});
     } else {
       enemyDist.push({u: enemy, d: 100});
@@ -518,6 +558,7 @@ async function enemyTurn(delta) {
         }
       }
       if(enemy.attacksLeft > 0 && enemy.actionsLeft > 0) {
+        const players = gameState.units.filter( (u) => u.team === "player");
         // Attack if in range after moving
         for (const player of players) {
           if (inRange(enemy, player) && enemy.attacksLeft) {

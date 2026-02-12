@@ -11,11 +11,12 @@ import {
   TAB_VISUALS,
   TAB_BARS,
   BUTTON_ACCEPT,
-  BUTTON_PLAYERS_DOWN,
+  BUTTON_OBSTACLES_DOWN,
   BUTTON_WHITE_GRID,
   BUTTON_CLOSE_SETTINGS,
   BUTTON_OGRES_UP,
-  BUTTON_OGRES_ACCEPT
+  BUTTON_OGRES_ACCEPT,
+  MAX_OBSTACLES
 } from "./constants.js";
 import { AnimationData } from "./AnimationData.js";
 import { gameState, renderCanvasTrue, initGame, gameLoop } from "./game.js";
@@ -176,6 +177,13 @@ export function drawUnit(unit, isSelected) {
 
 }
 
+export function drawObstacle(obs) {
+  const x = obs.x * TILE_SIZE;
+  const y = obs.y * TILE_SIZE;
+
+  drawImage(ctx, assets.wall, x, y, TILE_SIZE, TILE_SIZE);
+}
+
 export function drawMoveTiles(tiles, unit) {
   for (const tile of tiles) {
     drawRect(ctx, tile.x * TILE_SIZE, tile.y * TILE_SIZE, TILE_SIZE, TILE_SIZE, unit.actionsLeft < 1 ? "rgba(59, 130, 246, 0.1)" : "rgba(59, 130, 246, 0.25)");
@@ -260,28 +268,36 @@ export function drawSettings(gameState, buttons, tabs, delta) {
     }
 
   if(gameState.activeTab === TAB_UNITS) {
-    drawRect(ctx, TILE_SIZE * 1.25, TILE_SIZE * 2.25, TILE_SIZE * 5.5 , TILE_SIZE * 1.5, "rgba(255, 255, 255, 0.5)");
-    drawRect(ctx, TILE_SIZE * 1.25, TILE_SIZE * 4, TILE_SIZE * 5.5 , TILE_SIZE * 1.5, "rgba(255, 255, 255, 0.5)");
+    drawRect(ctx, TILE_SIZE * 1.25, TILE_SIZE * 2.25, TILE_SIZE * 5.5 , TILE_SIZE * 1.15, "rgba(255, 255, 255, 0.5)");
+    drawRect(ctx, TILE_SIZE * 1.25, TILE_SIZE * 3.4, TILE_SIZE * 5.5 , TILE_SIZE * 1.15, "rgba(255, 255, 255, 0.25)");
+    drawRect(ctx, TILE_SIZE * 1.25, TILE_SIZE * 4.55, TILE_SIZE * 5.5 , TILE_SIZE * 1.15, "rgba(255, 255, 255, 0.5)");
 
     // buttons
     for(let i = 0; i < buttons.length; i++) {
       const b = buttons[i];
-      if(b.id < BUTTON_ACCEPT || b.id > BUTTON_PLAYERS_DOWN) { continue; }
+      if(b.id < BUTTON_ACCEPT || b.id > BUTTON_OBSTACLES_DOWN) { continue; }
       drawImage(ctx, b.image, b.x, b.y, b.width, b.height);
     }
 
     // unit numbers
     const center = CANVAS_WIDTH / 2;
-    const playersY = TILE_SIZE * 3;
-    const enemiesY = TILE_SIZE * 4.75;
+    const playersY = TILE_SIZE * 2.85;
+    const enemiesY = TILE_SIZE * 4;
+    const wallsY = TILE_SIZE * 5.15;
 
-    const col = (gameState.newEnemyUnits + gameState.newPlayerUnits) >= MAX_UNITS ? "red" : "black";
+    let col = (gameState.newEnemyUnits + gameState.newPlayerUnits + gameState.newObstacles) >= MAX_UNITS ? "red" : "black";
     textStyle(ctx, "24px Arial", col, "middle", "center");
     const pString = `PLAYERS: ${gameState.newPlayerUnits}`;
     drawText(ctx, pString, center, playersY);
 
     const eString = `ENEMIES: ${gameState.newEnemyUnits}`;
     drawText(ctx, eString, center, enemiesY);
+
+    if(gameState.newObstacles >= MAX_OBSTACLES) {
+      textStyle(ctx, "24px Arial", "red", "middle", "center");
+    }
+    const wString = `WALLS: ${gameState.newObstacles}`;
+    drawText(ctx, wString, center, wallsY);
 
     textStyle(ctx, "20px Arial", "#333", "middle", "center");
     drawText(ctx, `Max Units = ${MAX_UNITS}`, CANVAS_WIDTH / 2, 92 + 28);

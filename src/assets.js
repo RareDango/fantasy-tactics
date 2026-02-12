@@ -8,6 +8,8 @@ export async function loadAssets() {
   assets.goblin = await loadImage("goblin.png");
   assets.ogre = await loadImage("ogre.png");
 
+  assets.wall = await loadImage("wall.png");
+
   assets.settingsBackground = await loadImage("settings_bg.png");
   assets.b_settings = await loadImage("button_gear.png");
   assets.b_cancel = await loadImage("button_x.png");

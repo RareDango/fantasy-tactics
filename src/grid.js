@@ -64,5 +64,8 @@ export function isTileOccupied(x, y) {
   for (const u of gameState.units) {
     if (u.x == x && u.y == y) return true;
   }
+  for (const o of gameState.obstacles) {
+    if (o.x == x && o.y == y) return true;
+  }
   return false;
 }

@@ -1,6 +1,7 @@
 import { GRID_HEIGHT, GRID_WIDTH } from "./constants.js";
 import { isTileOccupied } from "./grid.js";
 import { getUnitAt } from "./game.js";
+import { containsObstacle } from "./obstacles.js";
 
 export function getMovableTiles(startNode, maxDistance) {
   const result = [];
@@ -62,6 +63,7 @@ export function getTargets(startNode, maxDistance) {
         const key = `${x},${y}`;
 
         if (isOutOfBounds({ x, y })) continue;
+        if (containsObstacle(x, y)) continue;
         if (isTileOccupied(x, y)) {
           const u = getUnitAt(x, y);
           if(u.x === startNode.x && u.y === startNode.y) { continue; }

@@ -2,9 +2,11 @@ export const GAME_VERSION = "0.5.9";
 export const DATE_UPDATED =  "Tue, Feb 10, 2026";
 
 export const MAX_UNITS = 64;
+export const MAX_OBSTACLES = MAX_UNITS / 2;
 export const DEFAULT_NUM_PLAYERS = 5;
 export const DEFAULT_NUM_ENEMIES = 8;
-export const DEFAULT_OGRE_PERCENT = 0;
+export const DEFAULT_OGRE_PERCENT = 25;
+export const DEFAULT_NUM_OBSTACLES = 12;
 export const MAX_FIREWORKS = 8;
 
 export const TILE_SIZE   = 64;
@@ -36,25 +38,27 @@ export const BUTTON_END_TURN = 11;
 export const BUTTON_SETTINGS = 12;
 
 // Settings
-export const BUTTON_CLOSE_SETTINGS = 99;
+export const BUTTON_CLOSE_SETTINGS = 999;
 
 // Units Tab
-export const BUTTON_ACCEPT   = 13;
-export const BUTTON_CANCEL   = 14;
-export const BUTTON_SET_TO_DEFAULT = 15;
+export const BUTTON_ACCEPT   = 100;
+export const BUTTON_CANCEL   = 101;
+export const BUTTON_SET_TO_DEFAULT = 102;
 
-export const BUTTON_ENEMIES_UP   = 16;
-export const BUTTON_ENEMIES_DOWN = 17;
-export const BUTTON_PLAYERS_UP   = 18;
-export const BUTTON_PLAYERS_DOWN = 19;
+export const BUTTON_ENEMIES_UP   = 103;
+export const BUTTON_ENEMIES_DOWN = 104;
+export const BUTTON_PLAYERS_UP   = 105;
+export const BUTTON_PLAYERS_DOWN = 106;
+export const BUTTON_OBSTACLES_UP = 107;
+export const BUTTON_OBSTACLES_DOWN = 108;
 
 // Visuals Tab
-export const BUTTON_WHITE_GRID = 20;
+export const BUTTON_WHITE_GRID = 200;
 
 // Bars Tab
-export const BUTTON_OGRES_UP = 30;
-export const BUTTON_OGRES_DOWN = 31;
-export const BUTTON_OGRES_ACCEPT = 32;
+export const BUTTON_OGRES_UP = 300;
+export const BUTTON_OGRES_DOWN = 301;
+export const BUTTON_OGRES_ACCEPT = 302;
 
 
 

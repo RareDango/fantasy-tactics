@@ -4,10 +4,13 @@ import {
   BUTTON_SETTINGS,
   TILE_SIZE,
   MAX_UNITS,
+  MAX_OBSTACLES,
   BUTTON_PLAYERS_UP,
   BUTTON_PLAYERS_DOWN,
   BUTTON_ENEMIES_UP,
   BUTTON_ENEMIES_DOWN,
+  BUTTON_OBSTACLES_UP,
+  BUTTON_OBSTACLES_DOWN,
   BUTTON_CANCEL,
   BUTTON_ACCEPT,
   DEFAULT_NUM_PLAYERS,
@@ -20,13 +23,15 @@ import {
   BUTTON_CLOSE_SETTINGS,
   BUTTON_OGRES_UP,
   BUTTON_OGRES_DOWN,
-  BUTTON_OGRES_ACCEPT
+  BUTTON_OGRES_ACCEPT,
+  DEFAULT_NUM_OBSTACLES
 } from "./constants.js";
 import { isTileMovable, isTileOccupied } from "./grid.js";
 import { canAct, restartGame, endTurn, checkEndTurn, renderCanvasTrue, resetHues } from "./game.js";
 import { attack, inRange } from "./combat.js";
 import { getRatio } from "./main.js";
 import { renderHeaderTrue } from "./render.js";
+import { containsObstacle } from "./obstacles.js";
 
 export function setupInput(canvas, gameState, buttons, tabs) {
   canvas.addEventListener("pointerdown", (e) => {
@@ -58,6 +63,14 @@ export function setupInput(canvas, gameState, buttons, tabs) {
 
       // If clicking an empty tile -> unselect unit
       if (selectedUnit && !isTileMovable(selectedUnit, gridX, gridY) && !isTileOccupied(gridX, gridY)) {
+        gameState.selectedUnitId = null;
+        renderHeaderTrue();
+        renderCanvasTrue();
+        return;
+      }
+
+      // If clicking an obstacle -> unselect unit
+      if(selectedUnit && containsObstacle(gridX, gridY)) {
         gameState.selectedUnitId = null;
         renderHeaderTrue();
         renderCanvasTrue();
@@ -150,8 +163,7 @@ export function setupInput(canvas, gameState, buttons, tabs) {
             case BUTTON_PLAYERS_UP:
               if(gameState.activeTab === TAB_UNITS) {
                 gameState.newPlayerUnits++;
-                if(gameState.newPlayerUnits >= MAX_UNITS) { gameState.newPlayerUnits--; }
-                if(gameState.newPlayerUnits + gameState.newEnemyUnits > MAX_UNITS) { gameState.newPlayerUnits--; }
+                if(gameState.newPlayerUnits + gameState.newEnemyUnits + gameState.newObstacles > MAX_UNITS) { gameState.newPlayerUnits--; }
               }
               break;
             
@@ -165,8 +177,7 @@ export function setupInput(canvas, gameState, buttons, tabs) {
             case BUTTON_ENEMIES_UP:
               if(gameState.activeTab === TAB_UNITS) {
                 gameState.newEnemyUnits++;
-                if(gameState.newEnemyUnits >= MAX_UNITS) { gameState.newEnemyUnits--; }
-                if(gameState.newEnemyUnits + gameState.newPlayerUnits > MAX_UNITS) { gameState.newEnemyUnits--; }
+                if(gameState.newEnemyUnits + gameState.newPlayerUnits + gameState.newObstacles > MAX_UNITS) { gameState.newEnemyUnits--; }
               }
               break;
             
@@ -176,12 +187,28 @@ export function setupInput(canvas, gameState, buttons, tabs) {
                 if(gameState.newEnemyUnits < 1) { gameState.newEnemyUnits = 1; }
               }
               break;
+
+            case BUTTON_OBSTACLES_UP:
+              if(gameState.activeTab === TAB_UNITS) {
+                gameState.newObstacles++;
+                if(gameState.newEnemyUnits + gameState.newPlayerUnits + gameState.newObstacles > MAX_UNITS) { gameState.newObstacles--; }
+                if(gameState.newObstacles > MAX_OBSTACLES) { gameState.newObstacles--; }
+              }
+              break;
+            
+            case BUTTON_OBSTACLES_DOWN:
+              if(gameState.activeTab === TAB_UNITS) {
+                gameState.newObstacles--;
+                if(gameState.newObstacles < 0) { gameState.newObstacles = 0; }
+              }
+              break;
             
             case BUTTON_CANCEL:
               if(gameState.activeTab === TAB_UNITS) {
                 gameState.settingsOpen = false;
                 gameState.newPlayerUnits = gameState.numPlayerUnits;
                 gameState.newEnemyUnits = gameState.numEnemyUnits;
+                gameState.newObstacles = gameState.numObstacles;
                 gameState.newOgrePercent = gameState.ogrePercent;
               }
               break;
@@ -190,6 +217,7 @@ export function setupInput(canvas, gameState, buttons, tabs) {
               if(gameState.activeTab === TAB_UNITS) {
                 gameState.numPlayerUnits = gameState.newPlayerUnits;
                 gameState.numEnemyUnits = gameState.newEnemyUnits;
+                gameState.numObstacles = gameState.newObstacles;
                 gameState.newOgrePercent = gameState.ogrePercent;
                 restartGame();
               }
@@ -199,6 +227,7 @@ export function setupInput(canvas, gameState, buttons, tabs) {
               if(gameState.activeTab === TAB_UNITS) {
                 gameState.newPlayerUnits = DEFAULT_NUM_PLAYERS;
                 gameState.newEnemyUnits = DEFAULT_NUM_ENEMIES;
+                gameState.newObstacles = DEFAULT_NUM_OBSTACLES;
               }
               break;
             
