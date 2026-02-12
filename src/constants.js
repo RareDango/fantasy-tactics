@@ -1,5 +1,5 @@
-export const GAME_VERSION = "0.5.9";
-export const DATE_UPDATED =  "Tue, Feb 10, 2026";
+export const GAME_VERSION = "0.6.0";
+export const DATE_UPDATED =  "Wed, Feb 11, 2026";
 
 export const MAX_UNITS = 64;
 export const MAX_OBSTACLES = MAX_UNITS / 2;
