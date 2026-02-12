@@ -185,4 +185,3 @@ function reconstructPath(node) {
   }
   return path.reverse();
 }
-

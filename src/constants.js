@@ -1,4 +1,4 @@
-export const GAME_VERSION = "0.6.2";
+export const GAME_VERSION = "0.6.2a";
 export const DATE_UPDATED =  "Thu, Feb 12, 2026";
 
 export const MAX_UNITS = 64;

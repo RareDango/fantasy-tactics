@@ -150,7 +150,7 @@ export function gameLoop(timestamp) {
     uiRender(delta);
 
     updateUnitCount();
-    updateMVP();
+    //updateMVP();
     if (gameState.currentEnemies < 1) { drawFireworks(delta); }
   }
   requestAnimationFrame(gameLoop);
@@ -160,7 +160,7 @@ function update(dt) {
   processCurrentAction(dt);
 }
 
-function updateMVP() {
+export function updateMVP() {
   for(let i = 0; i < gameState.units.length; i++) {
     const unit = gameState.units[i];
     if(unit.team === "enemy") { continue; }

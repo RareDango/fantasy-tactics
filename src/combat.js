@@ -1,4 +1,4 @@
-import { gameState, renderCanvasTrue } from "./game.js";
+import { gameState, renderCanvasTrue, updateMVP } from "./game.js";
 import { newAttack, renderHeaderTrue } from "./render.js";
 import { UP, RIGHT, DOWN, LEFT } from './constants.js';
 
@@ -26,11 +26,15 @@ export async function attack(attacker, defender) {
   if(defender.team === "player") { defender.dmgTaken++; }
 
   if (defender.hp <= 0) {
-    if(attacker.team === "player") { attacker.kills++; }
+    if(attacker.team === "player") {
+      attacker.kills++;
+      updateMVP();
+    }
     defender.hp = 0; // clamp to zero
     if(gameState.selectedUnitId === defender.id) { gameState.selectedUnitId = null; }
     gameState.units = gameState.units.filter( (u) => u.id !== defender.id );
   }
+  updateMVP();
   renderHeaderTrue();
   renderCanvasTrue();
 }
