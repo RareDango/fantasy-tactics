@@ -602,6 +602,7 @@ async function enemyTurn(delta) {
           if (inRange(enemy, player) && enemy.attacksLeft) {
             renderCanvasTrue();
             await new Promise((r) => setTimeout(r, DELAY));
+            if(interruptEnemyTurn) { break; }
             attack(enemy, player);
             enemy.attacksLeft--;
             enemy.actionsLeft--;
